@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "217111818292",
+    "project_id": "cinemajournals",
+    "storage_bucket": "cinemajournals.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:217111818292:android:994ab02d4442c55e961a61",
+        "android_client_info": {
+          "package_name": "com.example.cinemajournal"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBux6BSExwuK---HFvLqHzqd2wlCojMtMY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
