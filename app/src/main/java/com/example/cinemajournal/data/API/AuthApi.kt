@@ -21,11 +21,5 @@ interface AuthApi {
     @POST("auth/signout")
     suspend fun signOutUser(): AuthResponse
 
-
-    @GET("/v1.4/movie/search")
-    suspend fun getMoviesByName(@Query("page") page: Int = 1,
-                                @Query("limit") limit: Int = 20,
-                                @Query("query") query: String = "",
-                                @Query("token") token: String = Tokens.TOKEN2): MovieListResponse
 }
 

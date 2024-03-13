@@ -7,15 +7,9 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.cinemajournal.Domain.userUseCases.CheckMovieToWatchUseCase
-import com.example.cinemajournal.Domain.userUseCases.CheckWatchedMovieUseCase
-import com.example.cinemajournal.Domain.userUseCases.DeleteMovieToWatchByIdUseCase
 import com.example.cinemajournal.Domain.userUseCases.DeleteUserByIdUseCase
-import com.example.cinemajournal.Domain.userUseCases.DeleteWatchedMovieByIdUseCase
 import com.example.cinemajournal.Domain.userUseCases.GetAllUsersUseCase
-import com.example.cinemajournal.Domain.userUseCases.SaveMovieToWatchToDatabaseUseCase
 import com.example.cinemajournal.Domain.userUseCases.SaveUserToDatabaseUseCase
-import com.example.cinemajournal.Domain.userUseCases.SaveWatchedMovieToDatabaseUseCase
 import com.example.cinemajournal.Domain.userUseCases.SignInUserUseCase
 import com.example.cinemajournal.Domain.userUseCases.SignOutUserUseCase
 import com.example.cinemajournal.Domain.userUseCases.SignUpUserUseCase
@@ -51,15 +45,9 @@ class AuthViewModel @Inject constructor (
     private val signUpUserUseCase: SignUpUserUseCase,
     private val signInUserUseCase: SignInUserUseCase,
     private val signOutUserUseCase: SignOutUserUseCase,
-    private val checkMovieToWatchUseCase: CheckMovieToWatchUseCase,
-    private val checkWatchedMovieUseCase: CheckWatchedMovieUseCase,
-    private val deleteMovieToWatchByIdUseCase: DeleteMovieToWatchByIdUseCase,
     private val deleteUserByIdUseCase: DeleteUserByIdUseCase,
-    private val deleteWatchedMovieByIdUseCase: DeleteWatchedMovieByIdUseCase,
     private val getAllUsersUseCase: GetAllUsersUseCase,
-    private val saveMovieToWatchToDatabaseUseCase: SaveMovieToWatchToDatabaseUseCase,
-    private val saveUserToDatabaseUseCase: SaveUserToDatabaseUseCase,
-    private val saveWatchedMovieToDatabaseUseCase: SaveWatchedMovieToDatabaseUseCase) : ViewModel() {
+    private val saveUserToDatabaseUseCase: SaveUserToDatabaseUseCase, ) : ViewModel() {
 
     //private val repository: UsersRepository = UsersRepository(database)
     val allUsersLiveData = MutableLiveData<List<User>>()
@@ -142,7 +130,7 @@ class AuthViewModel @Inject constructor (
         viewModelScope.launch {
             kotlin.runCatching { signInUserUseCase(request) }
                 .onSuccess { response ->
-                    uiState = uiState.copy(user = User(id = response.id.toString(), username = response.username?: "", email = response.email?: "", role = response.role?: 0))
+                    uiState = uiState.copy(user = User(id = response.id!!, username = response.username?: "", email = response.email?: "", role = response.role?: 0))
                     message = response
                     Log.d("R", message.email?: "empty", )
                     uiState = uiState.copy(isLoginProcess = false)
@@ -197,38 +185,10 @@ class AuthViewModel @Inject constructor (
             //uiState = uiState.copy(isRefreshLoginProcess = false)
         }
     }
-    fun deleteUserById(id: String){
+    fun deleteUserById(id: Int){
         viewModelScope.launch {
             deleteUserByIdUseCase(id)
         }
-    }
-
-    fun saveWatchedMovieToDatabase(item: WatchedMovies) {
-        viewModelScope.launch {
-            saveWatchedMovieToDatabaseUseCase(item)
-        }
-    }
-    fun deleteWatchedMovieById(id: Long) {
-        viewModelScope.launch {
-            deleteWatchedMovieByIdUseCase(id)
-        }
-    }
-    fun checkWatchedMovie(movieId: Long, userId: String) : Boolean{
-        return checkWatchedMovieUseCase(movieId, userId)
-    }
-
-    fun saveMovieToWatchToDatabase(item: MoviesToWatch) {
-        viewModelScope.launch {
-            saveMovieToWatchToDatabaseUseCase(item)
-        }
-    }
-    fun deleteMovieToWatchById(id: Long) {
-        viewModelScope.launch {
-            deleteMovieToWatchByIdUseCase(id)
-        }
-    }
-    fun checkMovieToWatch(movieId: Long, userId: String) : Boolean{
-        return checkMovieToWatchUseCase(movieId, userId)
     }
 
 }

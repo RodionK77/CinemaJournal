@@ -124,7 +124,7 @@ fun MainScreen(context: MainActivity,
         topBar = { when(topBarState.value){
             0-> JournalsToolbar(scrollBehavior = scrollBehavior)
             1-> GalleryToolbar(scrollBehavior = scrollBehavior, galleryViewModel)
-            2-> ContentToolbar(navController = navController, descriptionViewModel)
+            2-> ContentToolbar(navController = navController, descriptionViewModel, authViewModel)
         } },
         bottomBar = {
             if(topBarState.value != 3)

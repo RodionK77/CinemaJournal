@@ -7,9 +7,9 @@ import com.example.example.MovieInfo
 
 @Entity
 data class User(
-    @PrimaryKey var id: String,
+    @PrimaryKey var id: Int,
     var username: String = "",
-    var email: String,
+    var email: String = "",
     var role: Int = 0,
     //var watchedMovies: ArrayList<Review> = arrayListOf(),
     //var moviesToWatch: ArrayList<MovieInfo> = arrayListOf()

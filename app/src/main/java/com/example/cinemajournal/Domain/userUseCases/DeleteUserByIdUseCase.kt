@@ -5,7 +5,7 @@ import javax.inject.Inject
 
 class DeleteUserByIdUseCase @Inject constructor(private val repository: UsersRepository) {
 
-    operator fun invoke(id: String)  {
+    operator fun invoke(id: Int)  {
         repository.deleteUserById(id)
     }
 }

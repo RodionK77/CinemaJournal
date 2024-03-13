@@ -2,6 +2,7 @@ package com.example.cinemajournal.data.di
 
 import com.example.cinemajournal.data.API.AuthApi
 import com.example.cinemajournal.data.API.MoviesApi
+import com.example.cinemajournal.data.API.MoviesDBApi
 import com.google.gson.Gson
 import dagger.Module
 import dagger.Provides
@@ -33,11 +34,23 @@ object RetrofitModule {
 
     @Provides
     @Singleton
+    @Qualifiers.MoviesDB
+    fun provideMoviesDBRetrofit() : Retrofit = Retrofit.Builder()
+        .baseUrl("http://10.0.2.2:8090/api/movies/")
+        .addConverterFactory(GsonConverterFactory.create(Gson()))
+        .build()
+
+    @Provides
+    @Singleton
     fun provideRetrofitMoviesService(@Qualifiers.Movies retrofit : Retrofit) : MoviesApi = retrofit.create(MoviesApi::class.java)
 
     @Provides
     @Singleton
     fun provideRetrofitAuthService(@Qualifiers.Auth retrofit : Retrofit) : AuthApi = retrofit.create(AuthApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideRetrofitMoviesDBService(@Qualifiers.MoviesDB retrofit : Retrofit) : MoviesDBApi = retrofit.create(MoviesDBApi::class.java)
 
     /*@Provides
     @Singleton

@@ -8,9 +8,6 @@ import com.example.cinemajournal.data.models.RoomModels.WatchedMovies
 import com.example.cinemajournal.data.models.SignUpRequest
 import com.example.cinemajournal.data.models.AuthResponse
 import com.example.cinemajournal.data.models.SignInRequest
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import retrofit2.Response
 import java.util.concurrent.Executors
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -39,40 +36,25 @@ class UsersRepository @Inject constructor(database: UsersDatabase, private val a
             userDao.saveUser(user)
         }
     }
-    fun saveMovieToWatchToDatabase(item: MoviesToWatch) {
-        executor.execute{
-            userDao.saveMovieToWatch(item)
-        }
-    }
-    fun saveWatchedMovieToDatabase(item: WatchedMovies) {
-        executor.execute{
-            userDao.saveWatchedMovie(item)
-        }
-    }
+
     suspend fun getAllUsers():List<User> {
         return userDao.getAllUsers()
     }
-    fun deleteUserById(id: String) {
+    fun deleteUserById(id: Int) {
         executor.execute{
             userDao.deleteUserById(id)
         }
     }
 
     fun deleteWatchedMovieById(id: Long) {
-        executor.execute{
+        /*executor.execute{
             userDao.deleteWatchedMovieById(id)
-        }
-    }
-    fun checkWatchedMovie(movieId: Long, userId: String) : Boolean{
-        return userDao.checkWatchedMovie(movieId, userId)
+        }*/
     }
     fun deleteMovieToWatchById(id: Long) {
-        executor.execute{
+        /*executor.execute{
             userDao.deleteMovieToWatchById(id)
-        }
-    }
-    fun checkMovieToWatch(movieId: Long, userId: String) : Boolean{
-        return userDao.checkMovieToWatch(movieId, userId)
+        }*/
     }
 
 //    fun getUser(): FirebaseUser?{

@@ -11,4 +11,8 @@ class Qualifiers {
     @Qualifier
     @Retention(AnnotationRetention.BINARY)
     annotation class Movies
+
+    @Qualifier
+    @Retention(AnnotationRetention.BINARY)
+    annotation class MoviesDB
 }

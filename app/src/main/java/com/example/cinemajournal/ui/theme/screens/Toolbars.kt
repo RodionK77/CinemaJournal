@@ -50,6 +50,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.bumptech.glide.integration.compose.placeholder
+import com.example.cinemajournal.data.models.RoomModels.MoviesToWatch
+import com.example.cinemajournal.data.models.RoomModels.MoviesToWatchForRetrofit
+import com.example.cinemajournal.data.models.RoomModels.RoomMovieInfo
+import com.example.cinemajournal.data.models.RoomModels.User
+import com.example.cinemajournal.ui.theme.screens.viewmodels.AuthViewModel
 import com.example.cinemajournal.ui.theme.screens.viewmodels.DescriptionViewModel
 import com.example.cinemajournal.ui.theme.screens.viewmodels.GalleryViewModel
 
@@ -192,7 +197,7 @@ fun GalleryToolbar(scrollBehavior: TopAppBarScrollBehavior, galleryViewModel: Ga
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ContentToolbar(navController: NavController, descriptionViewModel: DescriptionViewModel){
+fun ContentToolbar(navController: NavController, descriptionViewModel: DescriptionViewModel, authViewModel: AuthViewModel){
 
     TopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
@@ -218,13 +223,13 @@ fun ContentToolbar(navController: NavController, descriptionViewModel: Descripti
             }
         },
         actions = {
-            dropDownMenu(descriptionViewModel)
+            dropDownMenu(descriptionViewModel, authViewModel)
         }
     )
 }
 
 @Composable
-fun dropDownMenu(descriptionViewModel: DescriptionViewModel) {
+fun dropDownMenu(descriptionViewModel: DescriptionViewModel, authViewModel: AuthViewModel) {
     val context = LocalContext.current
     var expanded by remember { mutableStateOf(false) }
 
@@ -245,7 +250,12 @@ fun dropDownMenu(descriptionViewModel: DescriptionViewModel) {
         ) {
             DropdownMenuItem(
                 text = {if(true) Text("В списке к просмотру") else Text("Хочу посмотреть") },
-                onClick = { Toast.makeText(context, "хочу", Toast.LENGTH_SHORT).show() }
+                onClick = {
+                    Toast.makeText(context, "хочу", Toast.LENGTH_SHORT).show()
+                    descriptionViewModel.addMovieToDB(RoomMovieInfo(id = descriptionViewModel.uiState.movieInfo!!.id!!))
+                    //descriptionViewModel.addMovieToWatchToDB(MoviesToWatchForRetrofit(user = User(id = authViewModel.uiState.user!!.id), movie = RoomMovieInfo(id = descriptionViewModel.uiState.movieInfo!!.id!!)))
+                    //descriptionViewModel.deleteMovieToWatchFromDB(MoviesToWatchForRetrofit(user = User(id = authViewModel.uiState.user!!.id), movie = RoomMovieInfo(id = descriptionViewModel.uiState.movieInfo!!.id!!)))
+                }
             )
             DropdownMenuItem(
                 text = {if(true) Text("Просмотрено") else Text("Не просмотрено") },

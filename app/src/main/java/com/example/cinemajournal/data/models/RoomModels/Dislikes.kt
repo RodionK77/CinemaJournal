@@ -19,12 +19,9 @@ import androidx.room.PrimaryKey
         )
     ]
 )
-data class Reviews(
-    @PrimaryKey(autoGenerate = true) var id: Long,
-    @ColumnInfo(name = "user_id") val userId: String,
-    @ColumnInfo(name = "movie_id") val movieId: Long,
-    var userRating: Double,
-    var likes: String,
-    var dislikes: String,
-    var notes: String
+data class Dislikes (
+    @PrimaryKey var dislikesId: Int,
+    @ColumnInfo(name = "user_id") val userId: Int,
+    @ColumnInfo(name = "movie_id") val movieId: Int,
+    var description: String? = null,
 )

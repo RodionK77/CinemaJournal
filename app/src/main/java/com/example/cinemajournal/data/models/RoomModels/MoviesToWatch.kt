@@ -4,8 +4,10 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import java.util.Date
 
 @Entity(
+    primaryKeys = ["user_id","movie_id"],
     foreignKeys = [
         ForeignKey(
             entity = User::class,
@@ -20,8 +22,7 @@ import androidx.room.PrimaryKey
     ]
 )
 data class MoviesToWatch(
-    @PrimaryKey(autoGenerate = true) var id: Long,
-    @ColumnInfo(name = "user_id") val userId: String,
-    @ColumnInfo(name = "movie_id") val movieId: Long,
-    var reminderDate: String,
+    @ColumnInfo(name = "user_id") val userId: Int,
+    @ColumnInfo(name = "movie_id") val movieId: Int,
+    var reminderDate: String? = null,
 )
