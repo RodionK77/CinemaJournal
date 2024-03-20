@@ -1,6 +1,9 @@
 package com.example.cinemajournal.ui.theme.screens
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -40,6 +43,7 @@ import com.example.cinemajournal.data.models.RoomModels.User
 import com.example.cinemajournal.ui.theme.screens.viewmodels.DescriptionViewModel
 import com.example.cinemajournal.ui.theme.screens.viewmodels.AuthViewModel
 import com.example.cinemajournal.ui.theme.screens.viewmodels.GalleryViewModel
+import com.example.cinemajournal.ui.theme.screens.viewmodels.JournalsViewModel
 import com.example.cinemajournal.ui.theme.screens.viewmodels.ReviewViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -52,7 +56,8 @@ fun MainScreen(context: MainActivity,
                galleryViewModel: GalleryViewModel = hiltViewModel(),
                descriptionViewModel: DescriptionViewModel = viewModel(),
                reviewViewModel: ReviewViewModel = viewModel(),
-               authViewModel: AuthViewModel = hiltViewModel()
+               authViewModel: AuthViewModel = hiltViewModel(),
+               journalsViewModel: JournalsViewModel = hiltViewModel(),
                ){
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -68,8 +73,21 @@ fun MainScreen(context: MainActivity,
             authViewModel.getAllUser()
         }
         if(authViewModel.uiState.user != null){
-            navController.navigate("JournalsScreen"){
-                popUpTo(0)
+            if(!isOnline(context)){
+                navController.navigate("JournalsScreen"){
+                    popUpTo(0)
+                    Log.d("R", "${journalsViewModel.uiState.user}",)
+                }
+            }else {
+                journalsViewModel.getUserFromDB(authViewModel.uiState.user!!.id)
+                Log.d("R", "провереем вход\n${authViewModel.uiState.user}\n${journalsViewModel.uiState.user}",)
+                if(journalsViewModel.uiState.user != null){
+                    journalsViewModel.startUpdateLocalDB(journalsViewModel.uiState.user!!)
+                    navController.navigate("JournalsScreen"){
+                        popUpTo(0)
+                        Log.d("R", "${journalsViewModel.uiState.user}",)
+                    }
+                }
             }
         }
 
@@ -110,7 +128,7 @@ fun MainScreen(context: MainActivity,
         "GalleryScreen" -> {
             topBarState.value = 1
         }
-        "ContentDescriptionScreen", "ContentReviewScreen" -> {
+        "ContentDescriptionScreen", "LocalContentDescriptionScreen", "ContentReviewScreen" -> {
             topBarState.value = 2
         }
         else -> {
@@ -124,17 +142,19 @@ fun MainScreen(context: MainActivity,
         topBar = { when(topBarState.value){
             0-> JournalsToolbar(scrollBehavior = scrollBehavior)
             1-> GalleryToolbar(scrollBehavior = scrollBehavior, galleryViewModel)
-            2-> ContentToolbar(navController = navController, descriptionViewModel, authViewModel)
+            2-> ContentToolbar(navController = navController, descriptionViewModel, authViewModel, journalsViewModel)
         } },
         bottomBar = {
             if(topBarState.value != 3)
-            bottomBar(navController = navController, currentDestination = currentDestination) },
+            bottomBar(navController = navController, currentDestination = currentDestination, descriptionViewModel) },
         floatingActionButton = {
             if(topBarState.value != 3)
             FloatingActionButton(
                 onClick = {
                     authViewModel.deleteUserById(authViewModel.uiState.user!!.id)
+                    journalsViewModel.deleteAllMoviesFromLocalDB()
                     authViewModel.changeUser(null)
+                    journalsViewModel.changeUser(null)
                     authViewModel.signOutUser()
                     navController.navigate("EntranceScreen"){
                         popUpTo(0)
@@ -153,10 +173,10 @@ fun MainScreen(context: MainActivity,
             Column {
                 NavHost(navController = navController, startDestination = startDestination) {
                     composable("EntranceScreen") {
-                        EntranceScreen(navController, authViewModel)
+                        EntranceScreen(navController, authViewModel, journalsViewModel)
                     }
                     composable("JournalsScreen") {
-                        JournalsScreen(navController)
+                        JournalsScreen(navController, journalsViewModel, galleryViewModel, descriptionViewModel)
                     }
                     composable("GalleryScreen") {
                         GalleryScreen(navController, galleryViewModel, descriptionViewModel)
@@ -164,8 +184,11 @@ fun MainScreen(context: MainActivity,
                     composable("ContentDescriptionScreen") {
                         ContentDescriptionScreen(navController, descriptionViewModel)
                     }
+                    composable("LocalContentDescriptionScreen") {
+                        ContentDescriptionScreen(navController, descriptionViewModel)
+                    }
                     composable("ContentReviewScreen") {
-                        ContentReviewScreen(navController = navController)
+                        ContentReviewScreen(navController = navController, descriptionViewModel)
                     }
                 }
             }
@@ -181,18 +204,20 @@ data class BottomNavigationItem(
 )
 
 @Composable
-private fun bottomBar(navController: NavController, currentDestination: String?){
+private fun bottomBar(navController: NavController, currentDestination: String?, descriptionViewModel: DescriptionViewModel){
 
     val navItems = listOf(
         BottomNavigationItem(
             title = "Journals",
-            route= listOf("JournalsScreen", "ContentReviewScreen"),
+            //route= if(descriptionViewModel.uiState.movieInfo != null)listOf("JournalsScreen", "ContentReviewScreen") else listOf("JournalsScreen", "ContentReviewScreen", "ContentDescriptionScreen"),
+            route = listOf("JournalsScreen", "ContentReviewScreen", "LocalContentDescriptionScreen"),
             selectedIcon = Icons.Default.Article,
             unselectedIcon = Icons.Filled.Article,
         ),
         BottomNavigationItem(
             title = "Gallery",
-            route=listOf("GalleryScreen", "ContentDescriptionScreen"),
+            //route=if(descriptionViewModel.uiState.movieInfo != null)listOf("GalleryScreen", "ContentDescriptionScreen") else listOf("GalleryScreen"),
+            route = listOf("GalleryScreen", "ContentDescriptionScreen"),
             selectedIcon = Icons.Default.ManageSearch,
             unselectedIcon = Icons.Filled.ManageSearch
         )
@@ -231,5 +256,25 @@ private fun bottomBar(navController: NavController, currentDestination: String?)
         }
     }
 
+}
+
+fun isOnline(context: Context): Boolean {
+    val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    if (connectivityManager != null) {
+        val capabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+        if (capabilities != null) {
+            if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
+                Log.i("Internet", "NetworkCapabilities.TRANSPORT_CELLULAR")
+                return true
+            } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                Log.i("Internet", "NetworkCapabilities.TRANSPORT_WIFI")
+                return true
+            } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) {
+                Log.i("Internet", "NetworkCapabilities.TRANSPORT_ETHERNET")
+                return true
+            }
+        }
+    }
+    return false
 }
 

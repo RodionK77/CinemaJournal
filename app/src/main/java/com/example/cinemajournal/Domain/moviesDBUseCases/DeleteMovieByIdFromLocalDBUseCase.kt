@@ -6,7 +6,7 @@ import javax.inject.Inject
 
 class DeleteMovieByIdFromLocalDBUseCase @Inject constructor(private val repository: MoviesDBRepository) {
 
-    suspend operator fun invoke(item: RoomMovieInfo) {
-        repository.deleteMovieByIdFromLocalDB(item)
+    suspend operator fun invoke(id: Int) {
+        repository.deleteMovieByIdFromLocalDB(id)
     }
 }

@@ -65,9 +65,13 @@ import com.bumptech.glide.integration.compose.GlideImage
 import com.example.cinemajournal.CinemaRowModel
 import com.example.cinemajournal.ItemRowModel
 import com.example.cinemajournal.R
+import com.example.cinemajournal.data.models.RoomModels.PersonsForRetrofit
+import com.example.cinemajournal.data.models.RoomModels.SeasonsInfoForRetrofit
+import com.example.cinemajournal.data.models.SeasonsInfo
 import com.example.cinemajournal.ui.theme.screens.viewmodels.DescriptionViewModel
 import com.example.cinemajournal.ui.theme.screens.viewmodels.ItemDescriptionUiState
 import com.example.compose.AppTheme
+import com.example.example.Persons
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -86,7 +90,7 @@ fun ContentDescriptionScreen(
             .verticalScroll(ScrollState(0)),
     ) {
         Log.d("R", "got: ${descriptionViewModel.uiState.movieInfo}")
-        if (descriptionViewModel.uiState.movieInfo != null) {
+        if (descriptionViewModel.uiState.movieInfo != null || descriptionViewModel.uiState.roomMovieInfoForRetrofit != null) {
             //descriptionViewModel.refreshCurrentMovie2()
             Content(descriptionViewModel)
         } else
@@ -110,7 +114,7 @@ private fun Content(descriptionViewModel: DescriptionViewModel) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         GlideImage(
-            model = descriptionViewModel.uiState.movieInfo?.poster?.url,
+            model = if(descriptionViewModel.uiState.movieInfo != null) descriptionViewModel.uiState.movieInfo?.poster?.url else descriptionViewModel.uiState.roomMovieInfoForRetrofit?.posterUrl,
             contentDescription = "Постер фильма",
             modifier = Modifier
                 .height(280.dp)
@@ -138,7 +142,7 @@ private fun Content(descriptionViewModel: DescriptionViewModel) {
                             color = MaterialTheme.colorScheme.primary,
                         )
                     ) {
-                        append(descriptionViewModel.uiState.movieInfo?.year.toString())
+                        append(if(descriptionViewModel.uiState.movieInfo!=null)descriptionViewModel.uiState.movieInfo?.year.toString() else descriptionViewModel.uiState.roomMovieInfoForRetrofit?.year.toString())
                     }
                 }
             )
@@ -160,7 +164,7 @@ private fun Content(descriptionViewModel: DescriptionViewModel) {
                             color = MaterialTheme.colorScheme.primary,
                         )
                     ) {
-                        append(descriptionViewModel.uiState.movieInfo?.rating?.kp.toString())
+                        append(if(descriptionViewModel.uiState.movieInfo != null)descriptionViewModel.uiState.movieInfo?.rating?.kp.toString() else descriptionViewModel.uiState.roomMovieInfoForRetrofit?.kpRating.toString())
                     }
                 }
             )
@@ -183,9 +187,16 @@ private fun Content(descriptionViewModel: DescriptionViewModel) {
                         )
                     ) {
                         var g = ""
-                        for (i in descriptionViewModel.uiState.movieInfo?.genres!!) {
-                            g += i.name + ", "
+                        if(descriptionViewModel.uiState.movieInfo != null){
+                            for (i in descriptionViewModel.uiState.movieInfo?.genres?: emptyList()) {
+                                g += i.name + ", "
+                            }
+                        } else {
+                            for (i in descriptionViewModel.uiState.roomMovieInfoForRetrofit?.genres?: emptyList()) {
+                                g += i.name + ", "
+                            }
                         }
+
                         append(g)
                     }
                 }
@@ -208,7 +219,7 @@ private fun Content(descriptionViewModel: DescriptionViewModel) {
                             color = MaterialTheme.colorScheme.primary,
                         )
                     ) {
-                        append(descriptionViewModel.uiState.movieInfo?.movieLength.toString() + " мин")
+                        append(if(descriptionViewModel.uiState.movieInfo!=null)descriptionViewModel.uiState.movieInfo?.movieLength.toString() + " мин" else descriptionViewModel.uiState.roomMovieInfoForRetrofit?.movieLength.toString() + "мин")
                     }
                 }
             )
@@ -230,7 +241,7 @@ private fun Content(descriptionViewModel: DescriptionViewModel) {
                             color = MaterialTheme.colorScheme.primary,
                         )
                     ) {
-                        append("${descriptionViewModel.uiState.movieInfo?.ageRating.toString()}+")
+                        append(if(descriptionViewModel.uiState.movieInfo!=null)"${descriptionViewModel.uiState.movieInfo?.ageRating.toString()}+" else "${descriptionViewModel.uiState.roomMovieInfoForRetrofit?.ageRating.toString()}+")
                     }
                 }
             )
@@ -252,7 +263,7 @@ private fun Content(descriptionViewModel: DescriptionViewModel) {
                             color = MaterialTheme.colorScheme.primary,
                         )
                     ) {
-                        append("${descriptionViewModel.uiState.movieInfo?.budget?.value} $")
+                        append(if(descriptionViewModel.uiState.movieInfo != null)"${descriptionViewModel.uiState.movieInfo?.budget?.value} $" else "${descriptionViewModel.uiState.roomMovieInfoForRetrofit?.budget} $")
                     }
                 }
             )
@@ -274,7 +285,7 @@ private fun Content(descriptionViewModel: DescriptionViewModel) {
                             color = MaterialTheme.colorScheme.primary,
                         )
                     ) {
-                        append("${descriptionViewModel.uiState.movieInfo?.fees?.world?.value} $")
+                        append(if(descriptionViewModel.uiState.movieInfo != null)"${descriptionViewModel.uiState.movieInfo?.fees?.world?.value} $" else "${descriptionViewModel.uiState.roomMovieInfoForRetrofit?.feesWorld} $")
                     }
                 }
             )
@@ -282,13 +293,13 @@ private fun Content(descriptionViewModel: DescriptionViewModel) {
     }
     Spacer(modifier = Modifier.height(8.dp))
     Text(
-        text = descriptionViewModel.uiState.movieInfo?.description ?: "",
+        text = if(descriptionViewModel.uiState.movieInfo != null) descriptionViewModel.uiState.movieInfo?.description ?: "" else descriptionViewModel.uiState.roomMovieInfoForRetrofit?.description?: "",
         fontSize = 14.sp,
         color = MaterialTheme.colorScheme.secondary,
         lineHeight = 16.sp
     )
 
-    if (descriptionViewModel.uiState.movieInfo!!.typeNumber == 2 || descriptionViewModel.uiState.movieInfo!!.typeNumber == 5) {
+    if (descriptionViewModel.uiState.movieInfo?.typeNumber == 2 || descriptionViewModel.uiState.movieInfo?.typeNumber == 5 || descriptionViewModel.uiState.roomMovieInfoForRetrofit?.typeNumber == 2 || descriptionViewModel.uiState.roomMovieInfoForRetrofit?.typeNumber == 5) {
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -299,15 +310,20 @@ private fun Content(descriptionViewModel: DescriptionViewModel) {
             fontWeight = FontWeight.Bold
         )
 
-        Log.d("R", "Сериес: ${descriptionViewModel.uiState.movieInfo?.seasonsInfo}")
+        //Log.d("R", "Сериес: ${descriptionViewModel.uiState.movieInfo?.seasonsInfo}")
         LazyRow(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
         ) {
             itemsIndexed(
-                descriptionViewModel.uiState.movieInfo?.seasonsInfo ?: emptyList()
+                if(descriptionViewModel.uiState.movieInfo != null){
+                    descriptionViewModel.uiState.movieInfo?.seasonsInfo ?: emptyList()
+                }else descriptionViewModel.uiState.roomMovieInfoForRetrofit?.seasonsInfo?: emptyList()
+
             ) { _, item ->
-                seriesItemRow(item)
+                if(descriptionViewModel.uiState.movieInfo != null){
+                    seriesItemRow(item as SeasonsInfo, null)
+                }else seriesItemRow(null, item as SeasonsInfoForRetrofit)
             }
         }
     }
@@ -327,9 +343,13 @@ private fun Content(descriptionViewModel: DescriptionViewModel) {
             .background(MaterialTheme.colorScheme.onSecondary)
     ) {
         itemsIndexed(
-            descriptionViewModel.uiState.movieInfo?.persons!!.filter { it.enProfession == "director" }
+            if(descriptionViewModel.uiState.movieInfo != null){
+                descriptionViewModel.uiState.movieInfo?.persons!!.filter { it.enProfession == "director" }
+            }else descriptionViewModel.uiState.roomMovieInfoForRetrofit?.persons!!.filter { it.enProfession == "director" }
         ) { _, item ->
-            photoItemRow(item = item)
+            if(descriptionViewModel.uiState.movieInfo != null){
+                photoItemRow(item as Persons, null)
+            }else photoItemRow(null, item as PersonsForRetrofit)
         }
     }
 
@@ -347,9 +367,13 @@ private fun Content(descriptionViewModel: DescriptionViewModel) {
             .background(MaterialTheme.colorScheme.onSecondary)
     ) {
         itemsIndexed(
-            descriptionViewModel.uiState.movieInfo?.persons!!.filter { it.enProfession == "actor" }
+            if(descriptionViewModel.uiState.movieInfo != null){
+                descriptionViewModel.uiState.movieInfo?.persons!!.filter { it.enProfession == "actor" }
+            }else descriptionViewModel.uiState.roomMovieInfoForRetrofit?.persons!!.filter { it.enProfession == "actor" }
         ) { _, item ->
-            photoItemRow(item = item)
+            if(descriptionViewModel.uiState.movieInfo != null){
+                photoItemRow(item as Persons, null)
+            }else photoItemRow(null, item as PersonsForRetrofit)
         }
     }
 }

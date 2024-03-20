@@ -42,6 +42,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -53,10 +54,19 @@ import com.bumptech.glide.integration.compose.placeholder
 import com.example.cinemajournal.data.models.RoomModels.MoviesToWatch
 import com.example.cinemajournal.data.models.RoomModels.MoviesToWatchForRetrofit
 import com.example.cinemajournal.data.models.RoomModels.RoomMovieInfo
+import com.example.cinemajournal.data.models.RoomModels.RoomMovieInfoForRetrofit
 import com.example.cinemajournal.data.models.RoomModels.User
+import com.example.cinemajournal.data.models.RoomModels.WatchedMovies
+import com.example.cinemajournal.data.models.RoomModels.WatchedMoviesForRetrofit
 import com.example.cinemajournal.ui.theme.screens.viewmodels.AuthViewModel
 import com.example.cinemajournal.ui.theme.screens.viewmodels.DescriptionViewModel
 import com.example.cinemajournal.ui.theme.screens.viewmodels.GalleryViewModel
+import com.example.cinemajournal.ui.theme.screens.viewmodels.JournalsViewModel
+import com.example.example.MovieInfo
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -197,7 +207,20 @@ fun GalleryToolbar(scrollBehavior: TopAppBarScrollBehavior, galleryViewModel: Ga
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ContentToolbar(navController: NavController, descriptionViewModel: DescriptionViewModel, authViewModel: AuthViewModel){
+fun ContentToolbar(navController: NavController, descriptionViewModel: DescriptionViewModel, authViewModel: AuthViewModel, journalsViewModel: JournalsViewModel){
+
+
+    if(descriptionViewModel.uiState.movieInfo != null){
+        descriptionViewModel.checkMovieToWatch(descriptionViewModel.uiState.movieInfo?.id?: 0, authViewModel.uiState.user?.id?:0)
+        descriptionViewModel.checkWatchedMovie(descriptionViewModel.uiState.movieInfo?.id?: 0, authViewModel.uiState.user?.id?:0)
+    } else {
+        descriptionViewModel.checkMovieToWatch(descriptionViewModel.uiState.roomMovieInfoForRetrofit?.id?: 0, authViewModel.uiState.user?.id?:0)
+        descriptionViewModel.checkWatchedMovie(descriptionViewModel.uiState.roomMovieInfoForRetrofit?.id?: 0, authViewModel.uiState.user?.id?:0)
+    }
+
+    var toWatchText = if(!descriptionViewModel.uiState.movieToWatchStatus) "Добавить в список к просмотру" else "Удалить из списка к просмотру"
+    var watchedText = if(!descriptionViewModel.uiState.watchedMovieStatus) "Добавить в список просмотренных" else "Удалить из списка просмотренных"
+
 
     TopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
@@ -206,15 +229,24 @@ fun ContentToolbar(navController: NavController, descriptionViewModel: Descripti
         ),
         title = {
             Column {
-                Text(descriptionViewModel.uiState.movieInfo?.name ?: "", maxLines = 1, overflow = TextOverflow.Ellipsis, fontSize = 24.sp)
-                if(descriptionViewModel.uiState.movieInfo?.enName == "" || descriptionViewModel.uiState.movieInfo?.enName == null){
-                    Text(descriptionViewModel.uiState.movieInfo?.alternativeName ?: " ", maxLines = 1, overflow = TextOverflow.Ellipsis, fontSize = 16.sp, color = MaterialTheme.colorScheme.secondary)
-                }else Text(descriptionViewModel.uiState.movieInfo?.enName ?: descriptionViewModel.uiState.movieInfo?.alternativeName ?: " ", maxLines = 1, overflow = TextOverflow.Ellipsis, fontSize = 16.sp, color = MaterialTheme.colorScheme.secondary)
+                if(descriptionViewModel.uiState.movieInfo != null){
+                    Text(descriptionViewModel.uiState.movieInfo?.name ?: "", maxLines = 1, overflow = TextOverflow.Ellipsis, fontSize = 24.sp)
+                    if(descriptionViewModel.uiState.movieInfo?.enName == "" || descriptionViewModel.uiState.movieInfo?.enName == null){
+                        Text(descriptionViewModel.uiState.movieInfo?.alternativeName ?: " ", maxLines = 1, overflow = TextOverflow.Ellipsis, fontSize = 16.sp, color = MaterialTheme.colorScheme.secondary)
+                    }else Text(descriptionViewModel.uiState.movieInfo?.enName ?: descriptionViewModel.uiState.movieInfo?.alternativeName ?: " ", maxLines = 1, overflow = TextOverflow.Ellipsis, fontSize = 16.sp, color = MaterialTheme.colorScheme.secondary)
+                } else {
+                    Text(descriptionViewModel.uiState.roomMovieInfoForRetrofit?.name ?: "", maxLines = 1, overflow = TextOverflow.Ellipsis, fontSize = 24.sp)
+                    if(descriptionViewModel.uiState.roomMovieInfoForRetrofit?.enName == "" || descriptionViewModel.uiState.roomMovieInfoForRetrofit?.enName == null){
+                        Text(descriptionViewModel.uiState.roomMovieInfoForRetrofit?.alternativeName ?: " ", maxLines = 1, overflow = TextOverflow.Ellipsis, fontSize = 16.sp, color = MaterialTheme.colorScheme.secondary)
+                    }else Text(descriptionViewModel.uiState.roomMovieInfoForRetrofit?.enName ?: descriptionViewModel.uiState.roomMovieInfoForRetrofit?.alternativeName ?: " ", maxLines = 1, overflow = TextOverflow.Ellipsis, fontSize = 16.sp, color = MaterialTheme.colorScheme.secondary)
+                }
             }
         },
         navigationIcon = {
             IconButton(onClick = {
                 navController.navigateUp()
+                //descriptionViewModel.refreshCurrentMovieInfo(null)
+                //descriptionViewModel.refreshCurrentMovieInfoRoom(null)
             }) {
                 Icon(
                     imageVector = Icons.Filled.ArrowBack,
@@ -223,15 +255,16 @@ fun ContentToolbar(navController: NavController, descriptionViewModel: Descripti
             }
         },
         actions = {
-            dropDownMenu(descriptionViewModel, authViewModel)
+            dropDownMenu(descriptionViewModel, navController, authViewModel, journalsViewModel, toWatchText, watchedText)
         }
     )
 }
 
 @Composable
-fun dropDownMenu(descriptionViewModel: DescriptionViewModel, authViewModel: AuthViewModel) {
+fun dropDownMenu(descriptionViewModel: DescriptionViewModel, navController: NavController, authViewModel: AuthViewModel, journalsViewModel: JournalsViewModel, toWatchText:String, watchedText: String) {
     val context = LocalContext.current
     var expanded by remember { mutableStateOf(false) }
+    var text = remember{ descriptionViewModel.uiState.movieToWatchStatus }
 
     Box(
         modifier = Modifier
@@ -249,17 +282,98 @@ fun dropDownMenu(descriptionViewModel: DescriptionViewModel, authViewModel: Auth
             onDismissRequest = { expanded = false }
         ) {
             DropdownMenuItem(
-                text = {if(true) Text("В списке к просмотру") else Text("Хочу посмотреть") },
+                text = {Text(toWatchText)},
                 onClick = {
-                    Toast.makeText(context, "хочу", Toast.LENGTH_SHORT).show()
-                    descriptionViewModel.addMovieToDB(RoomMovieInfo(id = descriptionViewModel.uiState.movieInfo!!.id!!))
-                    //descriptionViewModel.addMovieToWatchToDB(MoviesToWatchForRetrofit(user = User(id = authViewModel.uiState.user!!.id), movie = RoomMovieInfo(id = descriptionViewModel.uiState.movieInfo!!.id!!)))
-                    //descriptionViewModel.deleteMovieToWatchFromDB(MoviesToWatchForRetrofit(user = User(id = authViewModel.uiState.user!!.id), movie = RoomMovieInfo(id = descriptionViewModel.uiState.movieInfo!!.id!!)))
+                    val movieId = if(descriptionViewModel.uiState.movieInfo != null) descriptionViewModel.uiState.movieInfo!!.id else descriptionViewModel.uiState.roomMovieInfoForRetrofit!!.id
+                    val movieForRetrofit = RoomMovieInfoForRetrofit(movieId!!)
+                    if(!descriptionViewModel.uiState.movieToWatchStatus){
+                        descriptionViewModel.addMovieToDB(movieForRetrofit)
+                        descriptionViewModel.addMovieToWatchToDB(MoviesToWatchForRetrofit(user = User(id = authViewModel.uiState.user!!.id), movie = movieForRetrofit))
+                        if(!descriptionViewModel.uiState.watchedMovieStatus){
+                            if(descriptionViewModel.uiState.movieInfo != null){
+                                var movie = descriptionViewModel.uiState.movieInfo!!
+                                journalsViewModel.addMovieToLocalDB(RoomMovieInfo(id = movie.id!!, name = movie.name, feesWorld = movie.fees?.world?.value?:0, feesUsa = movie.fees?.usa?.value?:0,
+                                    budget = movie.budget?.value?:0, posterUrl = movie.poster?.url?:"", worldPremier = movie.premiere?.world?:"", russiaPremier = movie.premiere?.russia?:"",
+                                    kpRating = movie.rating?.kp?:0.0, imdbRating = movie.rating?.imdb?:0.0, movieLength = movie.movieLength?:0, type = movie.type,
+                                    typeNumber = movie.typeNumber?:0, description = movie.description, year = movie.year?:0, alternativeName = movie.alternativeName,
+                                    enName = movie.enName, ageRating = movie.ageRating.toString(), isSeries = movie.isSeries, seriesLength = movie.seriesLength,
+                                    totalSeriesLength = movie.totalSeriesLength))
+                                journalsViewModel.writeCountriesToLocalDB(movie.countries, movie.id!!)
+                                journalsViewModel.writeGenresToLocalDB(movie.genres, movie.id!!)
+                                journalsViewModel.writePersonsToLocalDB(movie.persons, movie.id!!)
+                                journalsViewModel.writeSeasonsInfoToLocalDB(movie.seasonsInfo, movie.id!!)
+                            }else {
+                                var movie = descriptionViewModel.uiState.roomMovieInfoForRetrofit!!
+                                journalsViewModel.addMovieToLocalDB(RoomMovieInfo(id = movie.id!!, name = movie.name, feesWorld = movie.feesWorld, feesUsa = movie.feesUsa,
+                                    budget = movie.budget?:0, posterUrl = movie.posterUrl?:"", worldPremier = movie.worldPremier?:"", russiaPremier = movie.russiaPremier?:"",
+                                    kpRating = movie.kpRating, imdbRating = movie.imdbRating, movieLength = movie.movieLength?:0, type = movie.type,
+                                    typeNumber = movie.typeNumber?:0, description = movie.description, year = movie.year?:0, alternativeName = movie.alternativeName,
+                                    enName = movie.enName, ageRating = movie.ageRating.toString(), isSeries = movie.isSeries, seriesLength = movie.seriesLength,
+                                    totalSeriesLength = movie.totalSeriesLength))
+                            }
+
+                        }
+                        journalsViewModel.addMovieToWatchToLocalDB(MoviesToWatch(userId = authViewModel.uiState.user!!.id, movieId = movieId!!))
+                    }else {
+                        val movieId = if(descriptionViewModel.uiState.movieInfo != null) descriptionViewModel.uiState.movieInfo!!.id else descriptionViewModel.uiState.roomMovieInfoForRetrofit!!.id
+                        descriptionViewModel.deleteMovieToWatchFromDB(MoviesToWatchForRetrofit(user = User(id = authViewModel.uiState.user!!.id), movie = movieForRetrofit))
+                        descriptionViewModel.deleteMovieToWatchFromLocalDB(authViewModel.uiState.user!!.id, movieId!!)
+                        if(!descriptionViewModel.uiState.watchedMovieStatus){
+                            journalsViewModel.deleteMovieByIdFromLocalDB(movieId!!)
+                        }
+                        if(descriptionViewModel.uiState.movieInfo == null){
+                            navController.navigateUp()
+                        }
+                    }
+                    descriptionViewModel.checkMovieToWatch(movieId, authViewModel.uiState.user?.id?:0)
                 }
             )
             DropdownMenuItem(
-                text = {if(true) Text("Просмотрено") else Text("Не просмотрено") },
-                onClick = { Toast.makeText(context, "уже", Toast.LENGTH_SHORT).show() }
+                text = { Text(watchedText)},
+                onClick = {
+                    val movieId = if(descriptionViewModel.uiState.movieInfo != null) descriptionViewModel.uiState.movieInfo!!.id else descriptionViewModel.uiState.roomMovieInfoForRetrofit!!.id
+                    val movieForRetrofit = RoomMovieInfoForRetrofit(movieId!!)
+                    if(!descriptionViewModel.uiState.watchedMovieStatus){
+                        descriptionViewModel.addMovieToDB(movieForRetrofit)
+                        descriptionViewModel.addWatchedMovieToDB(WatchedMoviesForRetrofit(user = User(id = authViewModel.uiState.user!!.id), movie = movieForRetrofit))
+                        if(!descriptionViewModel.uiState.movieToWatchStatus){
+                            if(descriptionViewModel.uiState.movieInfo != null){
+                                var movie = descriptionViewModel.uiState.movieInfo!!
+                                journalsViewModel.addMovieToLocalDB(RoomMovieInfo(id = movie.id!!, name = movie.name, feesWorld = movie.fees?.world?.value?:0, feesUsa = movie.fees?.usa?.value?:0,
+                                    budget = movie.budget?.value?:0, posterUrl = movie.poster?.url?:"", worldPremier = movie.premiere?.world?:"", russiaPremier = movie.premiere?.russia?:"",
+                                    kpRating = movie.rating?.kp?:0.0, imdbRating = movie.rating?.imdb?:0.0, movieLength = movie.movieLength?:0, type = movie.type,
+                                    typeNumber = movie.typeNumber?:0, description = movie.description, year = movie.year?:0, alternativeName = movie.alternativeName,
+                                    enName = movie.enName, ageRating = movie.ageRating.toString(), isSeries = movie.isSeries, seriesLength = movie.seriesLength,
+                                    totalSeriesLength = movie.totalSeriesLength))
+                                journalsViewModel.writeCountriesToLocalDB(movie.countries, movie.id!!)
+                                journalsViewModel.writeGenresToLocalDB(movie.genres, movie.id!!)
+                                journalsViewModel.writePersonsToLocalDB(movie.persons, movie.id!!)
+                                journalsViewModel.writeSeasonsInfoToLocalDB(movie.seasonsInfo, movie.id!!)
+                            }else {
+                                var movie = descriptionViewModel.uiState.roomMovieInfoForRetrofit!!
+                                journalsViewModel.addMovieToLocalDB(RoomMovieInfo(id = movie.id!!, name = movie.name, feesWorld = movie.feesWorld, feesUsa = movie.feesUsa,
+                                    budget = movie.budget?:0, posterUrl = movie.posterUrl?:"", worldPremier = movie.worldPremier?:"", russiaPremier = movie.russiaPremier?:"",
+                                    kpRating = movie.kpRating, imdbRating = movie.imdbRating, movieLength = movie.movieLength?:0, type = movie.type,
+                                    typeNumber = movie.typeNumber?:0, description = movie.description, year = movie.year?:0, alternativeName = movie.alternativeName,
+                                    enName = movie.enName, ageRating = movie.ageRating.toString(), isSeries = movie.isSeries, seriesLength = movie.seriesLength,
+                                    totalSeriesLength = movie.totalSeriesLength))
+                            }
+
+                        }
+                        journalsViewModel.addWatchedMovieToLocalDB(WatchedMovies(userId = authViewModel.uiState.user!!.id, movieId = movieId))
+                    }else {
+                        val movieId = if(descriptionViewModel.uiState.movieInfo != null) descriptionViewModel.uiState.movieInfo!!.id else descriptionViewModel.uiState.roomMovieInfoForRetrofit!!.id
+                        descriptionViewModel.deleteWatchedMovieFromDB(WatchedMoviesForRetrofit(user = User(id = authViewModel.uiState.user!!.id), movie = movieForRetrofit))
+                        descriptionViewModel.deleteWatchedMovieFromLocalDB(authViewModel.uiState.user!!.id, movieId!!)
+                        if(!descriptionViewModel.uiState.movieToWatchStatus){
+                            journalsViewModel.deleteMovieByIdFromLocalDB(movieId)
+                        }
+                        if(descriptionViewModel.uiState.movieInfo == null){
+                            navController.navigateUp()
+                        }
+                    }
+                    descriptionViewModel.checkWatchedMovie(movieId, authViewModel.uiState.user?.id?:0)
+                }
             )
         }
     }

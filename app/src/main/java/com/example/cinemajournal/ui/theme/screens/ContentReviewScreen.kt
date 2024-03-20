@@ -49,8 +49,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
 import com.example.cinemajournal.ItemRowModel
 import com.example.cinemajournal.R
+import com.example.cinemajournal.ui.theme.screens.viewmodels.DescriptionViewModel
 import com.example.cinemajournal.ui.theme.screens.viewmodels.ItemDescriptionUiState
 import com.example.compose.AppTheme
 import com.smarttoolfactory.ratingbar.RatingBar
@@ -58,14 +61,14 @@ import com.smarttoolfactory.ratingbar.RatingBar
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun ContentReviewScreen(navController: NavController) {
+fun ContentReviewScreen(navController: NavController, descriptionViewModel: DescriptionViewModel) {
 
-    Content()
+    Content(descriptionViewModel)
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
 @Composable
-private fun Content() {
+private fun Content(descriptionViewModel: DescriptionViewModel) {
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -86,6 +89,10 @@ private fun Content() {
         var showDialog by rememberSaveable{ mutableStateOf(false) }
         var dialogueText by rememberSaveable { mutableStateOf("") }
         var reviewText by rememberSaveable { mutableStateOf("") }
+        var rating by rememberSaveable { mutableStateOf(0.0f) }
+
+        reviewText = descriptionViewModel.uiState.roomMovieInfoForRetrofit?.review?.notes?:""
+        rating = descriptionViewModel.uiState.roomMovieInfoForRetrofit?.review?.rating?.toFloat()?:0.0f
 
 
 
@@ -93,15 +100,13 @@ private fun Content() {
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.poster),
+            GlideImage(
+                model = descriptionViewModel.uiState.roomMovieInfoForRetrofit?.posterUrl,
                 contentDescription = "Постер фильма",
-                contentScale = ContentScale.Fit,
                 modifier = Modifier
                     .height(280.dp)
-                    .border(4.dp, MaterialTheme.colorScheme.primary)
+                    .border(4.dp, MaterialTheme.colorScheme.primary),
             )
-
             Column(
                 modifier = Modifier
                     .padding(start = 16.dp)
@@ -124,7 +129,7 @@ private fun Content() {
                                 color = MaterialTheme.colorScheme.primary,
                             )
                         ) {
-                            append(" ")
+                            append(descriptionViewModel.uiState.roomMovieInfoForRetrofit?.year.toString())
                         }
                     }
                 )
@@ -146,7 +151,7 @@ private fun Content() {
                                 color = MaterialTheme.colorScheme.primary,
                             )
                         ) {
-                            append(" ")
+                            append(descriptionViewModel.uiState.roomMovieInfoForRetrofit?.kpRating.toString())
                         }
                     }
                 )
@@ -168,7 +173,11 @@ private fun Content() {
                                 color = MaterialTheme.colorScheme.primary,
                             )
                         ) {
-                            append(" ")
+                            var g = ""
+                            for (i in descriptionViewModel.uiState.roomMovieInfoForRetrofit?.genres?: emptyList()) {
+                                g += i.name + ", "
+                            }
+                            append(g)
                         }
                     }
                 )
@@ -190,7 +199,7 @@ private fun Content() {
                                 color = MaterialTheme.colorScheme.primary,
                             )
                         ) {
-                            append(" ")
+                            append(descriptionViewModel.uiState.roomMovieInfoForRetrofit?.movieLength.toString())
                         }
                     }
                 )
@@ -212,7 +221,7 @@ private fun Content() {
                                 color = MaterialTheme.colorScheme.primary,
                             )
                         ) {
-                            append(" ")
+                            append(descriptionViewModel.uiState.roomMovieInfoForRetrofit?.ageRating + "+")
                         }
                     }
                 )
@@ -234,7 +243,7 @@ private fun Content() {
                                 color = MaterialTheme.colorScheme.primary,
                             )
                         ) {
-                            append(" ")
+                            append(descriptionViewModel.uiState.roomMovieInfoForRetrofit?.budget.toString() + "$")
                         }
                     }
                 )
@@ -256,7 +265,7 @@ private fun Content() {
                                 color = MaterialTheme.colorScheme.primary,
                             )
                         ) {
-                            append(" ")
+                            append(descriptionViewModel.uiState.roomMovieInfoForRetrofit?.feesWorld.toString() + "$")
                         }
                     }
                 )
@@ -283,7 +292,7 @@ private fun Content() {
 
         if (descriptionIsExpanded.value) {
             Text(
-                text = " ",
+                text = descriptionViewModel.uiState.roomMovieInfoForRetrofit?.description?:"",
                 color = MaterialTheme.colorScheme.secondary,
                 lineHeight = 16.sp
             )
@@ -292,7 +301,7 @@ private fun Content() {
         Spacer(modifier = Modifier.height(8.dp))
 
         RatingBar(
-            rating = 5.0f,
+            rating = rating,
             imageVectorEmpty = Icons.Outlined.Grade,
             imageVectorFilled = Icons.Filled.Grade,
             tintEmpty = MaterialTheme.colorScheme.outline,
@@ -332,9 +341,9 @@ private fun Content() {
                 .background(MaterialTheme.colorScheme.onSecondary)
         ) {
             itemsIndexed(
-                listOf("one")
+                descriptionViewModel.uiState.roomMovieInfoForRetrofit?.review?.likes?.toList()?: emptyList()
             ) { _, item ->
-                wordItemRow(text = item)
+                wordItemRow(text = item.description?:"")
             }
         }
 
@@ -367,9 +376,9 @@ private fun Content() {
                 .background(MaterialTheme.colorScheme.onSecondary)
         ) {
             itemsIndexed(
-                listOf("two")
+                descriptionViewModel.uiState.roomMovieInfoForRetrofit?.review?.likes?.toList()?: emptyList()
             ) { _, item ->
-                wordItemRow(text = item)
+                wordItemRow(text = item.description?:"")
             }
         }
 

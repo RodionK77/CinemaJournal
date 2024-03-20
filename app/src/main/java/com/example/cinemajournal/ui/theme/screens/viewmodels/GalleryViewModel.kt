@@ -50,7 +50,7 @@ class GalleryViewModel @Inject constructor (val refreshMoviesUseCase: RefreshMov
         viewModelScope.launch {
             kotlin.runCatching { getTop20MoviesUseCase() }
                 .onSuccess { uiState = uiState.copy(topMoviesInfo = it?.movieInfo ?: arrayListOf()) }
-                .onFailure { Log.d("R", "Данные не загрузились", ) }
+                .onFailure { Log.d("R", "Данные не загрузились: ${it.message}", ) }
         }
     }
 
@@ -63,7 +63,7 @@ class GalleryViewModel @Inject constructor (val refreshMoviesUseCase: RefreshMov
                     //uiState = uiState.copy(searchMoviesInfo = ArrayList(sortedMovies))
                     uiState = uiState.copy(searchMoviesInfo = response?.movieInfo ?: arrayListOf())
                 }
-                .onFailure { Log.d("R", "Данные не загрузились", ) }
+                .onFailure { Log.d("R", "Данные не загрузились: ${it.message}", ) }
         }
         //uiState = uiState.copy(searchMoviesInfo = getSearchMoviesUseCase(query)?.movieInfo ?: arrayListOf())
     }
@@ -76,7 +76,7 @@ class GalleryViewModel @Inject constructor (val refreshMoviesUseCase: RefreshMov
                     //uiState = uiState.copy(searchMoviesInfo = ArrayList(sortedMovies))
                     uiState = uiState.copy(searchMoviesInfo = response?.movieInfo ?: arrayListOf())
                 }
-                .onFailure { Log.d("R", "Данные не загрузились", ) }
+                .onFailure { Log.d("R", "Данные не загрузились: ${it.message}", ) }
         }
     }
 

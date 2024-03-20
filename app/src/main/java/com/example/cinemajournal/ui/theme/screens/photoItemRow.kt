@@ -23,12 +23,13 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.cinemajournal.ItemRowModel
 import com.example.cinemajournal.R
+import com.example.cinemajournal.data.models.RoomModels.PersonsForRetrofit
 import com.example.compose.AppTheme
 import com.example.example.Persons
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun photoItemRow(item: Persons) {
+fun photoItemRow(item1: Persons?, item2: PersonsForRetrofit?) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -36,8 +37,17 @@ fun photoItemRow(item: Persons) {
             .clip(shape = RoundedCornerShape(15.dp, 15.dp, 15.dp, 15.dp))
             .background(MaterialTheme.colorScheme.tertiaryContainer)
     ) {
+        var photo = ""
+        var name = ""
+        if(item1 == null){
+            photo = item2?.photo?:""
+            name = item2?.name?:""
+        }else {
+            photo = item1.photo?:""
+            name = item1.name?:""
+        }
         GlideImage(
-            model = item.photo,
+            model = photo,
             contentDescription = "Фото",
             contentScale = ContentScale.Crop,
             modifier = Modifier
@@ -45,7 +55,7 @@ fun photoItemRow(item: Persons) {
                 .size(64.dp)
                 .clip(CircleShape)
         )
-        Text(text = item.name?:"", modifier = Modifier.padding(start = 6.dp, end = 6.dp, bottom = 4.dp) )
+        Text(text = name, modifier = Modifier.padding(start = 6.dp, end = 6.dp, bottom = 4.dp) )
     }
 }
 

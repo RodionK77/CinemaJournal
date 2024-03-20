@@ -26,13 +26,16 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import com.example.cinemajournal.data.models.RoomModels.RoomMovieInfo
+import com.example.cinemajournal.data.models.RoomModels.RoomMovieInfoForRetrofit
 import com.example.cinemajournal.ui.theme.screens.viewmodels.DescriptionViewModel
 import com.example.cinemajournal.ui.theme.screens.viewmodels.GalleryViewModel
+import com.example.cinemajournal.ui.theme.screens.viewmodels.JournalsViewModel
 import com.example.example.MovieInfo
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun cinemaItemColumn(item: MovieInfo, navController: NavController, galleryViewModel: GalleryViewModel, descriptionViewModel: DescriptionViewModel) {
+fun cinemaItemColumnLocalDB(item: RoomMovieInfoForRetrofit, selectedIndex: Int, navController: NavController, journalsViewModel: JournalsViewModel, galleryViewModel: GalleryViewModel, descriptionViewModel: DescriptionViewModel) {
 
 
     Card(
@@ -40,50 +43,40 @@ fun cinemaItemColumn(item: MovieInfo, navController: NavController, galleryViewM
             .padding(bottom = 8.dp)
             .fillMaxWidth()
             .clickable {
-                if (navController.currentDestination?.route == "GalleryScreen"){
+                if (selectedIndex == 0){
+                    // ревью
                     galleryViewModel.selectMovie(item.id!!)
-                    descriptionViewModel.refreshCurrentMovieInfoRoom(null)
-                    descriptionViewModel.refreshCurrentMovieInfo(item)
-                    descriptionViewModel.getMovieInfo(item.id!!)
-                    //descriptionViewModel.refreshCurrentMovie()
-                    navController.navigate("ContentDescriptionScreen")
-                }
-                /*else if (navController.currentDestination?.route == "JournalsScreen"){
-                    galleryViewModel.selectMovie(item.id!!)
-                    descriptionViewModel.refreshCurrentMovieInfoRoom(null)
-                    descriptionViewModel.refreshCurrentMovieInfo(item)
-                    //descriptionViewModel.refreshCurrentMovie()
+                    descriptionViewModel.refreshCurrentMovieInfo(null)
+                    descriptionViewModel.refreshCurrentMovieInfoRoom(item)
                     navController.navigate("ContentReviewScreen")
-                }*/
+                }
+                else if (selectedIndex == 1){
+                    // просто просмотр
+                    galleryViewModel.selectMovie(item.id!!)
+                    descriptionViewModel.refreshCurrentMovieInfo(null)
+                    descriptionViewModel.refreshCurrentMovieInfoRoom(item)
+                    navController.navigate("LocalContentDescriptionScreen")
+                }
             },
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.background,
         ),
-        border = BorderStroke(4.dp,MaterialTheme.colorScheme.tertiaryContainer),
+        border = BorderStroke(4.dp, MaterialTheme.colorScheme.tertiaryContainer),
 
-    ) {
+        ) {
         Spacer(modifier = Modifier.height(10.dp))
         Row(
 
         ) {
             GlideImage(
-                model = item.poster?.url,
+                model = item.posterUrl,
                 contentDescription = "Poster of cinema",
                 contentScale = ContentScale.Fit,
                 modifier = Modifier
                     .padding(start = 10.dp, bottom = 10.dp)
                     .height(112.dp)
             )
-            /*Image(
-                painter = painterResource(id = item.imageId),
-                contentDescription = "Poster of cinema",
-                contentScale = ContentScale.Fit,
-                modifier = Modifier
-                    .padding(start = 10.dp, bottom = 10.dp)
-                    .height(112.dp)
-                //.clip(CircleShape)
-            )*/
             Column(modifier = Modifier
                 .padding(start = 8.dp, end = 8.dp, bottom = 10.dp)) {
                 Text(
@@ -125,7 +118,7 @@ fun cinemaItemColumn(item: MovieInfo, navController: NavController, galleryViewM
                         .clip(shape = RoundedCornerShape(4.dp))
                         .background(MaterialTheme.colorScheme.tertiary)
                         .padding(2.dp),
-                    text = "Рейтин кинопоиска: " + item.rating?.kp.toString(),
+                    text = "Рейтин кинопоиска: " + item.kpRating.toString(),
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
                     fontSize = 12.sp,
@@ -136,11 +129,3 @@ fun cinemaItemColumn(item: MovieInfo, navController: NavController, galleryViewM
     }
 
 }
-
-//@Preview
-//@Composable
-//fun cinemaItemColumnPreview() {
-//    AppTheme {
-//        cinemaItemColumn(CinemaRowModel(imageId = R.drawable.poster, title = "Железный человек"), rememberNavController(), 0)
-//    }
-//}

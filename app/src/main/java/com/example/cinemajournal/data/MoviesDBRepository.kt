@@ -3,19 +3,28 @@ package com.example.cinemajournal.data
 import com.example.cinemajournal.data.API.MoviesDBApi
 import com.example.cinemajournal.data.Room.UsersDatabase
 import com.example.cinemajournal.data.models.RoomModels.Countries
+import com.example.cinemajournal.data.models.RoomModels.CountriesForRetrofit
 import com.example.cinemajournal.data.models.RoomModels.Dislikes
+import com.example.cinemajournal.data.models.RoomModels.DislikesForRetrofit
 import com.example.cinemajournal.data.models.RoomModels.Genres
+import com.example.cinemajournal.data.models.RoomModels.GenresForRetrofit
 import com.example.cinemajournal.data.models.RoomModels.Likes
+import com.example.cinemajournal.data.models.RoomModels.LikesForRetrofit
 import com.example.cinemajournal.data.models.RoomModels.MoviesToWatch
 import com.example.cinemajournal.data.models.RoomModels.MoviesToWatchForRetrofit
 import com.example.cinemajournal.data.models.RoomModels.Persons
+import com.example.cinemajournal.data.models.RoomModels.PersonsForRetrofit
 import com.example.cinemajournal.data.models.RoomModels.Review
+import com.example.cinemajournal.data.models.RoomModels.ReviewForRetrofit
 import com.example.cinemajournal.data.models.RoomModels.RoomMovieInfo
+import com.example.cinemajournal.data.models.RoomModels.RoomMovieInfoForRetrofit
 import com.example.cinemajournal.data.models.RoomModels.SeasonsInfo
+import com.example.cinemajournal.data.models.RoomModels.SeasonsInfoForRetrofit
 import com.example.cinemajournal.data.models.RoomModels.User
 import com.example.cinemajournal.data.models.RoomModels.UserForRetrofit
 import com.example.cinemajournal.data.models.RoomModels.WatchedMovies
 import com.example.cinemajournal.data.models.RoomModels.WatchedMoviesForRetrofit
+import retrofit2.Response
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -25,11 +34,15 @@ class MoviesDBRepository @Inject constructor(database: UsersDatabase, private va
     private val dao = database.usersDao()
 
 
-    suspend fun getUser(requestBody: User): UserForRetrofit?{
-        return moviesDBApi.getUser(requestBody)
+    suspend fun getUser(id: Int): UserForRetrofit?{
+        return moviesDBApi.getUser(id)
     }
 
-    suspend fun addMovieToDB(requestBody: RoomMovieInfo): RoomMovieInfo{
+    suspend fun getMovie(id: Int): RoomMovieInfoForRetrofit?{
+        return moviesDBApi.getMovie(id)
+    }
+
+    suspend fun addMovieToDB(requestBody: RoomMovieInfoForRetrofit): RoomMovieInfoForRetrofit{
         return moviesDBApi.addMovieToDB(requestBody)
     }
 
@@ -37,7 +50,7 @@ class MoviesDBRepository @Inject constructor(database: UsersDatabase, private va
         return moviesDBApi.addMovieToWatchToDB(requestBody)
     }
 
-    suspend fun deleteMovieToWatchFromDB(requestBody: MoviesToWatchForRetrofit){
+    suspend fun deleteMovieToWatchFromDB(requestBody: MoviesToWatchForRetrofit): Response<Unit>{
         return moviesDBApi.deleteMovieToWatchFromDB(requestBody)
     }
 
@@ -49,7 +62,7 @@ class MoviesDBRepository @Inject constructor(database: UsersDatabase, private va
         return moviesDBApi.addWatchedMovieToDB(requestBody)
     }
 
-    suspend fun deleteWatchedMovieFromDB(requestBody: WatchedMoviesForRetrofit){
+    suspend fun deleteWatchedMovieFromDB(requestBody: WatchedMoviesForRetrofit): Response<Unit> {
         return moviesDBApi.deleteWatchedMovieFromDB(requestBody)
     }
 
@@ -65,78 +78,91 @@ class MoviesDBRepository @Inject constructor(database: UsersDatabase, private va
         return moviesDBApi.updateReviewToDB(requestBody)
     }
 
-    fun saveMovieToWatchToLocalDB(item: MoviesToWatch) {
+    suspend fun saveMovieToWatchToLocalDB(item: MoviesToWatch) {
         dao.saveMovieToWatchToLocalDB(item)
     }
     suspend fun getAllMoviesToWatchByIdFromLocalDB(item: User) : List<MoviesToWatch>?{
        return dao.getAllMoviesToWatchById(item.id)
     }
-    fun checkMovieToWatch(movieId: Int, userId: Int) : Boolean{
+    suspend fun checkMovieToWatch(movieId: Int, userId: Int) : Boolean{
         return dao.checkMovieToWatch(movieId, userId)
     }
-    fun deleteMovieToWatchByIdFromLocalDB(userId: Int, movieId: Int) {
+    suspend fun deleteMovieToWatchByIdFromLocalDB(userId: Int, movieId: Int) {
         dao.deleteMoviesToWatchById(userId, movieId)
     }
-    fun deleteAllMoviesToWatchFromLocalDB(){
+    suspend fun deleteAllMoviesToWatchFromLocalDB(){
         dao.deleteAllMoviesToWatchFromLocalDB()
     }
 
-    fun saveWatchedMovieToLocalDB(item: WatchedMovies) {
+    suspend fun saveWatchedMovieToLocalDB(item: WatchedMovies) {
         dao.saveWatchedMovieToLocalDB(item)
     }
     suspend fun getAllWatchedMoviesByIdFromLocalDB(item: User) : List<WatchedMovies>?{
         return dao.getAllWatchedMoviesById(item.id)
     }
-    fun checkWatchedMovie(movieId: Int, userId: Int) : Boolean{
+    suspend  fun checkWatchedMovie(movieId: Int, userId: Int) : Boolean{
         return dao.checkWatchedMovie(movieId, userId)
     }
-    fun deleteWatchedMovieByIdFromLocalDB(userId: Int, movieId: Int) {
+    suspend fun deleteWatchedMovieByIdFromLocalDB(userId: Int, movieId: Int) {
         dao.deleteWatchedMoviesById(userId, movieId)
     }
-    fun deleteAllWatchedMoviesFromLocalDB(){
+    suspend fun deleteAllWatchedMoviesFromLocalDB(){
         dao.deleteAllWatchedMoviesFromLocalDB()
     }
 
-    fun saveReviewToLocalDB(item: Review) {
+    suspend fun getMoviesFromToWatchFromLocalDB(): List<RoomMovieInfo>?{
+        return dao.getMoviesFromToWatchFromLocalDB()
+    }
+    suspend fun getMoviesFromWatchedFromLocalDB(): List<RoomMovieInfo>?{
+        return dao.getMoviesFromWatchedFromLocalDB()
+    }
+
+    suspend fun saveReviewToLocalDB(item: Review) {
         dao.saveReviewToLocalDB(item)
     }
     suspend fun getAllReviewsByIdFromLocalDB(item: User) : List<Review>?{
         return dao.getAllReviewsById(item.id)
     }
-    fun deleteReviewFromLocalDB(item: Review){
+    suspend fun deleteReviewFromLocalDB(item: Review){
         dao.deleteReviewById(item.userId, item.movieId)
     }
-    fun deleteAllReviewsFromLocalDB(){
+    suspend fun deleteAllReviewsFromLocalDB(){
         dao.deleteAllReviewsFromLocalDB()
     }
 
-    fun saveLikesToLocalDB(item: Likes) {
+    suspend fun saveLikesToLocalDB(item: Likes) {
         dao.saveLikesToLocalDB(item)
     }
     suspend fun getAllLikesByIdFromLocalDB(item: User) : List<Likes>?{
         return dao.getAllLikesById(item.id)
     }
-    fun deleteLikesByIdFromLocalDB(item: Likes){
+    suspend fun getLikesByIdFromLocalDB(movieId: Int): List<LikesForRetrofit>{
+        return dao.getLikesByIdFromLocalDB(movieId)
+    }
+    suspend fun deleteLikesByIdFromLocalDB(item: Likes){
         dao.deleteLikesById(item.likesId)
     }
-    fun deleteAllLikesFromLocalDB(){
+    suspend fun deleteAllLikesFromLocalDB(){
         dao.deleteAllLikesFromLocalDB()
     }
 
-    fun saveDislikesToLocalDB(item: Dislikes) {
+    suspend fun saveDislikesToLocalDB(item: Dislikes) {
         dao.saveDislikesToLocalDB(item)
     }
     suspend fun getAllDislikesByIdFromLocalDB(item: User) : List<Dislikes>?{
         return dao.getAllDislikesById(item.id)
     }
-    fun deleteDislikesByIdFromLocalDB(item: Dislikes){
+    suspend fun getDislikesByIdFromLocalDB(movieId: Int): List<DislikesForRetrofit>{
+        return dao.getDislikesByIdFromLocalDB(movieId)
+    }
+    suspend fun deleteDislikesByIdFromLocalDB(item: Dislikes){
         dao.deleteDislikesById(item.dislikesId)
     }
-    fun deleteAllDislikesFromLocalDB(){
+    suspend fun deleteAllDislikesFromLocalDB(){
         dao.deleteAllDislikesFromLocalDB()
     }
 
-    fun saveMovieToLocalDB(item: RoomMovieInfo){
+    suspend fun saveMovieToLocalDB(item: RoomMovieInfo){
         dao.saveMovieToLocalDB(item)
     }
     suspend fun getMovieByIdFromLocalDB(id: Int): RoomMovieInfo?{
@@ -145,35 +171,40 @@ class MoviesDBRepository @Inject constructor(database: UsersDatabase, private va
     suspend fun getAllMoviesFromLocalDB(): List<RoomMovieInfo>? {
         return dao.getAllMoviesFromLocalDB()
     }
-    fun deleteMovieByIdFromLocalDB(item: RoomMovieInfo){
-        dao.deleteMovieByIdFromLocalDB(item.id)
+    suspend fun deleteMovieByIdFromLocalDB(id: Int){
+        dao.deleteMovieByIdFromLocalDB(id)
     }
-    fun deleteAllMoviesFromLocalDB(){
+    suspend fun deleteAllMoviesFromLocalDB(){
         dao.deleteAllMoviesFromLocalDB()
     }
 
-    fun saveCountriesToLocalDB(item: Countries){
+    suspend fun saveCountriesToLocalDB(item: Countries){
         dao.saveCountriesToLocalDB(item)
     }
-    suspend fun getCountriesByIdFromLocalDB(movieId: Int): Countries?{
+    suspend fun getCountriesByIdFromLocalDB(movieId: Int): List<CountriesForRetrofit>{
         return dao.getCountriesByIdFromLocalDB(movieId)
     }
-    fun saveGenresToLocalDB(item: Genres){
+    suspend fun saveGenresToLocalDB(item: Genres){
         dao.saveGenresToLocalDB(item)
     }
-    suspend fun getGenresByIdFromLocalDB(movieId: Int): Genres?{
+    suspend fun getGenresByIdFromLocalDB(movieId: Int): List<GenresForRetrofit>{
         return dao.getGenresByIdFromLocalDB(movieId)
     }
-    fun savePersonsToLocalDB(item: Persons){
+    suspend fun savePersonsToLocalDB(item: Persons){
         dao.savePersonsToLocalDB(item)
     }
-    suspend fun getPersonsByIdFromLocalDB(movieId: Int): Persons?{
+    suspend fun getPersonsByIdFromLocalDB(movieId: Int): List<PersonsForRetrofit>{
         return dao.getPersonsByIdFromLocalDB(movieId)
     }
-    fun saveSeasonsInfoToLocalDB(item: SeasonsInfo){
+
+    suspend fun getReviewByIdFromLocalDB(movieId: Int): Review{
+        return dao.getReviewByIdFromLocalDB(movieId)
+    }
+
+    suspend fun saveSeasonsInfoToLocalDB(item: SeasonsInfo){
         dao.saveSeasonsInfoToLocalDB(item)
     }
-    suspend fun getSeasonsInfoByIdFromLocalDB(movieId: Int): SeasonsInfo?{
+    suspend fun getSeasonsInfoByIdFromLocalDB(movieId: Int): List<SeasonsInfoForRetrofit>{
         return dao.getSeasonsInfoByIdFromLocalDB(movieId)
     }
 

@@ -1,6 +1,7 @@
 package com.example.cinemajournal.ui.theme.screens
 
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
@@ -28,10 +29,11 @@ import androidx.navigation.NavController
 import com.example.cinemajournal.data.models.SignInRequest
 import com.example.cinemajournal.data.models.SignUpRequest
 import com.example.cinemajournal.ui.theme.screens.viewmodels.AuthViewModel
+import com.example.cinemajournal.ui.theme.screens.viewmodels.JournalsViewModel
 
 
 @Composable
-fun EntranceScreen(navController: NavController, authViewModel: AuthViewModel) {
+fun EntranceScreen(navController: NavController, authViewModel: AuthViewModel, journalsViewModel: JournalsViewModel) {
 
     Column(
         modifier = Modifier
@@ -50,7 +52,7 @@ fun EntranceScreen(navController: NavController, authViewModel: AuthViewModel) {
         }
 
         if (authViewModel.uiState.buttonLoginState) {
-            checkLogin(navController, context, authViewModel)
+            checkLogin(navController, context, authViewModel, journalsViewModel)
         }
 
         TextField(
@@ -138,17 +140,25 @@ fun checkAuth(context: Context, authViewModel: AuthViewModel) {
 }
 
 @Composable
-fun checkLogin(navController: NavController, context: Context, authViewModel: AuthViewModel) {
+fun checkLogin(navController: NavController, context: Context, authViewModel: AuthViewModel, journalsViewModel: JournalsViewModel) {
 
     if(authViewModel.uiState.user != null){
 
-        navController.navigate("JournalsScreen"){
-            popUpTo(0)
+        journalsViewModel.getUserFromDB(authViewModel.uiState.user!!.id)
+
+        if(journalsViewModel.uiState.user != null){
+
+            journalsViewModel.startUpdateLocalDB(journalsViewModel.uiState.user!!)
+
+            authViewModel.saveUserToDatabase(authViewModel.uiState.user!!)
+
+            navController.navigate("JournalsScreen"){
+                popUpTo(0)
+            }
+
+            authViewModel.changeButtonLoginState(false)
         }
 
-        authViewModel.saveUserToDatabase(authViewModel.uiState.user!!)
-
-        authViewModel.changeButtonLoginState(false)
 
     }else if(!authViewModel.uiState.isLoginProcess){
         Toast.makeText(

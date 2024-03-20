@@ -6,16 +6,18 @@ import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 
 @Entity(
+    primaryKeys = ["personsId","content_id"],
     foreignKeys = [
         ForeignKey(
             entity = RoomMovieInfo::class,
             parentColumns = ["id"],
-            childColumns = ["content_id"]
+            childColumns = ["content_id"],
+            onDelete = ForeignKey.CASCADE
         )
     ]
 )
 data class Persons (
-    @PrimaryKey var personsId: Int,
+    var personsId: Int,
     @ColumnInfo(name = "content_id") val contentId: Int,
     var photo: String? = null,
     var name: String? = null,

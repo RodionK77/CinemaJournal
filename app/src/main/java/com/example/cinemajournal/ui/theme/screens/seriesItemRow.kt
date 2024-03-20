@@ -25,13 +25,14 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.cinemajournal.ItemRowModel
 import com.example.cinemajournal.R
+import com.example.cinemajournal.data.models.RoomModels.SeasonsInfoForRetrofit
 import com.example.cinemajournal.data.models.SeasonsInfo
 import com.example.compose.AppTheme
 import com.example.example.Persons
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun seriesItemRow(item: SeasonsInfo) {
+fun seriesItemRow(item1: SeasonsInfo?, item2: SeasonsInfoForRetrofit?) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -39,8 +40,17 @@ fun seriesItemRow(item: SeasonsInfo) {
             .clip(shape = RoundedCornerShape(15.dp, 15.dp, 15.dp, 15.dp))
             .background(MaterialTheme.colorScheme.tertiaryContainer)
     ) {
-        Text(text = "Сезон: ${item.number}", modifier = Modifier.padding(start = 6.dp, end = 6.dp, top = 4.dp), fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
-        Text(text = "Серий: ${item.episodesCount}", modifier = Modifier.padding(start = 6.dp, end = 6.dp, bottom = 4.dp), fontSize = 16.sp, )
+        var number = 0
+        var episodesCount = 0
+        if(item1 == null){
+            number = item2!!.number
+            episodesCount = item2!!.episodesCount
+        } else {
+            number = item1!!.number?:0
+            episodesCount = item1!!.episodesCount?:0
+        }
+        Text(text = "Сезон: $number", modifier = Modifier.padding(start = 6.dp, end = 6.dp, top = 4.dp), fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+        Text(text = "Серий: $episodesCount", modifier = Modifier.padding(start = 6.dp, end = 6.dp, bottom = 4.dp), fontSize = 16.sp, )
     }
 }
 
