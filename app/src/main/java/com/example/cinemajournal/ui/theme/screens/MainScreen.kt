@@ -188,7 +188,7 @@ fun MainScreen(context: MainActivity,
                         ContentDescriptionScreen(navController, descriptionViewModel)
                     }
                     composable("ContentReviewScreen") {
-                        ContentReviewScreen(navController = navController, descriptionViewModel)
+                        ContentReviewScreen(navController = navController, descriptionViewModel, authViewModel)
                     }
                 }
             }

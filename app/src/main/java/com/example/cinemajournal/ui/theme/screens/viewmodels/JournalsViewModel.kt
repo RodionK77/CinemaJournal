@@ -253,8 +253,8 @@ class JournalsViewModel @Inject constructor(
         var persons: List<PersonsForRetrofit> = mutableListOf()
         var seasonsInfo: List<SeasonsInfoForRetrofit> = mutableListOf()
         var review: Review? = null
-        var likes: List<LikesForRetrofit> = mutableListOf()
-        var dislikes: List<DislikesForRetrofit> = mutableListOf()
+        var likes: List<Likes> = mutableListOf()
+        var dislikes: List<Dislikes> = mutableListOf()
         viewModelScope.launch {
             kotlin.runCatching { getMoviesFromWatchedFromLocalDBUseCase() }
                 .onSuccess { response ->
@@ -338,7 +338,7 @@ class JournalsViewModel @Inject constructor(
                                             .onSuccess { response7 ->
                                                 Log.d(
                                                     "R",
-                                                    "Лайки для просмотренного получены: ${response6}",
+                                                    "Лайки для просмотренного получены: ${response7}",
                                                 )
                                                 likes = response7
                                             }
@@ -356,7 +356,7 @@ class JournalsViewModel @Inject constructor(
                                             .onSuccess { response8 ->
                                                 Log.d(
                                                     "R",
-                                                    "Дизлайки для просмотренного получены: ${response6}",
+                                                    "Дизлайки для просмотренного получены: ${response8}",
                                                 )
                                                 dislikes = response8
                                             }
@@ -375,7 +375,7 @@ class JournalsViewModel @Inject constructor(
                                     )
                                 }
                         }
-                        delay(250)
+                        delay(500)
                         val movie = RoomMovieInfoForRetrofit(
                             id = it.id?:0,
                             name = it?.name?:"",
@@ -404,12 +404,16 @@ class JournalsViewModel @Inject constructor(
                             seasonsInfo = seasonsInfo,
                             review = ReviewForRetrofit(user = User(id = uiState.user!!.id), movie = null,
                                 contentId = it.id, rating = review?.rating?:0.0, notes = review?.notes?:"",
-                                likes = likes.toSet(), dislikes = dislikes.toSet())
+                                likes = likes, dislikes = dislikes)
                         )
                         movies.add(movie)
                         Log.d(
                             "R",
                             "Тот фильм: $movie",
+                        )
+                        Log.d(
+                            "R",
+                            "Ревью того фильма: ${movie.review}",
                         )
                         countries = mutableListOf()
                         genres = mutableListOf()
@@ -783,9 +787,11 @@ class JournalsViewModel @Inject constructor(
     }
 
     fun writeReviews(user: UserForRetrofit){
-        user.reviews?.forEach {
+        Log.d("R", "РРРевью: ${user.review}")
+        user.review?.forEach {
 
             viewModelScope.launch {
+                delay(250)
                 kotlin.runCatching {
                     saveReviewToLocalDBUseCase(
                         Review(
@@ -796,13 +802,14 @@ class JournalsViewModel @Inject constructor(
                         )
                     )
                 }
-                    .onSuccess { Log.d("R", "Ревью записались") }
+                    .onSuccess { Log.d("R", "Ревью записались: ${it}") }
                     .onFailure { Log.d("R", "Ревью не записались: ${it.message}") }
             }
 
             it.dislikes?.forEach {
 
                 viewModelScope.launch {
+                    delay(300)
                     kotlin.runCatching {
                         saveDislikesToLocalDBUseCase(
                             Dislikes(
@@ -821,6 +828,7 @@ class JournalsViewModel @Inject constructor(
             it.likes?.forEach {
 
                 viewModelScope.launch {
+                    delay(300)
                     kotlin.runCatching {
                         saveLikesToLocalDBUseCase(
                             Likes(

@@ -27,4 +27,5 @@ data class Dislikes (
     @ColumnInfo(name = "user_id") val userId: Int,
     @ColumnInfo(name = "movie_id") val movieId: Int,
     var description: String? = null,
+    val contentId: Int? = null
 )

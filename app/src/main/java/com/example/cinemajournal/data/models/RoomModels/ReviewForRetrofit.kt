@@ -8,6 +8,6 @@ data class ReviewForRetrofit(
     var contentId: Int = 0,
     var rating: Double = 0.0,
     var notes: String? = null,
-    var likes: Set<LikesForRetrofit>? = null,
-    var dislikes: Set<DislikesForRetrofit>? = null
+    var likes: List<Likes>? = null,
+    var dislikes: List<Dislikes>? = null
 )

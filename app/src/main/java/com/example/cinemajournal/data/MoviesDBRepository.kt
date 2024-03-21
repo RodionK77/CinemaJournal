@@ -5,11 +5,9 @@ import com.example.cinemajournal.data.Room.UsersDatabase
 import com.example.cinemajournal.data.models.RoomModels.Countries
 import com.example.cinemajournal.data.models.RoomModels.CountriesForRetrofit
 import com.example.cinemajournal.data.models.RoomModels.Dislikes
-import com.example.cinemajournal.data.models.RoomModels.DislikesForRetrofit
 import com.example.cinemajournal.data.models.RoomModels.Genres
 import com.example.cinemajournal.data.models.RoomModels.GenresForRetrofit
 import com.example.cinemajournal.data.models.RoomModels.Likes
-import com.example.cinemajournal.data.models.RoomModels.LikesForRetrofit
 import com.example.cinemajournal.data.models.RoomModels.MoviesToWatch
 import com.example.cinemajournal.data.models.RoomModels.MoviesToWatchForRetrofit
 import com.example.cinemajournal.data.models.RoomModels.Persons
@@ -70,7 +68,7 @@ class MoviesDBRepository @Inject constructor(database: UsersDatabase, private va
         return moviesDBApi.updateWatchedMovieToDB(requestBody)
     }
 
-    suspend fun addReviewToDB(requestBody: Review): Review{
+    suspend fun addReviewToDB(requestBody: ReviewForRetrofit): ReviewForRetrofit?{
         return moviesDBApi.addReviewToDB(requestBody)
     }
 
@@ -136,11 +134,11 @@ class MoviesDBRepository @Inject constructor(database: UsersDatabase, private va
     suspend fun getAllLikesByIdFromLocalDB(item: User) : List<Likes>?{
         return dao.getAllLikesById(item.id)
     }
-    suspend fun getLikesByIdFromLocalDB(movieId: Int): List<LikesForRetrofit>{
+    suspend fun getLikesByIdFromLocalDB(movieId: Int): List<Likes>{
         return dao.getLikesByIdFromLocalDB(movieId)
     }
-    suspend fun deleteLikesByIdFromLocalDB(item: Likes){
-        dao.deleteLikesById(item.likesId)
+    suspend fun deleteLikesByIdFromLocalDB(movieId: Int){
+        dao.deleteLikesByIdFromLocalDB(movieId)
     }
     suspend fun deleteAllLikesFromLocalDB(){
         dao.deleteAllLikesFromLocalDB()
@@ -152,11 +150,11 @@ class MoviesDBRepository @Inject constructor(database: UsersDatabase, private va
     suspend fun getAllDislikesByIdFromLocalDB(item: User) : List<Dislikes>?{
         return dao.getAllDislikesById(item.id)
     }
-    suspend fun getDislikesByIdFromLocalDB(movieId: Int): List<DislikesForRetrofit>{
+    suspend fun getDislikesByIdFromLocalDB(movieId: Int): List<Dislikes>{
         return dao.getDislikesByIdFromLocalDB(movieId)
     }
-    suspend fun deleteDislikesByIdFromLocalDB(item: Dislikes){
-        dao.deleteDislikesById(item.dislikesId)
+    suspend fun deleteDislikesByIdFromLocalDB(movieId: Int){
+        dao.deleteDislikesByIdFromLocalDB(movieId)
     }
     suspend fun deleteAllDislikesFromLocalDB(){
         dao.deleteAllDislikesFromLocalDB()

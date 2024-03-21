@@ -7,16 +7,13 @@ import androidx.room.Query
 import com.example.cinemajournal.data.models.RoomModels.Countries
 import com.example.cinemajournal.data.models.RoomModels.CountriesForRetrofit
 import com.example.cinemajournal.data.models.RoomModels.Dislikes
-import com.example.cinemajournal.data.models.RoomModels.DislikesForRetrofit
 import com.example.cinemajournal.data.models.RoomModels.Genres
 import com.example.cinemajournal.data.models.RoomModels.GenresForRetrofit
 import com.example.cinemajournal.data.models.RoomModels.Likes
-import com.example.cinemajournal.data.models.RoomModels.LikesForRetrofit
 import com.example.cinemajournal.data.models.RoomModels.MoviesToWatch
 import com.example.cinemajournal.data.models.RoomModels.Persons
 import com.example.cinemajournal.data.models.RoomModels.PersonsForRetrofit
 import com.example.cinemajournal.data.models.RoomModels.Review
-import com.example.cinemajournal.data.models.RoomModels.ReviewForRetrofit
 import com.example.cinemajournal.data.models.RoomModels.RoomMovieInfo
 import com.example.cinemajournal.data.models.RoomModels.SeasonsInfo
 import com.example.cinemajournal.data.models.RoomModels.SeasonsInfoForRetrofit
@@ -131,10 +128,10 @@ interface UsersDAO {
     suspend fun getAllLikesById(userId: Int): List<Likes>
 
     @Query("SELECT * FROM Likes WHERE movie_id = :movieId")
-    suspend fun getLikesByIdFromLocalDB(movieId: Int): List<LikesForRetrofit>
+    suspend fun getLikesByIdFromLocalDB(movieId: Int): List<Likes>
 
-    @Query("DELETE FROM Likes WHERE likesId = :likesId")
-    suspend fun deleteLikesById(likesId: Int)
+    @Query("DELETE FROM Likes WHERE movie_id = :movieId")
+    suspend fun deleteLikesByIdFromLocalDB(movieId: Int)
 
     @Query("DELETE FROM Likes")
     suspend fun deleteAllLikesFromLocalDB()
@@ -146,10 +143,10 @@ interface UsersDAO {
     suspend fun getAllDislikesById(userId: Int): List<Dislikes>
 
     @Query("SELECT * FROM Dislikes WHERE movie_id = :movieId")
-    suspend fun getDislikesByIdFromLocalDB(movieId: Int): List<DislikesForRetrofit>
+    suspend fun getDislikesByIdFromLocalDB(movieId: Int): List<Dislikes>
 
-    @Query("DELETE FROM Dislikes WHERE dislikesId = :dislikesId")
-    suspend fun deleteDislikesById(dislikesId: Int)
+    @Query("DELETE FROM Dislikes WHERE movie_id = :movieId")
+    suspend fun deleteDislikesByIdFromLocalDB(movieId: Int)
 
     @Query("DELETE FROM Dislikes")
     suspend fun deleteAllDislikesFromLocalDB()

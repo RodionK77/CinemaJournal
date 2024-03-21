@@ -4,6 +4,7 @@ import com.example.cinemajournal.data.models.AuthResponse
 import com.example.cinemajournal.data.models.RoomModels.MoviesToWatch
 import com.example.cinemajournal.data.models.RoomModels.MoviesToWatchForRetrofit
 import com.example.cinemajournal.data.models.RoomModels.Review
+import com.example.cinemajournal.data.models.RoomModels.ReviewForRetrofit
 import com.example.cinemajournal.data.models.RoomModels.RoomMovieInfo
 import com.example.cinemajournal.data.models.RoomModels.RoomMovieInfoForRetrofit
 import com.example.cinemajournal.data.models.RoomModels.User
@@ -54,7 +55,7 @@ interface MoviesDBApi {
     suspend fun updateWatchedMovieToDB(@Body requestBody: WatchedMoviesForRetrofit)
 
     @POST("addReview")
-    suspend fun addReviewToDB(@Body requestBody: Review): Review
+    suspend fun addReviewToDB(@Body requestBody: ReviewForRetrofit): ReviewForRetrofit?
 
     @PUT("updateReview")
     suspend fun updateReviewToDB(@Body requestBody: Review)

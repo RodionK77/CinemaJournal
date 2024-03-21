@@ -42,6 +42,10 @@ fun JournalsScreen(navController: NavController, journalsViewModel: JournalsView
         journalsViewModel.startUpdateLocalDB(journalsViewModel.uiState.user!!)
     }*/
 
+    descriptionViewModel.changeLikes(null)
+    descriptionViewModel.changeDislikes(null)
+
+
     Column(
         modifier = Modifier
             .fillMaxSize(),

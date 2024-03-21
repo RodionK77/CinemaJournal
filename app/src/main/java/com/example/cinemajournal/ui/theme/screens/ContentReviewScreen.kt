@@ -1,5 +1,6 @@
 package com.example.cinemajournal.ui.theme.screens
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
@@ -16,12 +17,15 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Grade
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Grade
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -53,6 +57,15 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.cinemajournal.ItemRowModel
 import com.example.cinemajournal.R
+import com.example.cinemajournal.data.models.RoomModels.Dislikes
+import com.example.cinemajournal.data.models.RoomModels.DislikesForRetrofit
+import com.example.cinemajournal.data.models.RoomModels.Likes
+import com.example.cinemajournal.data.models.RoomModels.LikesForRetrofit
+import com.example.cinemajournal.data.models.RoomModels.Review
+import com.example.cinemajournal.data.models.RoomModels.ReviewForRetrofit
+import com.example.cinemajournal.data.models.RoomModels.RoomMovieInfoForRetrofit
+import com.example.cinemajournal.data.models.RoomModels.User
+import com.example.cinemajournal.ui.theme.screens.viewmodels.AuthViewModel
 import com.example.cinemajournal.ui.theme.screens.viewmodels.DescriptionViewModel
 import com.example.cinemajournal.ui.theme.screens.viewmodels.ItemDescriptionUiState
 import com.example.compose.AppTheme
@@ -61,14 +74,14 @@ import com.smarttoolfactory.ratingbar.RatingBar
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun ContentReviewScreen(navController: NavController, descriptionViewModel: DescriptionViewModel) {
+fun ContentReviewScreen(navController: NavController, descriptionViewModel: DescriptionViewModel, authViewModel: AuthViewModel) {
 
-    Content(descriptionViewModel)
+    Content(descriptionViewModel, authViewModel)
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
 @Composable
-private fun Content(descriptionViewModel: DescriptionViewModel) {
+private fun Content(descriptionViewModel: DescriptionViewModel, authViewModel: AuthViewModel) {
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -84,17 +97,42 @@ private fun Content(descriptionViewModel: DescriptionViewModel) {
             mutableStateOf(false)
         }
 
+        if(descriptionViewModel.uiState.likesForReview == null){
+            descriptionViewModel.changeLikes(descriptionViewModel.uiState.roomMovieInfoForRetrofit?.review?.likes?.toMutableList())
+        }
+        if(descriptionViewModel.uiState.dislikesForReview == null){
+            descriptionViewModel.changeDislikes(descriptionViewModel.uiState.roomMovieInfoForRetrofit?.review?.dislikes?.toMutableList())
+        }
+
         //var rating: Float by rememberSaveable { mutableStateOf(0.0f) }
 
         var showDialog by rememberSaveable{ mutableStateOf(false) }
         var dialogueText by rememberSaveable { mutableStateOf("") }
-        var reviewText by rememberSaveable { mutableStateOf("") }
-        var rating by rememberSaveable { mutableStateOf(0.0f) }
+        var reviewText by rememberSaveable { mutableStateOf(descriptionViewModel.uiState.roomMovieInfoForRetrofit?.review?.notes?:"") }
+        var rating by rememberSaveable { mutableStateOf(descriptionViewModel.uiState.roomMovieInfoForRetrofit?.review?.rating?.toFloat()?:0.0f) }
 
-        reviewText = descriptionViewModel.uiState.roomMovieInfoForRetrofit?.review?.notes?:""
-        rating = descriptionViewModel.uiState.roomMovieInfoForRetrofit?.review?.rating?.toFloat()?:0.0f
+        //var likeText by rememberSaveable { mutableStateOf("") }
+        //var dislikeText by rememberSaveable { mutableStateOf("") }
+
+        var dialogueSate by rememberSaveable { mutableStateOf(false) }
 
 
+
+        var likes: List<Likes>? = descriptionViewModel.uiState.roomMovieInfoForRetrofit?.review?.likes
+        var dislikes: List<Dislikes>? = descriptionViewModel.uiState.roomMovieInfoForRetrofit?.review?.dislikes
+
+        Log.d(
+            "R",
+            "Модель: ${descriptionViewModel.uiState.roomMovieInfoForRetrofit?.review}",
+        )
+        Log.d(
+            "R",
+            "Лайки: ${likes}",
+        )
+        Log.d(
+            "R",
+            "Дизлайки: ${dislikes}",
+        )
 
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -308,8 +346,9 @@ private fun Content(descriptionViewModel: DescriptionViewModel) {
             tintFilled = MaterialTheme.colorScheme.onPrimaryContainer,
             itemSize = 36.dp,
             itemCount = 10,
+
         ) {
-            //rating = it
+            rating = it
         }
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -327,6 +366,7 @@ private fun Content(descriptionViewModel: DescriptionViewModel) {
             Icon(
                 modifier = Modifier
                     .clickable {
+                        dialogueSate = true
                         showDialog = !showDialog
                     }
                     .padding(start = 2.dp),
@@ -334,6 +374,15 @@ private fun Content(descriptionViewModel: DescriptionViewModel) {
                 tint = MaterialTheme.colorScheme.primary,
                 contentDescription = "Добавить"
             )
+            if(descriptionViewModel.uiState.likesForReview?.isNotEmpty() == true){
+                Icon(
+                    modifier = Modifier.scale(0.8f).clickable {
+                        descriptionViewModel.changeLikes(mutableListOf())
+                    },
+                    imageVector = Icons.Filled.Delete,
+                    contentDescription = "Удалить всё"
+                )
+            }
         }
         LazyRow(
             modifier = Modifier
@@ -341,7 +390,7 @@ private fun Content(descriptionViewModel: DescriptionViewModel) {
                 .background(MaterialTheme.colorScheme.onSecondary)
         ) {
             itemsIndexed(
-                descriptionViewModel.uiState.roomMovieInfoForRetrofit?.review?.likes?.toList()?: emptyList()
+                descriptionViewModel.uiState.likesForReview?: emptyList()
             ) { _, item ->
                 wordItemRow(text = item.description?:"")
             }
@@ -362,13 +411,23 @@ private fun Content(descriptionViewModel: DescriptionViewModel) {
             Icon(
                 modifier = Modifier
                     .clickable {
-
+                        dialogueSate = false
+                        showDialog = !showDialog
                     }
                     .padding(start = 2.dp),
                 imageVector = Icons.Outlined.Add,
                 tint = MaterialTheme.colorScheme.primary,
                 contentDescription = "Добавить"
             )
+            if(descriptionViewModel.uiState.dislikesForReview?.isNotEmpty() == true){
+                Icon(
+                    modifier = Modifier.scale(0.8f).clickable {
+                        descriptionViewModel.changeDislikes(mutableListOf())
+                    },
+                    imageVector = Icons.Filled.Delete,
+                    contentDescription = "Удалить всё"
+                )
+            }
         }
         LazyRow(
             modifier = Modifier
@@ -376,7 +435,7 @@ private fun Content(descriptionViewModel: DescriptionViewModel) {
                 .background(MaterialTheme.colorScheme.onSecondary)
         ) {
             itemsIndexed(
-                descriptionViewModel.uiState.roomMovieInfoForRetrofit?.review?.likes?.toList()?: emptyList()
+                descriptionViewModel.uiState.dislikesForReview?: emptyList()
             ) { _, item ->
                 wordItemRow(text = item.description?:"")
             }
@@ -407,6 +466,29 @@ private fun Content(descriptionViewModel: DescriptionViewModel) {
             ),
         )
 
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Button(onClick = {
+
+            descriptionViewModel.addReviewToDB(ReviewForRetrofit(user = authViewModel.uiState.user, movie = RoomMovieInfoForRetrofit(id = descriptionViewModel.uiState.roomMovieInfoForRetrofit?.id?:0), contentId = descriptionViewModel.uiState.roomMovieInfoForRetrofit?.id?:0, rating = rating.toDouble(), notes = reviewText, likes = descriptionViewModel.uiState.likesForReview, dislikes = descriptionViewModel.uiState.dislikesForReview))
+            descriptionViewModel.saveReviewToLocalDB(review = Review(userId = authViewModel.uiState.user?.id?:0, movieId = descriptionViewModel.uiState.roomMovieInfoForRetrofit?.id?:0, contentId = descriptionViewModel.uiState.roomMovieInfoForRetrofit!!.id, rating = rating.toDouble(), notes = reviewText))
+
+            descriptionViewModel.deleteLikesFromLocalDB(descriptionViewModel.uiState.roomMovieInfoForRetrofit?.id?:0)
+            descriptionViewModel.uiState.likesForReview?.forEach{
+                descriptionViewModel.saveLikesToLocalDB(it)
+            }
+            descriptionViewModel.deleteDislikesFromLocalDB(descriptionViewModel.uiState.roomMovieInfoForRetrofit?.id?:0)
+            descriptionViewModel.uiState.dislikesForReview?.forEach{
+                descriptionViewModel.saveDislikesToLocalDB(it)
+            }
+
+
+        }) {
+            Text("Сохранить")
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
         if (showDialog) {
             AlertDialog(
                 icon = {
@@ -431,11 +513,16 @@ private fun Content(descriptionViewModel: DescriptionViewModel) {
                 },
                 onDismissRequest = {
                     showDialog = false
+                    dialogueText = ""
                 },
                 confirmButton = {
                     TextButton(
                         onClick = {
-                            //listOfLikes.add(dialogueText)
+                            if(dialogueSate){
+                                descriptionViewModel.addLike(Likes(userId = authViewModel.uiState.user?.id?:0, movieId = descriptionViewModel.uiState.roomMovieInfoForRetrofit?.id?:0, description = dialogueText))
+                            }else {
+                                descriptionViewModel.addDislike(Dislikes(userId = authViewModel.uiState.user?.id?:0, movieId = descriptionViewModel.uiState.roomMovieInfoForRetrofit?.id?:0, description = dialogueText))
+                            }
                             dialogueText = ""
                             showDialog = false
                         }

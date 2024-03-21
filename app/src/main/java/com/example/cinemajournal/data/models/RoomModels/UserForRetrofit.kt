@@ -8,7 +8,7 @@ data class UserForRetrofit(
     var username: String? = "",
     var email: String? = "",
     var role: Int = 0,
-    var reviews: Set<ReviewForRetrofit>? = hashSetOf(),
+    var review: Set<ReviewForRetrofit>? = hashSetOf(),
     var moviesToWatches: Set<MoviesToWatchForRetrofit>? = hashSetOf(),
     var watchedMovies: Set<WatchedMoviesForRetrofit>? = hashSetOf()
 ){
