@@ -17,7 +17,7 @@ import retrofit2.http.Query
 
 interface MoviesApi {
 
-    @GET("/v1.4/movie?page=1&limit=20&selectFields=id&selectFields=name&selectFields=enName&selectFields=alternativeName&selectFields=description&selectFields=type&selectFields=typeNumber&selectFields=isSeries&selectFields=year&selectFields=releaseYears&selectFields=rating&selectFields=ageRating&selectFields=budget&selectFields=movieLength&selectFields=seriesLength&selectFields=genres&selectFields=countries&selectFields=poster&selectFields=persons&selectFields=fees&selectFields=premiere&type=movie&rating.kp=8.0-10&token=${Tokens.TOKEN2}")
+    @GET("/v1.4/movie?page=1&limit=20&selectFields=id&selectFields=name&selectFields=enName&selectFields=alternativeName&selectFields=description&selectFields=type&selectFields=typeNumber&selectFields=isSeries&selectFields=year&selectFields=releaseYears&selectFields=rating&selectFields=ageRating&selectFields=budget&selectFields=movieLength&selectFields=seriesLength&selectFields=genres&selectFields=countries&selectFields=poster&selectFields=persons&selectFields=fees&selectFields=premiere&type=movie&rating.kp=8.0-10&token=${Tokens.TOKEN1}")
     suspend fun getTop20Movies(): MovieListResponse
 
     /*@GET("/v1.4/movie?page=1&limit=1&selectFields=id&selectFields=name&selectFields=enName&selectFields=alternativeName&selectFields=description&selectFields=type&selectFields=typeNumber&selectFields=isSeries&selectFields=year&selectFields=releaseYears&selectFields=rating&selectFields=ageRating&selectFields=budget&selectFields=movieLength&selectFields=seriesLength&selectFields=genres&selectFields=countries&selectFields=poster&selectFields=persons&selectFields=fees&selectFields=premiere&id={id}&token=S8MRT2H-2FWM831-PWMYTHB-XVJ76DF")
@@ -33,13 +33,13 @@ interface MoviesApi {
                           @Query("movieLength") time: String? = "",
                           @Query("genres.name") genresName: List<String>? = listOf(),
                           @Query("countries.name") countriesName: List<String>? = listOf(),
-                          @Query("token") token: String = Tokens.TOKEN2): MovieListResponse
+                          @Query("token") token: String = Tokens.TOKEN1): MovieListResponse
     @GET("/v1.4/movie/search")
     suspend fun getMoviesByName(@Query("page") page: Int = 1,
                           @Query("limit") limit: Int = 20,
                           @Query("query") query: String = "",
-                          @Query("token") token: String = Tokens.TOKEN2): MovieListResponse
+                          @Query("token") token: String = Tokens.TOKEN1): MovieListResponse
 
-    @GET("/v1.4/movie/{id}?token=${Tokens.TOKEN2}")
+    @GET("/v1.4/movie/{id}?token=${Tokens.TOKEN1}")
     suspend fun getMovieById(@Path("id") id: Int): MovieInfo
 }

@@ -14,7 +14,6 @@ import com.example.cinemajournal.Domain.movieUseCases.GetTop20MoviesUseCase
 import com.example.cinemajournal.Domain.movieUseCases.RefreshMoviesUseCase
 import com.example.cinemajournal.Domain.movieUseCases.RefreshSearchMoviesUseCase
 import com.example.example.MovieInfo
-import com.google.android.play.integrity.internal.t
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject

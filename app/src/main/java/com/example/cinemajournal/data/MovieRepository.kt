@@ -7,7 +7,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.cinemajournal.data.API.MoviesApi
-import com.example.cinemajournal.data.API.RetrofitService
 import com.example.cinemajournal.ui.theme.screens.viewmodels.ItemsCompilationUiState
 import com.example.example.MovieInfo
 import com.example.example.MovieListResponse

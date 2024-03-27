@@ -67,10 +67,11 @@ data class JournalsUiState(
     val genres: List<GenresForRetrofit>? = null,
     val persons: List<Persons>? = null,
     val seasonsInfo: List<SeasonsInfo>? = null,
-    val downloadReviewMovieStatus: Boolean = false,
-    val downloadToWatchMovieStatus: Boolean = false,
-    val downloadWatchedMovieStatus: Boolean = false
-)
+    val downloadMoviesStatus: Boolean = false,
+    val downloadReviewsStatus: Boolean = false,
+    val downloadWatchedMovieStatus: Boolean = false,
+
+    )
 
 @HiltViewModel
 class JournalsViewModel @Inject constructor(
@@ -109,11 +110,11 @@ class JournalsViewModel @Inject constructor(
     var uiState by mutableStateOf(JournalsUiState())
         private set
 
-    fun changeUser(user: UserForRetrofit?){
+    fun changeUser(user: UserForRetrofit?) {
         uiState = uiState.copy(user = user)
     }
 
-    fun changeSelectedTabIndex(id: Int){
+    fun changeSelectedTabIndex(id: Int) {
         uiState = uiState.copy(selectedTabIndex = id)
     }
 
@@ -139,6 +140,7 @@ class JournalsViewModel @Inject constructor(
         var persons: List<PersonsForRetrofit> = mutableListOf()
         var seasonsInfo: List<SeasonsInfoForRetrofit> = mutableListOf()
         viewModelScope.launch {
+            //delay(1000)
             kotlin.runCatching { getMoviesFromToWatchFromLocalDBUseCase() }
                 .onSuccess { response ->
                     response?.forEach {
@@ -207,33 +209,35 @@ class JournalsViewModel @Inject constructor(
                                 }
                         }
                         delay(250)
-                        movies.add(RoomMovieInfoForRetrofit(
-                            id = it.id?:0,
-                            name = it?.name?:"",
-                            feesWorld = it?.feesWorld?:0,
-                            feesUsa = it?.feesUsa?:0,
-                            budget = it?.budget?:0,
-                            posterUrl = it?.posterUrl?:"",
-                            worldPremier = it?.worldPremier,
-                            russiaPremier = it?.russiaPremier,
-                            kpRating = it?.kpRating?:0.0,
-                            imdbRating = it?.imdbRating?:0.0,
-                            movieLength = it?.movieLength?:0,
-                            type = it?.type?:"",
-                            typeNumber = it?.typeNumber?:0,
-                            description = it?.description?:"",
-                            year = it?.year?:0,
-                            alternativeName = it?.alternativeName?:"",
-                            enName = it?.enName?:"",
-                            ageRating = it?.ageRating.toString(),
-                            isSeries = it?.isSeries,
-                            seriesLength = it?.seriesLength,
-                            totalSeriesLength = it?.totalSeriesLength,
-                            countries = countries,
-                            genres = genres,
-                            persons = persons,
-                            seasonsInfo = seasonsInfo,
-                        ))
+                        movies.add(
+                            RoomMovieInfoForRetrofit(
+                                id = it.id ?: 0,
+                                name = it?.name ?: "",
+                                feesWorld = it?.feesWorld ?: 0,
+                                feesUsa = it?.feesUsa ?: 0,
+                                budget = it?.budget ?: 0,
+                                posterUrl = it?.posterUrl ?: "",
+                                worldPremier = it?.worldPremier,
+                                russiaPremier = it?.russiaPremier,
+                                kpRating = it?.kpRating ?: 0.0,
+                                imdbRating = it?.imdbRating ?: 0.0,
+                                movieLength = it?.movieLength ?: 0,
+                                type = it?.type ?: "",
+                                typeNumber = it?.typeNumber ?: 0,
+                                description = it?.description ?: "",
+                                year = it?.year ?: 0,
+                                alternativeName = it?.alternativeName ?: "",
+                                enName = it?.enName ?: "",
+                                ageRating = it?.ageRating.toString(),
+                                isSeries = it?.isSeries,
+                                seriesLength = it?.seriesLength,
+                                totalSeriesLength = it?.totalSeriesLength,
+                                countries = countries,
+                                genres = genres,
+                                persons = persons,
+                                seasonsInfo = seasonsInfo,
+                            )
+                        )
                     }
                     uiState = uiState.copy(moviesToWatch = movies)
                 }
@@ -256,6 +260,7 @@ class JournalsViewModel @Inject constructor(
         var likes: List<Likes> = mutableListOf()
         var dislikes: List<Dislikes> = mutableListOf()
         viewModelScope.launch {
+            //delay(1000)
             kotlin.runCatching { getMoviesFromWatchedFromLocalDBUseCase() }
                 .onSuccess { response ->
                     response?.forEach {
@@ -377,23 +382,23 @@ class JournalsViewModel @Inject constructor(
                         }
                         delay(500)
                         val movie = RoomMovieInfoForRetrofit(
-                            id = it.id?:0,
-                            name = it?.name?:"",
-                            feesWorld = it?.feesWorld?:0,
-                            feesUsa = it?.feesUsa?:0,
-                            budget = it?.budget?:0,
-                            posterUrl = it?.posterUrl?:"",
+                            id = it.id ?: 0,
+                            name = it?.name ?: "",
+                            feesWorld = it?.feesWorld ?: 0,
+                            feesUsa = it?.feesUsa ?: 0,
+                            budget = it?.budget ?: 0,
+                            posterUrl = it?.posterUrl ?: "",
                             worldPremier = it?.worldPremier,
                             russiaPremier = it?.russiaPremier,
-                            kpRating = it?.kpRating?:0.0,
-                            imdbRating = it?.imdbRating?:0.0,
-                            movieLength = it?.movieLength?:0,
-                            type = it?.type?:"",
-                            typeNumber = it?.typeNumber?:0,
-                            description = it?.description?:"",
-                            year = it?.year?:0,
-                            alternativeName = it?.alternativeName?:"",
-                            enName = it?.enName?:"",
+                            kpRating = it?.kpRating ?: 0.0,
+                            imdbRating = it?.imdbRating ?: 0.0,
+                            movieLength = it?.movieLength ?: 0,
+                            type = it?.type ?: "",
+                            typeNumber = it?.typeNumber ?: 0,
+                            description = it?.description ?: "",
+                            year = it?.year ?: 0,
+                            alternativeName = it?.alternativeName ?: "",
+                            enName = it?.enName ?: "",
                             ageRating = it?.ageRating.toString(),
                             isSeries = it?.isSeries,
                             seriesLength = it?.seriesLength,
@@ -402,9 +407,15 @@ class JournalsViewModel @Inject constructor(
                             genres = genres,
                             persons = persons,
                             seasonsInfo = seasonsInfo,
-                            review = ReviewForRetrofit(user = User(id = uiState.user!!.id), movie = null,
-                                contentId = it.id, rating = review?.rating?:0.0, notes = review?.notes?:"",
-                                likes = likes, dislikes = dislikes)
+                            review = ReviewForRetrofit(
+                                user = User(id = uiState.user!!.id),
+                                movie = null,
+                                contentId = it.id,
+                                rating = review?.rating ?: 0.0,
+                                notes = review?.notes ?: "",
+                                likes = likes,
+                                dislikes = dislikes
+                            )
                         )
                         movies.add(movie)
                         Log.d(
@@ -561,7 +572,7 @@ class JournalsViewModel @Inject constructor(
         }
     }*/
 
-    fun setCountries(countries: List<CountriesForRetrofit>?){
+    fun setCountries(countries: List<CountriesForRetrofit>?) {
         uiState = uiState.copy(countries = countries)
     }
 
@@ -584,7 +595,7 @@ class JournalsViewModel @Inject constructor(
         }
     }*/
 
-    fun setGenres(genres: List<GenresForRetrofit>?){
+    fun setGenres(genres: List<GenresForRetrofit>?) {
         uiState = uiState.copy(genres = genres)
     }
 
@@ -595,20 +606,40 @@ class JournalsViewModel @Inject constructor(
             "Заходим в стартовый апдейт",
         )
 
-        loadAndWriteMovies(user)
+        viewModelScope.launch {
+            loadAndWriteMovies(user)
 
-        writeWatchedMovies(user)
+            while (!uiState.downloadMoviesStatus) {
+                Log.d(
+                    "R",
+                    "ждём загрузки фильмов",
+                )
+                delay(50)
+            }
 
-        writeMoviesToWatch(user)
+            writeWatchedMovies(user)
 
-        writeReviews(user)
+            writeMoviesToWatch(user)
+
+            while (!uiState.downloadWatchedMovieStatus) {
+                Log.d(
+                    "R",
+                    "ждём загрузки просмотренных",
+                )
+                delay(50)
+            }
+
+            writeReviews(user)
+        }
+
     }
 
-    fun loadAndWriteMovies(user: UserForRetrofit){
+    fun loadAndWriteMovies(user: UserForRetrofit) {
         Log.d(
             "R",
             "уникальные фильмы: ${user.getAllUniqueMovies()}",
         )
+        uiState = uiState.copy(downloadMoviesStatus = false)
         user.getAllUniqueMovies().forEach { movieId ->
             viewModelScope.launch {
                 kotlin.runCatching {
@@ -622,23 +653,23 @@ class JournalsViewModel @Inject constructor(
                             kotlin.runCatching {
                                 saveMovieToLocalDBUseCase(
                                     RoomMovieInfo(
-                                        id = movieInfo?.id?:0,
-                                        name = movieInfo?.name?:"",
-                                        feesWorld = movieInfo?.fees?.world?.value?:0,
-                                        feesUsa = movieInfo?.fees?.usa?.value?:0,
-                                        budget = movieInfo?.budget?.value?:0,
-                                        posterUrl = movieInfo?.poster?.url?:"",
-                                        worldPremier = movieInfo?.premiere?.world?:"",
-                                        russiaPremier = movieInfo?.premiere?.russia?:"",
-                                        kpRating = movieInfo?.rating?.kp?:0.0,
-                                        imdbRating = movieInfo?.rating?.imdb?:0.0,
-                                        movieLength = movieInfo?.movieLength?:0,
-                                        type = movieInfo?.type?:"",
-                                        typeNumber = movieInfo?.typeNumber?:0,
-                                        description = movieInfo?.description?:"",
-                                        year = movieInfo?.year?:0,
-                                        alternativeName = movieInfo?.alternativeName?:"",
-                                        enName = movieInfo?.enName?:"",
+                                        id = movieInfo?.id ?: 0,
+                                        name = movieInfo?.name ?: "",
+                                        feesWorld = movieInfo?.fees?.world?.value ?: 0,
+                                        feesUsa = movieInfo?.fees?.usa?.value ?: 0,
+                                        budget = movieInfo?.budget?.value ?: 0,
+                                        posterUrl = movieInfo?.poster?.url ?: "",
+                                        worldPremier = movieInfo?.premiere?.world ?: "",
+                                        russiaPremier = movieInfo?.premiere?.russia ?: "",
+                                        kpRating = movieInfo?.rating?.kp ?: 0.0,
+                                        imdbRating = movieInfo?.rating?.imdb ?: 0.0,
+                                        movieLength = movieInfo?.movieLength ?: 0,
+                                        type = movieInfo?.type ?: "",
+                                        typeNumber = movieInfo?.typeNumber ?: 0,
+                                        description = movieInfo?.description ?: "",
+                                        year = movieInfo?.year ?: 0,
+                                        alternativeName = movieInfo?.alternativeName ?: "",
+                                        enName = movieInfo?.enName ?: "",
                                         ageRating = movieInfo?.ageRating.toString(),
                                         isSeries = movieInfo?.isSeries,
                                         seriesLength = movieInfo?.seriesLength,
@@ -648,16 +679,38 @@ class JournalsViewModel @Inject constructor(
                             }
                                 .onSuccess {
                                     Log.d("R", "Фильм записался")
-                                    writeCountriesToLocalDB(movieInfo?.countries?: emptyList(), movieInfo.id!!)
-                                    writeGenresToLocalDB(movieInfo?.genres?: emptyList(), movieInfo.id!!)
-                                    writePersonsToLocalDB(movieInfo?.persons?: emptyList(), movieInfo.id!!)
-                                    writeSeasonsInfoToLocalDB(movieInfo?.seasonsInfo?: emptyList(), movieInfo.id!!)
+                                    writeCountriesToLocalDB(
+                                        movieInfo?.countries ?: emptyList(),
+                                        movieInfo.id!!
+                                    )
+                                    writeGenresToLocalDB(
+                                        movieInfo?.genres ?: emptyList(),
+                                        movieInfo.id!!
+                                    )
+                                    writePersonsToLocalDB(
+                                        movieInfo?.persons ?: emptyList(),
+                                        movieInfo.id!!
+                                    )
+                                    writeSeasonsInfoToLocalDB(
+                                        movieInfo?.seasonsInfo ?: emptyList(),
+                                        movieInfo.id!!
+                                    )
+                                    if (movieId == user.getAllUniqueMovies().last()) {
+                                        uiState = uiState.copy(downloadMoviesStatus = true)
+                                        Log.d(
+                                            "R",
+                                            "стейт: ${uiState.downloadMoviesStatus}",
+                                        )
+                                    }
                                 }
                                 .onFailure {
                                     Log.d(
                                         "R",
                                         "Фильм не записался: ${it.message}",
                                     )
+                                    if (movieId == user.getAllUniqueMovies().last()) {
+                                        uiState = uiState.copy(downloadMoviesStatus = true)
+                                    }
                                 }
                         }
                     }
@@ -669,17 +722,25 @@ class JournalsViewModel @Inject constructor(
                                 )
                             )
                         }
-                        Log.d("R", "Фильмне загрузился: ${it.message}")
+                        Log.d("R", "Фильм не загрузился: ${it.message}")
+                        if (movieId == user.getAllUniqueMovies().last()) {
+                            uiState = uiState.copy(downloadMoviesStatus = true)
+                        }
                     }
             }
         }
     }
 
-    fun writeCountriesToLocalDB(countries: List<com.example.example.Countries>, movieId: Int){
+    fun writeCountriesToLocalDB(countries: List<com.example.example.Countries>, movieId: Int) {
         countries.forEach {
             viewModelScope.launch {
                 kotlin.runCatching {
-                    saveCountriesToLocalDBUseCase(Countries(contentId = movieId, name = it.name?:""))
+                    saveCountriesToLocalDBUseCase(
+                        Countries(
+                            contentId = movieId,
+                            name = it.name ?: ""
+                        )
+                    )
                 }
                     .onSuccess { Log.d("R", "Страна записалась") }
                     .onFailure {
@@ -691,11 +752,12 @@ class JournalsViewModel @Inject constructor(
             }
         }
     }
-    fun writeGenresToLocalDB(genres: List<com.example.example.Genres>, movieId: Int){
+
+    fun writeGenresToLocalDB(genres: List<com.example.example.Genres>, movieId: Int) {
         genres.forEach {
             viewModelScope.launch {
                 kotlin.runCatching {
-                    saveGenresToLocalDBUseCase(Genres(contentId = movieId, name = it.name?:""))
+                    saveGenresToLocalDBUseCase(Genres(contentId = movieId, name = it.name ?: ""))
                 }
                     .onSuccess { Log.d("R", "Жанр записался") }
                     .onFailure {
@@ -707,13 +769,22 @@ class JournalsViewModel @Inject constructor(
             }
         }
     }
-    fun writePersonsToLocalDB(persons: List<com.example.example.Persons>, movieId: Int){
+
+    fun writePersonsToLocalDB(persons: List<com.example.example.Persons>, movieId: Int) {
         persons.forEach {
             viewModelScope.launch {
                 kotlin.runCatching {
-                    savePersonsToLocalDBUseCase(Persons(personsId = it.id!!, contentId = movieId,
-                        photo = it.photo, name = it.name, enName = it.enName, description = it.description,
-                        profession = it.profession, enProfession = it.enProfession)
+                    savePersonsToLocalDBUseCase(
+                        Persons(
+                            personsId = it.id!!,
+                            contentId = movieId,
+                            photo = it.photo,
+                            name = it.name,
+                            enName = it.enName,
+                            description = it.description,
+                            profession = it.profession,
+                            enProfession = it.enProfession
+                        )
                     )
                 }
                     .onSuccess { Log.d("R", "Персона записалась") }
@@ -726,11 +797,21 @@ class JournalsViewModel @Inject constructor(
             }
         }
     }
-    fun writeSeasonsInfoToLocalDB(seasonsInfo: List<com.example.cinemajournal.data.models.SeasonsInfo>, movieId: Int){
+
+    fun writeSeasonsInfoToLocalDB(
+        seasonsInfo: List<com.example.cinemajournal.data.models.SeasonsInfo>,
+        movieId: Int
+    ) {
         seasonsInfo.forEach {
             viewModelScope.launch {
                 kotlin.runCatching {
-                    saveSeasonsInfoToLocalDBUseCase(SeasonsInfo(contentId = movieId, number = it.number?: 0, episodesCount = it.episodesCount?: 0))
+                    saveSeasonsInfoToLocalDBUseCase(
+                        SeasonsInfo(
+                            contentId = movieId,
+                            number = it.number ?: 0,
+                            episodesCount = it.episodesCount ?: 0
+                        )
+                    )
                 }
                     .onSuccess { Log.d("R", "Сезон записался") }
                     .onFailure {
@@ -743,10 +824,12 @@ class JournalsViewModel @Inject constructor(
         }
     }
 
-    fun writeWatchedMovies(user: UserForRetrofit){
-        user.watchedMovies?.forEach {
+    fun writeWatchedMovies(user: UserForRetrofit) {
 
-            Log.d("R", "Просмотренный фильм: ${it.contentId}")
+        uiState = uiState.copy(downloadWatchedMovieStatus = false)
+        user.watchedMovies?.forEach { watchedMovie ->
+
+            Log.d("R", "Просмотренный фильм: ${watchedMovie.contentId}")
 
             viewModelScope.launch {
                 delay(250)
@@ -754,44 +837,64 @@ class JournalsViewModel @Inject constructor(
                     saveWatchedMoviesToLocalDBUseCase(
                         WatchedMovies(
                             userId = user.id,
-                            movieId = it.contentId ?: 0,
-                            dateWatched = it.dateWatched
+                            movieId = watchedMovie.contentId ?: 0,
+                            dateWatched = watchedMovie.dateWatched
                         )
                     )
                 }
-                    .onSuccess { Log.d("R", "Просмотренные загрузились") }
-                    .onFailure { Log.d("R", "Просмотренные не загрузились: ${it.message}") }
+                    .onSuccess {
+                        Log.d("R", "Просмотренные загрузились")
+                        if (watchedMovie == user.watchedMovies?.last()) {
+                            uiState = uiState.copy(downloadWatchedMovieStatus = true)
+                        }
+                    }
+                    .onFailure {
+                        Log.d("R", "Просмотренные не загрузились: ${it.message}")
+                        if (watchedMovie == user.watchedMovies?.last()) {
+                            uiState = uiState.copy(downloadWatchedMovieStatus = true)
+                        }
+                    }
             }
 
         }
+
     }
 
-    fun writeMoviesToWatch(user: UserForRetrofit){
-        user.moviesToWatches?.forEach {
+    fun writeMoviesToWatch(user: UserForRetrofit) {
+        if (uiState.downloadMoviesStatus) {
+            user.moviesToWatches?.forEach {
 
-            viewModelScope.launch {
-                delay(250)
-                kotlin.runCatching {
-                    saveMovieToWatchToLocalDBUseCase(
-                        MoviesToWatch(
-                            userId = user.id,
-                            movieId = it.contentId ?: 0,
-                            reminderDate = it.reminderDate
+                viewModelScope.launch {
+                    delay(250)
+                    kotlin.runCatching {
+                        saveMovieToWatchToLocalDBUseCase(
+                            MoviesToWatch(
+                                userId = user.id,
+                                movieId = it.contentId ?: 0,
+                                reminderDate = it.reminderDate
+                            )
                         )
-                    )
+                    }
+                        .onSuccess { Log.d("R", "Фильмы к просмотру загрузились") }
+                        .onFailure {
+                            Log.d(
+                                "R",
+                                "Фильмы к просмотру не загрузились: ${it.message}"
+                            )
+                        }
                 }
-                    .onSuccess { Log.d("R", "Фильмы к просмотру загрузились") }
-                    .onFailure { Log.d("R", "Фильмы к просмотру не загрузились: ${it.message}") }
             }
         }
+
     }
 
-    fun writeReviews(user: UserForRetrofit){
+    fun writeReviews(user: UserForRetrofit) {
         Log.d("R", "РРРевью: ${user.review}")
+
         user.review?.forEach {
 
             viewModelScope.launch {
-                delay(250)
+                //delay(600)
                 kotlin.runCatching {
                     saveReviewToLocalDBUseCase(
                         Review(
@@ -809,7 +912,7 @@ class JournalsViewModel @Inject constructor(
             it.dislikes?.forEach {
 
                 viewModelScope.launch {
-                    delay(300)
+                    //delay(600)
                     kotlin.runCatching {
                         saveDislikesToLocalDBUseCase(
                             Dislikes(
@@ -828,7 +931,7 @@ class JournalsViewModel @Inject constructor(
             it.likes?.forEach {
 
                 viewModelScope.launch {
-                    delay(300)
+                    //delay(600)
                     kotlin.runCatching {
                         saveLikesToLocalDBUseCase(
                             Likes(
@@ -845,5 +948,6 @@ class JournalsViewModel @Inject constructor(
 
             }
         }
+
     }
 }

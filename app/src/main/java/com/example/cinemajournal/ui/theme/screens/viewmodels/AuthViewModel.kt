@@ -19,8 +19,6 @@ import com.example.cinemajournal.data.models.RoomModels.User
 import com.example.cinemajournal.data.models.RoomModels.WatchedMovies
 import com.example.cinemajournal.data.models.SignInRequest
 import com.example.cinemajournal.data.models.SignUpRequest
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.launch
@@ -29,7 +27,6 @@ import javax.inject.Inject
 data class EntranceUiState(
     val user: User? = null,
     val allUsers: List<User> = emptyList(),
-    val mAuth: FirebaseAuth = FirebaseAuth.getInstance(),
     val isLoginScreen: Boolean = false,
     val isLoginProcess: Boolean = false,
     val isRefreshLoginProcess: Boolean = false,
@@ -156,9 +153,6 @@ class AuthViewModel @Inject constructor (
         }
     }
 
-    fun getUser(): FirebaseUser?{
-        return uiState.mAuth.currentUser
-    }
 
     /*fun exitUser(){
         uiState.mAuth.signOut()

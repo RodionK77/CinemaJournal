@@ -24,19 +24,27 @@ object RetrofitModule {
         .addConverterFactory(GsonConverterFactory.create(Gson()))
         .build()
 
+
+    //http://10.0.2.2:8080/api/
+    //http://192.168.1.48:8080/api/
+
     @Provides
     @Singleton
     @Qualifiers.Auth
     fun provideAuthRetrofit() : Retrofit = Retrofit.Builder()
-        .baseUrl("http://10.0.2.2:8080/api/")
+        .baseUrl("http://192.168.1.48:8080/api/")
         .addConverterFactory(GsonConverterFactory.create(Gson()))
         .build()
+
+
+    //http://10.0.2.2:8090/api/movies/
+    //http://192.168.1.48:8090/api/movies/
 
     @Provides
     @Singleton
     @Qualifiers.MoviesDB
     fun provideMoviesDBRetrofit() : Retrofit = Retrofit.Builder()
-        .baseUrl("http://10.0.2.2:8090/api/movies/")
+        .baseUrl("http://192.168.1.48:8090/api/movies/")
         .addConverterFactory(GsonConverterFactory.create(Gson()))
         .build()
 

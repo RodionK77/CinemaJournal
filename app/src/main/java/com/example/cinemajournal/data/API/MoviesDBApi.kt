@@ -12,7 +12,6 @@ import com.example.cinemajournal.data.models.RoomModels.UserForRetrofit
 import com.example.cinemajournal.data.models.RoomModels.WatchedMovies
 import com.example.cinemajournal.data.models.RoomModels.WatchedMoviesForRetrofit
 import com.example.cinemajournal.data.models.SignUpRequest
-import okhttp3.internal.http.hasBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
