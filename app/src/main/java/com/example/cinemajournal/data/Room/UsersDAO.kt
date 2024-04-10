@@ -91,6 +91,15 @@ interface UsersDAO {
     @Query("DELETE FROM MoviesToWatch")
     suspend fun deleteAllMoviesToWatchFromLocalDB()
 
+    @Query("SELECT reminderDate FROM MoviesToWatch WHERE movie_id = :movieId")
+    suspend fun getReminderDateByIdFromToWatchFromLocalDB(movieId: Int): String?
+
+    @Query("SELECT reminderHour FROM MoviesToWatch WHERE movie_id = :movieId")
+    suspend fun getReminderHourByIdFromToWatchFromLocalDB(movieId: Int): Int?
+
+    @Query("SELECT reminderMinute FROM MoviesToWatch WHERE movie_id = :movieId")
+    suspend fun getReminderMinuteByIdFromToWatchFromLocalDB(movieId: Int): Int?
+
     @Insert(entity = WatchedMovies::class, onConflict = OnConflictStrategy.REPLACE)
     suspend fun saveWatchedMovieToLocalDB(item: WatchedMovies)
 

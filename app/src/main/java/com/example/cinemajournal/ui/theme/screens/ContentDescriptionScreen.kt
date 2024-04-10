@@ -1,6 +1,7 @@
 package com.example.cinemajournal.ui.theme.screens
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
@@ -21,20 +22,26 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -47,10 +54,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -65,20 +75,40 @@ import com.bumptech.glide.integration.compose.GlideImage
 import com.example.cinemajournal.CinemaRowModel
 import com.example.cinemajournal.ItemRowModel
 import com.example.cinemajournal.R
+import com.example.cinemajournal.data.models.RoomModels.Dislikes
+import com.example.cinemajournal.data.models.RoomModels.Likes
+import com.example.cinemajournal.data.models.RoomModels.MoviesToWatch
+import com.example.cinemajournal.data.models.RoomModels.MoviesToWatchForRetrofit
 import com.example.cinemajournal.data.models.RoomModels.PersonsForRetrofit
 import com.example.cinemajournal.data.models.RoomModels.SeasonsInfoForRetrofit
+import com.example.cinemajournal.data.models.RoomModels.User
 import com.example.cinemajournal.data.models.SeasonsInfo
+import com.example.cinemajournal.ui.theme.screens.viewmodels.AuthViewModel
 import com.example.cinemajournal.ui.theme.screens.viewmodels.DescriptionViewModel
 import com.example.cinemajournal.ui.theme.screens.viewmodels.ItemDescriptionUiState
+import com.example.cinemajournal.ui.theme.screens.viewmodels.JournalsViewModel
 import com.example.compose.AppTheme
 import com.example.example.Persons
+import com.vanpra.composematerialdialogs.MaterialDialog
+import com.vanpra.composematerialdialogs.MaterialDialogButtons
+import com.vanpra.composematerialdialogs.MaterialDialogState
+import com.vanpra.composematerialdialogs.datetime.date.datepicker
+import com.vanpra.composematerialdialogs.datetime.time.timepicker
+import com.vanpra.composematerialdialogs.rememberMaterialDialogState
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun ContentDescriptionScreen(
     navController: NavController,
-    descriptionViewModel: DescriptionViewModel
+    descriptionViewModel: DescriptionViewModel,
+    authViewModel: AuthViewModel,
+    journalsViewModel: JournalsViewModel,
+    context: Context
 ) {
 
     Column(
@@ -92,6 +122,9 @@ fun ContentDescriptionScreen(
         Log.d("R", "got: ${descriptionViewModel.uiState.movieInfo}")
         if (descriptionViewModel.uiState.movieInfo != null || descriptionViewModel.uiState.roomMovieInfoForRetrofit != null) {
             //descriptionViewModel.refreshCurrentMovie2()
+            if(descriptionViewModel.uiState.dateToWatch == null){
+                descriptionViewModel.getReminderDateAndTime(descriptionViewModel.uiState.roomMovieInfoForRetrofit?.id?:0)
+            }
             Content(descriptionViewModel)
         } else
             Text(
@@ -100,6 +133,60 @@ fun ContentDescriptionScreen(
                 color = MaterialTheme.colorScheme.secondary,
                 lineHeight = 16.sp
             )
+
+        val dateDialogueState = rememberMaterialDialogState()
+        val timeDialogueState = rememberMaterialDialogState()
+        
+        if(descriptionViewModel.uiState.reminderDialogStatus){
+            reminderDialogue(descriptionViewModel = descriptionViewModel, authViewModel = authViewModel, journalsViewModel = journalsViewModel, dateDialogueState = dateDialogueState, timeDialogueState = timeDialogueState)
+        }
+
+        MaterialDialog(
+            dialogState = dateDialogueState,
+            buttons = {
+                positiveButton(text = "Принять") {
+                    //Toast.makeText(context, "", Toast.LENGTH_SHORT).show()
+                    //scheduleNotification(13, 55, 2024, 4, 9, context)
+                    //val createNotification = CreateNotification(context)
+                    //createNotification.showNotification()
+                    //val createNotification = CreateNotification(context)
+                    //createNotification.scheduleNotification(2024, Calendar.APRIL, 9, 14, 28)
+                }
+                negativeButton (text = "Отменить")
+            }
+        )
+        {
+            datepicker (
+                initialDate = LocalDate.now(),
+                title = "Выберите дату",
+            ){
+                descriptionViewModel.changeDateToWatch(DateTimeFormatter.ofPattern("dd/MM/yyyy").format(it))
+            }
+        }
+
+        MaterialDialog(
+            dialogState = timeDialogueState,
+            buttons = {
+                positiveButton(text = "Принять") {
+                    //Toast.makeText(context, "", Toast.LENGTH_SHORT).show()
+                    //scheduleNotification(13, 55, 2024, 4, 9, context)
+                    //val createNotification = CreateNotification(context)
+                    //createNotification.showNotification()
+                    //val createNotification = CreateNotification(context)
+                    //createNotification.scheduleNotification(2024, Calendar.APRIL, 9, 14, 28)
+                }
+                negativeButton (text = "Отменить")
+            }
+        )
+        {
+            timepicker (
+                initialTime = LocalTime.now(),
+                title = "Выберите время",
+                is24HourClock = true
+            ){
+                descriptionViewModel.changeTimeToWatch(it.hour, it.minute)
+            }
+        }
     }
 }
 
@@ -114,7 +201,7 @@ private fun Content(descriptionViewModel: DescriptionViewModel) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         GlideImage(
-            model = if(descriptionViewModel.uiState.movieInfo != null) descriptionViewModel.uiState.movieInfo?.poster?.url else descriptionViewModel.uiState.roomMovieInfoForRetrofit?.posterUrl,
+            model = if (descriptionViewModel.uiState.movieInfo != null) descriptionViewModel.uiState.movieInfo?.poster?.url else descriptionViewModel.uiState.roomMovieInfoForRetrofit?.posterUrl,
             contentDescription = "Постер фильма",
             modifier = Modifier
                 .height(280.dp)
@@ -142,7 +229,7 @@ private fun Content(descriptionViewModel: DescriptionViewModel) {
                             color = MaterialTheme.colorScheme.primary,
                         )
                     ) {
-                        append(if(descriptionViewModel.uiState.movieInfo!=null)descriptionViewModel.uiState.movieInfo?.year.toString() else descriptionViewModel.uiState.roomMovieInfoForRetrofit?.year.toString())
+                        append(if (descriptionViewModel.uiState.movieInfo != null) descriptionViewModel.uiState.movieInfo?.year.toString() else descriptionViewModel.uiState.roomMovieInfoForRetrofit?.year.toString())
                     }
                 }
             )
@@ -164,7 +251,7 @@ private fun Content(descriptionViewModel: DescriptionViewModel) {
                             color = MaterialTheme.colorScheme.primary,
                         )
                     ) {
-                        append(if(descriptionViewModel.uiState.movieInfo != null)descriptionViewModel.uiState.movieInfo?.rating?.kp.toString() else descriptionViewModel.uiState.roomMovieInfoForRetrofit?.kpRating.toString())
+                        append(if (descriptionViewModel.uiState.movieInfo != null) descriptionViewModel.uiState.movieInfo?.rating?.kp.toString() else descriptionViewModel.uiState.roomMovieInfoForRetrofit?.kpRating.toString())
                     }
                 }
             )
@@ -187,12 +274,14 @@ private fun Content(descriptionViewModel: DescriptionViewModel) {
                         )
                     ) {
                         var g = ""
-                        if(descriptionViewModel.uiState.movieInfo != null){
-                            for (i in descriptionViewModel.uiState.movieInfo?.genres?: emptyList()) {
+                        if (descriptionViewModel.uiState.movieInfo != null) {
+                            for (i in descriptionViewModel.uiState.movieInfo?.genres
+                                ?: emptyList()) {
                                 g += i.name + ", "
                             }
                         } else {
-                            for (i in descriptionViewModel.uiState.roomMovieInfoForRetrofit?.genres?: emptyList()) {
+                            for (i in descriptionViewModel.uiState.roomMovieInfoForRetrofit?.genres
+                                ?: emptyList()) {
                                 g += i.name + ", "
                             }
                         }
@@ -219,7 +308,7 @@ private fun Content(descriptionViewModel: DescriptionViewModel) {
                             color = MaterialTheme.colorScheme.primary,
                         )
                     ) {
-                        append(if(descriptionViewModel.uiState.movieInfo!=null)descriptionViewModel.uiState.movieInfo?.movieLength.toString() + " мин" else descriptionViewModel.uiState.roomMovieInfoForRetrofit?.movieLength.toString() + "мин")
+                        append(if (descriptionViewModel.uiState.movieInfo != null) descriptionViewModel.uiState.movieInfo?.movieLength.toString() + " мин" else descriptionViewModel.uiState.roomMovieInfoForRetrofit?.movieLength.toString() + "мин")
                     }
                 }
             )
@@ -241,7 +330,7 @@ private fun Content(descriptionViewModel: DescriptionViewModel) {
                             color = MaterialTheme.colorScheme.primary,
                         )
                     ) {
-                        append(if(descriptionViewModel.uiState.movieInfo!=null)"${descriptionViewModel.uiState.movieInfo?.ageRating.toString()}+" else "${descriptionViewModel.uiState.roomMovieInfoForRetrofit?.ageRating.toString()}+")
+                        append(if (descriptionViewModel.uiState.movieInfo != null) "${descriptionViewModel.uiState.movieInfo?.ageRating.toString()}+" else "${descriptionViewModel.uiState.roomMovieInfoForRetrofit?.ageRating.toString()}+")
                     }
                 }
             )
@@ -263,7 +352,7 @@ private fun Content(descriptionViewModel: DescriptionViewModel) {
                             color = MaterialTheme.colorScheme.primary,
                         )
                     ) {
-                        append(if(descriptionViewModel.uiState.movieInfo != null)"${descriptionViewModel.uiState.movieInfo?.budget?.value} $" else "${descriptionViewModel.uiState.roomMovieInfoForRetrofit?.budget} $")
+                        append(if (descriptionViewModel.uiState.movieInfo != null) "${descriptionViewModel.uiState.movieInfo?.budget?.value} $" else "${descriptionViewModel.uiState.roomMovieInfoForRetrofit?.budget} $")
                     }
                 }
             )
@@ -285,7 +374,7 @@ private fun Content(descriptionViewModel: DescriptionViewModel) {
                             color = MaterialTheme.colorScheme.primary,
                         )
                     ) {
-                        append(if(descriptionViewModel.uiState.movieInfo != null)"${descriptionViewModel.uiState.movieInfo?.fees?.world?.value} $" else "${descriptionViewModel.uiState.roomMovieInfoForRetrofit?.feesWorld} $")
+                        append(if (descriptionViewModel.uiState.movieInfo != null) "${descriptionViewModel.uiState.movieInfo?.fees?.world?.value} $" else "${descriptionViewModel.uiState.roomMovieInfoForRetrofit?.feesWorld} $")
                     }
                 }
             )
@@ -293,7 +382,8 @@ private fun Content(descriptionViewModel: DescriptionViewModel) {
     }
     Spacer(modifier = Modifier.height(8.dp))
     Text(
-        text = if(descriptionViewModel.uiState.movieInfo != null) descriptionViewModel.uiState.movieInfo?.description ?: "" else descriptionViewModel.uiState.roomMovieInfoForRetrofit?.description?: "",
+        text = if (descriptionViewModel.uiState.movieInfo != null) descriptionViewModel.uiState.movieInfo?.description
+            ?: "" else descriptionViewModel.uiState.roomMovieInfoForRetrofit?.description ?: "",
         fontSize = 14.sp,
         color = MaterialTheme.colorScheme.secondary,
         lineHeight = 16.sp
@@ -316,14 +406,15 @@ private fun Content(descriptionViewModel: DescriptionViewModel) {
             modifier = Modifier
         ) {
             itemsIndexed(
-                if(descriptionViewModel.uiState.movieInfo != null){
+                if (descriptionViewModel.uiState.movieInfo != null) {
                     descriptionViewModel.uiState.movieInfo?.seasonsInfo ?: emptyList()
-                }else descriptionViewModel.uiState.roomMovieInfoForRetrofit?.seasonsInfo?: emptyList()
+                } else descriptionViewModel.uiState.roomMovieInfoForRetrofit?.seasonsInfo
+                    ?: emptyList()
 
             ) { _, item ->
-                if(descriptionViewModel.uiState.movieInfo != null){
+                if (descriptionViewModel.uiState.movieInfo != null) {
                     seriesItemRow(item as SeasonsInfo, null)
-                }else seriesItemRow(null, item as SeasonsInfoForRetrofit)
+                } else seriesItemRow(null, item as SeasonsInfoForRetrofit)
             }
         }
     }
@@ -343,13 +434,13 @@ private fun Content(descriptionViewModel: DescriptionViewModel) {
             .background(MaterialTheme.colorScheme.onSecondary)
     ) {
         itemsIndexed(
-            if(descriptionViewModel.uiState.movieInfo != null){
+            if (descriptionViewModel.uiState.movieInfo != null) {
                 descriptionViewModel.uiState.movieInfo?.persons!!.filter { it.enProfession == "director" }
-            }else descriptionViewModel.uiState.roomMovieInfoForRetrofit?.persons!!.filter { it.enProfession == "director" }
+            } else descriptionViewModel.uiState.roomMovieInfoForRetrofit?.persons!!.filter { it.enProfession == "director" }
         ) { _, item ->
-            if(descriptionViewModel.uiState.movieInfo != null){
+            if (descriptionViewModel.uiState.movieInfo != null) {
                 photoItemRow(item as Persons, null)
-            }else photoItemRow(null, item as PersonsForRetrofit)
+            } else photoItemRow(null, item as PersonsForRetrofit)
         }
     }
 
@@ -367,15 +458,97 @@ private fun Content(descriptionViewModel: DescriptionViewModel) {
             .background(MaterialTheme.colorScheme.onSecondary)
     ) {
         itemsIndexed(
-            if(descriptionViewModel.uiState.movieInfo != null){
+            if (descriptionViewModel.uiState.movieInfo != null) {
                 descriptionViewModel.uiState.movieInfo?.persons!!.filter { it.enProfession == "actor" }
-            }else descriptionViewModel.uiState.roomMovieInfoForRetrofit?.persons!!.filter { it.enProfession == "actor" }
+            } else descriptionViewModel.uiState.roomMovieInfoForRetrofit?.persons!!.filter { it.enProfession == "actor" }
         ) { _, item ->
-            if(descriptionViewModel.uiState.movieInfo != null){
+            if (descriptionViewModel.uiState.movieInfo != null) {
                 photoItemRow(item as Persons, null)
-            }else photoItemRow(null, item as PersonsForRetrofit)
+            } else photoItemRow(null, item as PersonsForRetrofit)
         }
     }
+}
+
+@Composable
+fun reminderDialogue(descriptionViewModel: DescriptionViewModel, authViewModel: AuthViewModel, journalsViewModel: JournalsViewModel, dateDialogueState: MaterialDialogState, timeDialogueState: MaterialDialogState) {
+    AlertDialog(
+        icon = {
+            //Icon(icon, contentDescription = "Example Icon")
+        },
+        title = {
+            Text(
+                text = "Установить напоминание",
+                fontSize = 22.sp,
+                fontWeight = FontWeight.SemiBold
+            )
+        },
+        text = {
+            Column() {
+                 Row() {
+
+                     ClickableText(
+                         text = AnnotatedString("Выберите дату: "),
+                         style = TextStyle(
+                             fontSize = 16.sp,
+                         ),
+                         onClick = {
+                             dateDialogueState.show()
+                         }
+                     )
+
+                     Text(
+                         text = descriptionViewModel.uiState.dateToWatch?:"",
+                         fontSize = 16.sp,
+                     )
+
+                }
+                Spacer(modifier = Modifier.height(24.dp))
+                Row() {
+
+                    ClickableText(
+                        text = AnnotatedString("Выберите время: "),
+                        style = TextStyle(
+                            fontSize = 16.sp,
+                        ),
+                        onClick = {
+                            timeDialogueState.show()
+                        }
+                    )
+
+                    Text(
+                        text = "${descriptionViewModel.uiState.hoursToWatch?:""}:${descriptionViewModel.uiState.minutesToWatch?:""}",
+                        fontSize = 16.sp,
+                    )
+
+                }
+            }
+        },
+        onDismissRequest = {
+            descriptionViewModel.updateReminderDialogueStatus(false)
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    descriptionViewModel.addMovieToWatchToDB(MoviesToWatchForRetrofit(user = User(id = authViewModel.uiState.user!!.id), movie = descriptionViewModel.uiState.roomMovieInfoForRetrofit, reminderDate = descriptionViewModel.uiState.dateToWatch, reminderHour = descriptionViewModel.uiState.hoursToWatch, reminderMinute = descriptionViewModel.uiState.minutesToWatch))
+                    journalsViewModel.addMovieToWatchToLocalDB(MoviesToWatch(userId = authViewModel.uiState.user!!.id, movieId = descriptionViewModel.uiState.roomMovieInfoForRetrofit?.id!!, reminderDate = descriptionViewModel.uiState.dateToWatch, reminderHour = descriptionViewModel.uiState.hoursToWatch, reminderMinute = descriptionViewModel.uiState.minutesToWatch))
+                    descriptionViewModel.updateReminderDialogueStatus(false)
+                }
+            ) {
+                Text("Напомнить")
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = {
+                    descriptionViewModel.updateReminderDialogueStatus(false)
+                    descriptionViewModel.changeDateToWatch(null)
+                    descriptionViewModel.changeTimeToWatch(null, null)
+                }
+            ) {
+                Text("Отменить")
+            }
+        }
+    )
 }
 
 /*@Preview(showBackground = true)

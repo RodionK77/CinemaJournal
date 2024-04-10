@@ -1,5 +1,7 @@
 package com.example.cinemajournal.ui.theme.screens
 
+import android.content.Context
+import android.content.Intent
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Box
@@ -17,6 +19,7 @@ import androidx.compose.material.icons.filled.Start
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.outlined.AddBox
 import androidx.compose.material.icons.outlined.Contacts
+import androidx.compose.material.icons.outlined.Print
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedButton
@@ -49,6 +52,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.navigation.NavController
 import com.bumptech.glide.integration.compose.placeholder
 import com.example.cinemajournal.data.models.RoomModels.MoviesToWatch
@@ -62,11 +67,25 @@ import com.example.cinemajournal.ui.theme.screens.viewmodels.AuthViewModel
 import com.example.cinemajournal.ui.theme.screens.viewmodels.DescriptionViewModel
 import com.example.cinemajournal.ui.theme.screens.viewmodels.GalleryViewModel
 import com.example.cinemajournal.ui.theme.screens.viewmodels.JournalsViewModel
+import com.example.cinemajournal.ui.theme.screens.viewmodels.ReviewViewModel
 import com.example.example.MovieInfo
+import com.itextpdf.html2pdf.HtmlConverter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.html.*
+import kotlinx.html.stream.appendHTML
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
+import java.io.InputStreamReader
+import java.nio.charset.StandardCharsets
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.OutputStream
+import java.io.StringReader
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -207,8 +226,9 @@ fun GalleryToolbar(scrollBehavior: TopAppBarScrollBehavior, galleryViewModel: Ga
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ContentToolbar(navController: NavController, descriptionViewModel: DescriptionViewModel, authViewModel: AuthViewModel, journalsViewModel: JournalsViewModel){
+fun ContentToolbar(navController: NavController, currentDestination: String, descriptionViewModel: DescriptionViewModel, reviewViewModel: ReviewViewModel, authViewModel: AuthViewModel, journalsViewModel: JournalsViewModel){
 
+    val context = LocalContext.current
 
     if(descriptionViewModel.uiState.movieInfo != null){
         descriptionViewModel.checkMovieToWatch(descriptionViewModel.uiState.movieInfo?.id?: 0, authViewModel.uiState.user?.id?:0)
@@ -255,6 +275,16 @@ fun ContentToolbar(navController: NavController, descriptionViewModel: Descripti
             }
         },
         actions = {
+            if(currentDestination == "ContentReviewScreen"){
+                IconButton(onClick = {
+                    savePDF(createPDFFromHtml(createHtml(reviewViewModel), context, reviewViewModel.uiState.roomMovieInfoForRetrofit?.name?:""), context)
+                }) {
+                    Icon(
+                        imageVector = Icons.Outlined.Print,
+                        contentDescription = "Localized description"
+                    )
+                }
+            }
             dropDownMenu(descriptionViewModel, navController, authViewModel, journalsViewModel, toWatchText, watchedText)
         }
     )
@@ -375,6 +405,86 @@ fun dropDownMenu(descriptionViewModel: DescriptionViewModel, navController: NavC
                     descriptionViewModel.checkWatchedMovie(movieId, authViewModel.uiState.user?.id?:0)
                 }
             )
+            if(descriptionViewModel.uiState.movieToWatchStatus){
+                DropdownMenuItem(
+                    text = { Text("Напомнить посмотреть")},
+                    onClick = {
+                        descriptionViewModel.updateReminderDialogueStatus(true)
+                    }
+                )
+            }
         }
     }
+}
+
+fun createHtml(reviewViewModel: ReviewViewModel): String{
+    return buildString {
+        appendHTML().html {
+            head {
+                title {  +"${reviewViewModel.uiState.roomMovieInfoForRetrofit?.name?:"ревью на фильм"}" }
+            }
+            body {
+                h1 { +"Отзыв на фильм: ${reviewViewModel.uiState.roomMovieInfoForRetrofit?.name}" }
+                p {
+                    em { +"Рейтинг: "}
+                    +"${reviewViewModel.uiState.rating}"
+                }
+                var likes = ""
+                reviewViewModel.uiState.likesForReview?.forEach {
+                    likes = "$likes${it.description}, "
+                }
+                var dislikes = ""
+                reviewViewModel.uiState.dislikesForReview?.forEach {
+                    dislikes = "$dislikes${it.description}, "
+                }
+                p {
+                    em { +"Что понравилось: "}
+                    +"$likes"
+                }
+                p {
+                    em { +"Что не понравилось: "}
+                    +"$dislikes"
+                }
+                p {
+                    em { +"Заметки: "}
+                    +"${reviewViewModel.uiState.reviewText}"
+                }
+            }
+        }
+    }
+}
+
+fun createPDFFromHtml(html: String, context: Context, name: String): File? {
+
+
+    val outputStream = ByteArrayOutputStream()
+
+    HtmlConverter.convertToPdf(html, outputStream)
+
+    val pdfFile = File(context.cacheDir, "Ревью_на_фильм_${name}.pdf")
+
+    FileOutputStream(pdfFile).use { fileOutputStream ->
+        outputStream.writeTo(fileOutputStream)
+    }
+
+    return pdfFile
+}
+
+fun savePDF(pdfFile: File?, context: Context){
+
+    if(pdfFile!=null){
+        val intent = Intent(Intent.ACTION_SEND)
+        intent.type = "application/pdf"
+        val pdfUri = FileProvider.getUriForFile(context, context.packageName + ".provider", pdfFile)
+        intent.putExtra(Intent.EXTRA_STREAM, pdfUri)
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+
+        ContextCompat.startActivity(
+            context,
+            Intent.createChooser(intent, "Share PDF with"),
+            null
+        )
+    }
+
+
 }

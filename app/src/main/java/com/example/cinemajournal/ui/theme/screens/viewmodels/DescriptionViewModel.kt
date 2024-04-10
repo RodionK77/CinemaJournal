@@ -19,6 +19,7 @@ import com.example.cinemajournal.Domain.moviesDBUseCases.DeleteMovieToWatchByIdF
 import com.example.cinemajournal.Domain.moviesDBUseCases.DeleteMovieToWatchFromDBUseCase
 import com.example.cinemajournal.Domain.moviesDBUseCases.DeleteWatchedMovieByIdFromLocalDBUseCase
 import com.example.cinemajournal.Domain.moviesDBUseCases.DeleteWatchedMovieFromDBUseCase
+import com.example.cinemajournal.Domain.moviesDBUseCases.GetReminderDateAndTimeFromToWatchFromLocalDBUseCase
 import com.example.cinemajournal.Domain.moviesDBUseCases.SaveDislikesToLocalDBUseCase
 import com.example.cinemajournal.Domain.moviesDBUseCases.SaveLikesToLocalDBUseCase
 import com.example.cinemajournal.Domain.moviesDBUseCases.SaveReviewToLocalDBUseCase
@@ -47,8 +48,10 @@ data class ItemDescriptionUiState(
     val addWatchedMovieToDBResponseMessage: String = "",
     val addMovieToWatchToLocalDBResponseMessage: String = "",
     val addWatchedMovieToLocalDBResponseMessage: String = "",
-    val likesForReview: MutableList<Likes>? = null,
-    val dislikesForReview: MutableList<Dislikes>? = null
+    val reminderDialogStatus: Boolean = false,
+    val dateToWatch: String? = null,
+    val hoursToWatch: Int? = null,
+    val minutesToWatch: Int? = null,
 )
 
 @HiltViewModel
@@ -62,35 +65,29 @@ class DescriptionViewModel @Inject constructor(private val getMovieByIdUseCase: 
                                                private val checkWatchedMovieUseCase: CheckWatchedMovieUseCase,
                                                private val deleteMovieToWatchByIdFromLocalDBUseCase: DeleteMovieToWatchByIdFromLocalDBUseCase,
                                                private val deleteWatchedMovieByIdFromLocalDBUseCase: DeleteWatchedMovieByIdFromLocalDBUseCase,
-                                               private val addReviewToDBUseCase: AddReviewToDBUseCase,
-                                               private val saveReviewToLocalDBUseCase: SaveReviewToLocalDBUseCase,
-                                               private val saveLikesToLocalDBUseCase: SaveLikesToLocalDBUseCase,
-                                               private val saveDislikesToLocalDBUseCase: SaveDislikesToLocalDBUseCase,
-                                               private val deleteLikesByIdFromLocalDBUseCase: DeleteLikesByIdFromLocalDBUseCase,
-                                               private val deleteDislikesByIdFromLocalDBUseCase: DeleteDislikesByIdFromLocalDBUseCase): ViewModel() {
+                                               private val getReminderDateAndTimeFromToWatchFromLocalDBUseCase: GetReminderDateAndTimeFromToWatchFromLocalDBUseCase): ViewModel() {
 
     var uiState by mutableStateOf(ItemDescriptionUiState())
         private set
+
+
+    fun updateReminderDialogueStatus(status: Boolean) {
+        uiState = uiState.copy(reminderDialogStatus = status)
+    }
+
+    fun changeDateToWatch(date: String?){
+        uiState = uiState.copy(dateToWatch = date)
+    }
+
+    fun changeTimeToWatch(hours: Int?, minutes: Int?){
+        uiState = uiState.copy(hoursToWatch = hours, minutesToWatch = minutes)
+    }
 
     fun refreshCurrentMovieInfo(movieInfo: MovieInfo?) {
         uiState = uiState.copy(movieInfo = movieInfo)
     }
     fun refreshCurrentMovieInfoRoom(movieInfo: RoomMovieInfoForRetrofit?) {
         uiState = uiState.copy(roomMovieInfoForRetrofit = movieInfo)
-    }
-
-    fun changeLikes(likes: MutableList<Likes>?){
-        uiState = uiState.copy(likesForReview = likes)
-    }
-    fun addLike(like: Likes){
-        uiState.likesForReview?.add(like)
-    }
-
-    fun changeDislikes(dislikes: MutableList<Dislikes>?){
-        uiState = uiState.copy(dislikesForReview = dislikes)
-    }
-    fun addDislike(dislike: Dislikes){
-        uiState.dislikesForReview?.add(dislike)
     }
 
     fun checkMovieToWatch(movieId: Int, userId: Int){
@@ -164,6 +161,23 @@ class DescriptionViewModel @Inject constructor(private val getMovieByIdUseCase: 
         //uiState = uiState.copy(searchMoviesInfo = getSearchMoviesUseCase(query)?.movieInfo ?: arrayListOf())
     }
 
+    fun getReminderDateAndTime(id: Int){
+
+        viewModelScope.launch {
+            kotlin.runCatching { getReminderDateAndTimeFromToWatchFromLocalDBUseCase(id) }
+                .onSuccess { response ->
+                    uiState = uiState.copy(
+                        dateToWatch = response.reminderDate,
+                        hoursToWatch = response.reminderHour,
+                        minutesToWatch = response.reminderMinute
+                    )
+                    Log.d("R", "Напоминание: ${response}", )
+                }
+                .onFailure { Log.d("R", "Напоминание не загрузилось", ) }
+        }
+        //uiState = uiState.copy(searchMoviesInfo = getSearchMoviesUseCase(query)?.movieInfo ?: arrayListOf())
+    }
+
     fun addWatchedMovieToDB(watchedMovies: WatchedMoviesForRetrofit){
         viewModelScope.launch {
             kotlin.runCatching { addWatchedMovieToDBUseCase(watchedMovies) }
@@ -210,68 +224,6 @@ class DescriptionViewModel @Inject constructor(private val getMovieByIdUseCase: 
                 .onFailure { Log.d("R", "Проблема при удалении локального филмьа к просмотру: ${it.message}", ) }
         }
         //uiState = uiState.copy(searchMoviesInfo = getSearchMoviesUseCase(query)?.movieInfo ?: arrayListOf())
-    }
-
-    fun addReviewToDB(review: ReviewForRetrofit){
-        viewModelScope.launch {
-            kotlin.runCatching { addReviewToDBUseCase(review) }
-                .onSuccess { response ->
-                    Log.d("R", "Ревью добавлено в удалённую бд", )
-                }
-                .onFailure { Log.d("R", "Проблема при добавлении ревью в удалённую бд: ${it.message}", ) }
-        }
-    }
-
-    fun saveReviewToLocalDB(review: Review){
-        viewModelScope.launch {
-            kotlin.runCatching { saveReviewToLocalDBUseCase(review) }
-                .onSuccess { response ->
-                    Log.d("R", "Обновленное ревью записано", )
-                }
-                .onFailure { Log.d("R", "Обновленное ревью не записано: ${it.message}", ) }
-        }
-    }
-
-    fun saveLikesToLocalDB(likes: Likes){
-        viewModelScope.launch {
-            kotlin.runCatching { saveLikesToLocalDBUseCase(likes) }
-                .onSuccess { response ->
-                    Log.d("R", "Обновленные лайки записаны", )
-                }
-                .onFailure { Log.d("R", "Обновленные лайки не записаны : ${it.message}", ) }
-        }
-    }
-
-    fun saveDislikesToLocalDB(dislikes: Dislikes){
-        viewModelScope.launch {
-            kotlin.runCatching { saveDislikesToLocalDBUseCase(dislikes) }
-                .onSuccess { response ->
-                    Log.d("R", "Обновленные дизлайки не записаны", )
-                }
-                .onFailure { Log.d("R", "Обновленные дизлайки не записаны: ${it.message}", ) }
-        }
-    }
-
-    fun deleteLikesFromLocalDB(movieId: Int){
-        viewModelScope.launch {
-            kotlin.runCatching { deleteLikesByIdFromLocalDBUseCase(movieId) }
-                .onSuccess { response ->
-                    //uiState = uiState.copy(movieInfo = response)
-                    Log.d("R", "Лайки для фильма удалены", )
-                }
-                .onFailure { Log.d("R", "Проблема при удалении лайков для фильма: ${it.message}", ) }
-        }
-    }
-
-    fun deleteDislikesFromLocalDB(movieId: Int){
-        viewModelScope.launch {
-            kotlin.runCatching { deleteDislikesByIdFromLocalDBUseCase(movieId) }
-                .onSuccess { response ->
-                    //uiState = uiState.copy(movieInfo = response)
-                    Log.d("R", "Дизлайки для фильма удалены", )
-                }
-                .onFailure { Log.d("R", "Проблема при удалении дизлайков для фильма: ${it.message}", ) }
-        }
     }
 
 }

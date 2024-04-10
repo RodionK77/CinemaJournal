@@ -31,4 +31,6 @@ data class MoviesToWatch(
     @ColumnInfo(name = "user_id") val userId: Int,
     @ColumnInfo(name = "movie_id") val movieId: Int,
     var reminderDate: String? = null,
+    var reminderHour: Int? = null,
+    var reminderMinute: Int? = null
 )

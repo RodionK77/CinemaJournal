@@ -71,7 +71,9 @@ dependencies {
     implementation "com.google.dagger:hilt-android:2.48"
     implementation 'androidx.hilt:hilt-navigation-compose:1.0.0'
     kapt "com.google.dagger:hilt-compiler:2.48"
+    implementation "androidx.work:work-runtime-ktx:2.7.0"
     implementation "com.github.bumptech.glide:compose:1.0.0-beta01"
+    implementation "io.github.vanpra.compose-material-dialogs:datetime:0.8.1-rc"
     implementation "androidx.compose.runtime:runtime-livedata:1.5.1"
     implementation "androidx.room:room-runtime:$room_version"
     annotationProcessor "androidx.room:room-compiler:$room_version"
@@ -96,6 +98,11 @@ dependencies {
 
     // optional - Paging 3 Integration
     implementation "androidx.room:room-paging:$room_version"
+
+    implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.11.0")
+
+    implementation 'com.itextpdf:html2pdf:3.0.1'
+
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'

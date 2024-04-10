@@ -1,6 +1,8 @@
 package com.example.cinemajournal.data.models.RoomModels
 
 import androidx.room.ColumnInfo
+import java.time.LocalDate
+import java.util.Date
 
 data class ReviewForRetrofit(
     val user: User? = null,
@@ -9,5 +11,6 @@ data class ReviewForRetrofit(
     var rating: Double = 0.0,
     var notes: String? = null,
     var likes: List<Likes>? = null,
-    var dislikes: List<Dislikes>? = null
+    var dislikes: List<Dislikes>? = null,
+    var dateWatched: String? = null
 )

@@ -4,6 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import java.time.LocalDate
 
 @Entity(
     primaryKeys = ["user_id","movie_id"],
@@ -27,5 +28,7 @@ data class Review(
     @ColumnInfo(name = "movie_id") val movieId: Int,
     var contentId: Int = 0,
     var rating: Double = 0.0,
-    var notes: String? = null
+    var notes: String? = null,
+    var dateWatched: String? = null
+
 )

@@ -31,11 +31,12 @@ import com.example.cinemajournal.data.models.RoomModels.RoomMovieInfoForRetrofit
 import com.example.cinemajournal.ui.theme.screens.viewmodels.DescriptionViewModel
 import com.example.cinemajournal.ui.theme.screens.viewmodels.GalleryViewModel
 import com.example.cinemajournal.ui.theme.screens.viewmodels.JournalsViewModel
+import com.example.cinemajournal.ui.theme.screens.viewmodels.ReviewViewModel
 import com.example.example.MovieInfo
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun cinemaItemColumnLocalDB(item: RoomMovieInfoForRetrofit, selectedIndex: Int, navController: NavController, journalsViewModel: JournalsViewModel, galleryViewModel: GalleryViewModel, descriptionViewModel: DescriptionViewModel) {
+fun cinemaItemColumnLocalDB(item: RoomMovieInfoForRetrofit, selectedIndex: Int, navController: NavController, reviewViewModel: ReviewViewModel, galleryViewModel: GalleryViewModel, descriptionViewModel: DescriptionViewModel) {
 
 
     Card(
@@ -48,6 +49,7 @@ fun cinemaItemColumnLocalDB(item: RoomMovieInfoForRetrofit, selectedIndex: Int, 
                     galleryViewModel.selectMovie(item.id!!)
                     descriptionViewModel.refreshCurrentMovieInfo(null)
                     descriptionViewModel.refreshCurrentMovieInfoRoom(item)
+                    reviewViewModel.refreshCurrentMovieInfoRoom(item)
                     navController.navigate("ContentReviewScreen")
                 }
                 else if (selectedIndex == 1){

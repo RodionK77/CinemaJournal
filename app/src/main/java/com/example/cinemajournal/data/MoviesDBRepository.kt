@@ -92,6 +92,18 @@ class MoviesDBRepository @Inject constructor(database: UsersDatabase, private va
         dao.deleteAllMoviesToWatchFromLocalDB()
     }
 
+    suspend fun getReminderDateByIdFromToWatchFromLocalDB(movieId: Int) : String?{
+        return dao.getReminderDateByIdFromToWatchFromLocalDB(movieId)
+    }
+
+    suspend fun getReminderHourByIdFromToWatchFromLocalDB(movieId: Int) : Int?{
+        return dao.getReminderHourByIdFromToWatchFromLocalDB(movieId)
+    }
+
+    suspend fun getReminderMinuteByIdFromToWatchFromLocalDB(movieId: Int) : Int?{
+        return dao.getReminderMinuteByIdFromToWatchFromLocalDB(movieId)
+    }
+
     suspend fun saveWatchedMovieToLocalDB(item: WatchedMovies) {
         dao.saveWatchedMovieToLocalDB(item)
     }

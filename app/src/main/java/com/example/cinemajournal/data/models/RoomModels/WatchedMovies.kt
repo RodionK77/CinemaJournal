@@ -28,5 +28,5 @@ data class WatchedMovies(
     var watchedId: Int = 0,*/
     @ColumnInfo(name = "user_id") val userId: Int,
     @ColumnInfo(name = "movie_id") val movieId: Int,
-    var dateWatched: String? = null,
+    //var dateWatched: String? = null,
 )

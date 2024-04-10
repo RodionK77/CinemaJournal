@@ -28,11 +28,12 @@ import androidx.navigation.NavController
 import com.example.cinemajournal.ui.theme.screens.viewmodels.DescriptionViewModel
 import com.example.cinemajournal.ui.theme.screens.viewmodels.GalleryViewModel
 import com.example.cinemajournal.ui.theme.screens.viewmodels.JournalsViewModel
+import com.example.cinemajournal.ui.theme.screens.viewmodels.ReviewViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun JournalsScreen(navController: NavController, journalsViewModel: JournalsViewModel, galleryViewModel: GalleryViewModel, descriptionViewModel: DescriptionViewModel) {
+fun JournalsScreen(navController: NavController, journalsViewModel: JournalsViewModel, reviewViewModel: ReviewViewModel, galleryViewModel: GalleryViewModel, descriptionViewModel: DescriptionViewModel) {
 
     //val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
@@ -42,8 +43,13 @@ fun JournalsScreen(navController: NavController, journalsViewModel: JournalsView
         journalsViewModel.startUpdateLocalDB(journalsViewModel.uiState.user!!)
     }*/
 
-    descriptionViewModel.changeLikes(null)
-    descriptionViewModel.changeDislikes(null)
+    reviewViewModel.changeLikes(null)
+    reviewViewModel.changeDislikes(null)
+    reviewViewModel.changeReviewText(null)
+    reviewViewModel.changeRating(null)
+    reviewViewModel.changeDate(null)
+    descriptionViewModel.changeTimeToWatch(null, null)
+    descriptionViewModel.changeDateToWatch(null)
 
 
     Column(
@@ -107,7 +113,7 @@ fun JournalsScreen(navController: NavController, journalsViewModel: JournalsView
                             ){ _, item ->
                                 cinemaItemColumnLocalDB(
                                     item = item, navController = navController, selectedIndex = journalsViewModel.uiState.selectedTabIndex,
-                                    journalsViewModel = journalsViewModel, galleryViewModel = galleryViewModel,
+                                    reviewViewModel = reviewViewModel, galleryViewModel = galleryViewModel,
                                     descriptionViewModel = descriptionViewModel
                                 )
                             }
@@ -131,7 +137,7 @@ fun JournalsScreen(navController: NavController, journalsViewModel: JournalsView
                             ){ _, item ->
                                 cinemaItemColumnLocalDB(
                                     item = item, navController = navController, selectedIndex = journalsViewModel.uiState.selectedTabIndex,
-                                    journalsViewModel = journalsViewModel, galleryViewModel = galleryViewModel,
+                                    reviewViewModel = reviewViewModel, galleryViewModel = galleryViewModel,
                                     descriptionViewModel = descriptionViewModel
                                 )
                             }

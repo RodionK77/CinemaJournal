@@ -55,7 +55,7 @@ import kotlinx.coroutines.launch
 fun MainScreen(context: MainActivity,
                galleryViewModel: GalleryViewModel = hiltViewModel(),
                descriptionViewModel: DescriptionViewModel = viewModel(),
-               reviewViewModel: ReviewViewModel = viewModel(),
+               reviewViewModel: ReviewViewModel = hiltViewModel(),
                authViewModel: AuthViewModel = hiltViewModel(),
                journalsViewModel: JournalsViewModel = hiltViewModel(),
                ){
@@ -142,7 +142,7 @@ fun MainScreen(context: MainActivity,
         topBar = { when(topBarState.value){
             0-> JournalsToolbar(scrollBehavior = scrollBehavior)
             1-> GalleryToolbar(scrollBehavior = scrollBehavior, galleryViewModel)
-            2-> ContentToolbar(navController = navController, descriptionViewModel, authViewModel, journalsViewModel)
+            2-> ContentToolbar(navController = navController, currentDestination?:"JournalsScreen", descriptionViewModel, reviewViewModel, authViewModel, journalsViewModel)
         } },
         bottomBar = {
             if(topBarState.value != 3)
@@ -176,19 +176,19 @@ fun MainScreen(context: MainActivity,
                         EntranceScreen(navController, authViewModel, journalsViewModel)
                     }
                     composable("JournalsScreen") {
-                        JournalsScreen(navController, journalsViewModel, galleryViewModel, descriptionViewModel)
+                        JournalsScreen(navController, journalsViewModel, reviewViewModel, galleryViewModel, descriptionViewModel)
                     }
                     composable("GalleryScreen") {
                         GalleryScreen(navController, galleryViewModel, descriptionViewModel)
                     }
                     composable("ContentDescriptionScreen") {
-                        ContentDescriptionScreen(navController, descriptionViewModel)
+                        ContentDescriptionScreen(navController, descriptionViewModel, authViewModel, journalsViewModel, context)
                     }
                     composable("LocalContentDescriptionScreen") {
-                        ContentDescriptionScreen(navController, descriptionViewModel)
+                        ContentDescriptionScreen(navController, descriptionViewModel, authViewModel, journalsViewModel, context)
                     }
                     composable("ContentReviewScreen") {
-                        ContentReviewScreen(navController = navController, descriptionViewModel, authViewModel)
+                        ContentReviewScreen(navController = navController, reviewViewModel, authViewModel, context)
                     }
                 }
             }

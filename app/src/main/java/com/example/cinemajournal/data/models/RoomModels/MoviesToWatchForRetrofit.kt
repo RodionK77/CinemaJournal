@@ -7,4 +7,6 @@ data class MoviesToWatchForRetrofit(
     val movie: RoomMovieInfoForRetrofit?,
     var contentId: Int? = null,
     var reminderDate: String? = null,
+    var reminderHour: Int? = null,
+    var reminderMinute: Int? = null,
 )

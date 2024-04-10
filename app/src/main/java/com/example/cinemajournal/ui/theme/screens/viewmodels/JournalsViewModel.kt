@@ -414,7 +414,8 @@ class JournalsViewModel @Inject constructor(
                                 rating = review?.rating ?: 0.0,
                                 notes = review?.notes ?: "",
                                 likes = likes,
-                                dislikes = dislikes
+                                dislikes = dislikes,
+                                dateWatched = review?.dateWatched
                             )
                         )
                         movies.add(movie)
@@ -838,7 +839,6 @@ class JournalsViewModel @Inject constructor(
                         WatchedMovies(
                             userId = user.id,
                             movieId = watchedMovie.contentId ?: 0,
-                            dateWatched = watchedMovie.dateWatched
                         )
                     )
                 }
@@ -871,7 +871,9 @@ class JournalsViewModel @Inject constructor(
                             MoviesToWatch(
                                 userId = user.id,
                                 movieId = it.contentId ?: 0,
-                                reminderDate = it.reminderDate
+                                reminderDate = it.reminderDate,
+                                reminderHour = it.reminderHour,
+                                reminderMinute = it.reminderMinute
                             )
                         )
                     }
@@ -901,7 +903,8 @@ class JournalsViewModel @Inject constructor(
                             userId = user.id,
                             movieId = it.contentId,
                             rating = it.rating,
-                            notes = it.notes
+                            notes = it.notes,
+                            dateWatched = it.dateWatched
                         )
                     )
                 }
