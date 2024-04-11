@@ -138,7 +138,7 @@ fun ContentDescriptionScreen(
         val timeDialogueState = rememberMaterialDialogState()
         
         if(descriptionViewModel.uiState.reminderDialogStatus){
-            reminderDialogue(descriptionViewModel = descriptionViewModel, authViewModel = authViewModel, journalsViewModel = journalsViewModel, dateDialogueState = dateDialogueState, timeDialogueState = timeDialogueState)
+            reminderDialogue(descriptionViewModel = descriptionViewModel, authViewModel = authViewModel, journalsViewModel = journalsViewModel, dateDialogueState = dateDialogueState, timeDialogueState = timeDialogueState, context = context)
         }
 
         MaterialDialog(
@@ -470,7 +470,7 @@ private fun Content(descriptionViewModel: DescriptionViewModel) {
 }
 
 @Composable
-fun reminderDialogue(descriptionViewModel: DescriptionViewModel, authViewModel: AuthViewModel, journalsViewModel: JournalsViewModel, dateDialogueState: MaterialDialogState, timeDialogueState: MaterialDialogState) {
+fun reminderDialogue(descriptionViewModel: DescriptionViewModel, authViewModel: AuthViewModel, journalsViewModel: JournalsViewModel, dateDialogueState: MaterialDialogState, timeDialogueState: MaterialDialogState, context: Context) {
     AlertDialog(
         icon = {
             //Icon(icon, contentDescription = "Example Icon")
@@ -531,6 +531,22 @@ fun reminderDialogue(descriptionViewModel: DescriptionViewModel, authViewModel: 
                 onClick = {
                     descriptionViewModel.addMovieToWatchToDB(MoviesToWatchForRetrofit(user = User(id = authViewModel.uiState.user!!.id), movie = descriptionViewModel.uiState.roomMovieInfoForRetrofit, reminderDate = descriptionViewModel.uiState.dateToWatch, reminderHour = descriptionViewModel.uiState.hoursToWatch, reminderMinute = descriptionViewModel.uiState.minutesToWatch))
                     journalsViewModel.addMovieToWatchToLocalDB(MoviesToWatch(userId = authViewModel.uiState.user!!.id, movieId = descriptionViewModel.uiState.roomMovieInfoForRetrofit?.id!!, reminderDate = descriptionViewModel.uiState.dateToWatch, reminderHour = descriptionViewModel.uiState.hoursToWatch, reminderMinute = descriptionViewModel.uiState.minutesToWatch))
+                    val createNotification = CreateNotification(context, "Пора смотреть!", descriptionViewModel.uiState.roomMovieInfoForRetrofit?.name?:"")
+                    createNotification.scheduleNotification(
+                        descriptionViewModel.uiState.dateToWatch?.substringAfterLast("/")?.toInt()?:2024,
+                        descriptionViewModel.uiState.dateToWatch?.substringAfter("/")?.substringBefore("/")?.removePrefix("0")?.toInt()
+                            ?.minus(1)
+                            ?:4,
+                        descriptionViewModel.uiState.dateToWatch?.substringBefore("/")?.removePrefix("0")?.toInt()?:3,
+                        descriptionViewModel.uiState.hoursToWatch?:11,
+                        descriptionViewModel.uiState.minutesToWatch?:0
+                    )
+                    Log.d("R", "Уведомление сделано, дата: ${descriptionViewModel.uiState.dateToWatch} ; ${descriptionViewModel.uiState.hoursToWatch}:${descriptionViewModel.uiState.minutesToWatch}")
+                    Log.d("R", "${descriptionViewModel.uiState.dateToWatch?.substringAfterLast("/")?.toInt()?:2024}")
+                    Log.d("R", "${descriptionViewModel.uiState.dateToWatch?.substringAfter("/")?.substringBefore("/")?.removePrefix("0")?.toInt()
+                        ?.minus(1)
+                        ?:4}")
+                    Log.d("R", "${descriptionViewModel.uiState.dateToWatch?.substringBefore("/")?.removePrefix("0")?.toInt()?:3}")
                     descriptionViewModel.updateReminderDialogueStatus(false)
                 }
             ) {

@@ -619,10 +619,11 @@ private fun Content(reviewViewModel: ReviewViewModel, authViewModel: AuthViewMod
                 positiveButton(text = "Принять") {
                     Toast.makeText(context, "", Toast.LENGTH_SHORT).show()
                     //scheduleNotification(13, 55, 2024, 4, 9, context)
+                    //val createNotification = CreateNotification(context, "пора", "смотреть", 2024, Calendar.APRIL, 11, 13, 28)
+                    //createNotification.scheduleNotification()
                     //val createNotification = CreateNotification(context)
-                    //createNotification.showNotification()
-                    //val createNotification = CreateNotification(context)
-                    //createNotification.scheduleNotification(2024, Calendar.APRIL, 9, 14, 28)
+                    //createNotification.scheduleNotification(2024, Calendar.APRIL, 11, 13, 31)
+
                 }
                 negativeButton (text = "Отменить")
             }
