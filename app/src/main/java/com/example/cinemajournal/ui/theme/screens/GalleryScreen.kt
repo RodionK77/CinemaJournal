@@ -53,6 +53,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -63,6 +64,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.cinemajournal.R
+import com.example.cinemajournal.ui.theme.screens.viewmodels.AuthViewModel
 import com.example.cinemajournal.ui.theme.screens.viewmodels.DescriptionViewModel
 import com.example.cinemajournal.ui.theme.screens.viewmodels.GalleryViewModel
 import com.example.compose.AppTheme
@@ -78,7 +81,8 @@ import kotlinx.coroutines.launch
 fun GalleryScreen(
     navController: NavController,
     galleryViewModel: GalleryViewModel,
-    descriptionViewModel: DescriptionViewModel
+    descriptionViewModel: DescriptionViewModel,
+    authViewModel: AuthViewModel
 ) {
 
     var drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -125,11 +129,11 @@ fun GalleryScreen(
                             },
                         //modifier = Modifier.padding(end=8.dp)
                     ){
-                        Text("Тип фильма", fontWeight = FontWeight.SemiBold, fontSize = 18.sp)
+                        Text(stringResource(R.string.type_of_movie), fontWeight = FontWeight.SemiBold, fontSize = 18.sp)
                         Icon(
                             modifier = Modifier.scale(0.8f),
                             imageVector = if (typeIsExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                            contentDescription = "Развернуть"
+                            contentDescription = stringResource(R.string.expand)
                         )
                     }
                     val typeState1 = rememberSaveable { mutableStateOf(false) }
@@ -201,11 +205,11 @@ fun GalleryScreen(
                             },
                         //modifier = Modifier.padding(end=8.dp)
                     ){
-                        Text("Год", fontWeight = FontWeight.SemiBold, fontSize = 18.sp)
+                        Text(stringResource(R.string.year), fontWeight = FontWeight.SemiBold, fontSize = 18.sp)
                         Icon(
                             modifier = Modifier.scale(0.8f),
                             imageVector = if (yearIsExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                            contentDescription = "Развернуть"
+                            contentDescription = stringResource(R.string.expand)
                         )
                     }
                     var yearState1 by rememberSaveable { mutableStateOf("") }
@@ -223,7 +227,7 @@ fun GalleryScreen(
                                 textStyle = TextStyle(fontSize=18.sp),
                                 onValueChange = {yearState1 = it},
                                 singleLine = true,
-                                placeholder = {Text("От...")},
+                                placeholder = {Text(stringResource(R.string.from))},
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             )
                             Text("—", fontSize = 16.sp)
@@ -235,7 +239,7 @@ fun GalleryScreen(
                                 textStyle = TextStyle(fontSize=18.sp),
                                 onValueChange = {yearState2 = it},
                                 singleLine = true,
-                                placeholder = {Text("До...")},
+                                placeholder = {Text(stringResource(R.string.before))},
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             )
                         }
@@ -252,11 +256,11 @@ fun GalleryScreen(
                             },
                         //modifier = Modifier.padding(end=8.dp)
                     ){
-                        Text("Рейтинг КП", fontWeight = FontWeight.SemiBold, fontSize = 18.sp)
+                        Text(stringResource(R.string.kp_rating_short), fontWeight = FontWeight.SemiBold, fontSize = 18.sp)
                         Icon(
                             modifier = Modifier.scale(0.8f),
                             imageVector = if (ratingIsExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                            contentDescription = "Развернуть"
+                            contentDescription = stringResource(R.string.expand)
                         )
                     }
                     var ratingState1 by rememberSaveable { mutableStateOf("") }
@@ -274,7 +278,7 @@ fun GalleryScreen(
                                 textStyle = TextStyle(fontSize=18.sp),
                                 onValueChange = {ratingState1 = it},
                                 singleLine = true,
-                                placeholder = {Text("От...")},
+                                placeholder = {Text(stringResource(R.string.from))},
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             )
                             Text("—", fontSize = 16.sp)
@@ -286,29 +290,35 @@ fun GalleryScreen(
                                 textStyle = TextStyle(fontSize=18.sp),
                                 onValueChange = {ratingState2 = it},
                                 singleLine = true,
-                                placeholder = {Text("До...")},
+                                placeholder = {Text(stringResource(R.string.before))},
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             )
                         }
                     }
 
-                    HorizontalDivider()
                     var ageIsExpanded by rememberSaveable { mutableStateOf(false) }
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .padding(start = 16.dp, end = 16.dp, top = 16.dp)
-                            .clickable {
-                                ageIsExpanded = !ageIsExpanded
-                            },
-                        //modifier = Modifier.padding(end=8.dp)
-                    ){
-                        Text("Возрастной рейтинг", fontWeight = FontWeight.SemiBold, fontSize = 18.sp)
-                        Icon(
-                            modifier = Modifier.scale(0.8f),
-                            imageVector = if (ageIsExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                            contentDescription = "Развернуть"
-                        )
+                    if(authViewModel.uiState.user?.role?:0 == 0) {
+                        HorizontalDivider()
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .padding(start = 16.dp, end = 16.dp, top = 16.dp)
+                                .clickable {
+                                    ageIsExpanded = !ageIsExpanded
+                                },
+                            //modifier = Modifier.padding(end=8.dp)
+                        ) {
+                            Text(
+                                stringResource(R.string.age_rating),
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 18.sp
+                            )
+                            Icon(
+                                modifier = Modifier.scale(0.8f),
+                                imageVector = if (ageIsExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                                contentDescription = stringResource(R.string.expand)
+                            )
+                        }
                     }
                     var ageState1 by rememberSaveable { mutableStateOf("") }
                     var ageState2 by rememberSaveable { mutableStateOf("") }
@@ -325,7 +335,7 @@ fun GalleryScreen(
                                 textStyle = TextStyle(fontSize=18.sp),
                                 onValueChange = {ageState1 = it},
                                 singleLine = true,
-                                placeholder = {Text("От...")},
+                                placeholder = {Text(stringResource(R.string.from))},
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             )
                             Text("—", fontSize = 16.sp)
@@ -337,7 +347,7 @@ fun GalleryScreen(
                                 textStyle = TextStyle(fontSize=18.sp),
                                 onValueChange = {ageState2 = it},
                                 singleLine = true,
-                                placeholder = {Text("До...")},
+                                placeholder = {Text(stringResource(R.string.before))},
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             )
                         }
@@ -353,11 +363,11 @@ fun GalleryScreen(
                             },
                         //modifier = Modifier.padding(end=8.dp)
                     ){
-                        Text("Продолжительность (минуты)", fontWeight = FontWeight.SemiBold, fontSize = 18.sp)
+                        Text(stringResource(R.string.duration), fontWeight = FontWeight.SemiBold, fontSize = 18.sp)
                         Icon(
                             modifier = Modifier.scale(0.8f),
                             imageVector = if (timeIsExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                            contentDescription = "Развернуть"
+                            contentDescription = stringResource(R.string.expand)
                         )
                     }
                     var timeState1 by rememberSaveable { mutableStateOf("") }
@@ -375,7 +385,7 @@ fun GalleryScreen(
                                 textStyle = TextStyle(fontSize=18.sp),
                                 onValueChange = {timeState1 = it},
                                 singleLine = true,
-                                placeholder = {Text("От...")},
+                                placeholder = {Text(stringResource(R.string.from))},
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             )
                             Text("—", fontSize = 16.sp)
@@ -387,7 +397,7 @@ fun GalleryScreen(
                                 textStyle = TextStyle(fontSize=18.sp),
                                 onValueChange = {timeState2 = it},
                                 singleLine = true,
-                                placeholder = {Text("До...")},
+                                placeholder = {Text(stringResource(R.string.before))},
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             )
                         }
@@ -402,19 +412,23 @@ fun GalleryScreen(
                     ){
                         Text("Жанры", fontWeight = FontWeight.SemiBold, fontSize = 18.sp)
                         Icon(
-                            modifier = Modifier.scale(0.8f).clickable {
-                                showGenresDialog = true
-                            },
+                            modifier = Modifier
+                                .scale(0.8f)
+                                .clickable {
+                                    showGenresDialog = true
+                                },
                             imageVector = Icons.Outlined.AddCircle,
-                            contentDescription = "Добавить"
+                            contentDescription = stringResource(R.string.add)
                         )
                         if(galleryViewModel.uiState.genresList.isNotEmpty()){
                             Icon(
-                                modifier = Modifier.scale(0.8f).clickable {
-                                    galleryViewModel.removeAllGenres()
-                                },
+                                modifier = Modifier
+                                    .scale(0.8f)
+                                    .clickable {
+                                        galleryViewModel.removeAllGenres()
+                                    },
                                 imageVector = Icons.Filled.Delete,
-                                contentDescription = "Удалить всё"
+                                contentDescription = stringResource(R.string.delete_all)
                             )
                         }
                     }
@@ -439,21 +453,25 @@ fun GalleryScreen(
                             .padding(start = 16.dp, end = 16.dp, top = 16.dp)
                         //modifier = Modifier.padding(end=8.dp)
                     ){
-                        Text("Страны", fontWeight = FontWeight.SemiBold, fontSize = 18.sp)
+                        Text(stringResource(R.string.countries), fontWeight = FontWeight.SemiBold, fontSize = 18.sp)
                         Icon(
-                            modifier = Modifier.scale(0.8f).clickable {
-                                showCountriesDialog = true
-                            },
+                            modifier = Modifier
+                                .scale(0.8f)
+                                .clickable {
+                                    showCountriesDialog = true
+                                },
                             imageVector = Icons.Outlined.AddCircle,
-                            contentDescription = "Добавить"
+                            contentDescription = stringResource(R.string.add)
                         )
                         if(galleryViewModel.uiState.countriesList.isNotEmpty()){
                             Icon(
-                                modifier = Modifier.scale(0.8f).clickable {
-                                    galleryViewModel.removeAllCountries()
-                                },
+                                modifier = Modifier
+                                    .scale(0.8f)
+                                    .clickable {
+                                        galleryViewModel.removeAllCountries()
+                                    },
                                 imageVector = Icons.Filled.Delete,
-                                contentDescription = "Удалить всё"
+                                contentDescription = stringResource(R.string.delete_all)
                             )
                         }
                     }
@@ -508,8 +526,9 @@ fun GalleryScreen(
                     },
                         modifier = Modifier
                             .padding(top = 8.dp, bottom = 8.dp)
-                            .scale(0.9f).align(Alignment.CenterHorizontally)) {
-                        Text("Поиск по фильтрам", fontSize = 20.sp)
+                            .scale(0.9f)
+                            .align(Alignment.CenterHorizontally)) {
+                        Text(stringResource(R.string.filtered_search), fontSize = 20.sp)
                     }
                 }
 
@@ -517,7 +536,7 @@ fun GalleryScreen(
         },
     ) {
         if (!galleryViewModel.uiState.isQueryGo) {
-            BasicScreen(navController, galleryViewModel, descriptionViewModel)
+            BasicScreen(navController, galleryViewModel, descriptionViewModel, authViewModel)
         } else {
             SearchScreen(navController, galleryViewModel, descriptionViewModel)
         }
@@ -529,7 +548,7 @@ fun GalleryScreen(
                 //Icon(icon, contentDescription = "Example Icon")
             },
             title = {
-                Text("Введите жанр")
+                Text(stringResource(R.string.enter_a_genre))
             },
             text = {
                 TextField(
@@ -558,7 +577,7 @@ fun GalleryScreen(
                         }
                     }
                 ) {
-                    Text("Принять")
+                    Text(stringResource(R.string.accept))
                 }
             },
             dismissButton = {
@@ -568,7 +587,7 @@ fun GalleryScreen(
                         showGenresDialog = false
                     }
                 ) {
-                    Text("Отменить")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
@@ -580,7 +599,7 @@ fun GalleryScreen(
                 //Icon(icon, contentDescription = "Example Icon")
             },
             title = {
-                Text("Введите страну")
+                Text(stringResource(R.string.enter_a_country))
             },
             text = {
                 TextField(
@@ -609,7 +628,7 @@ fun GalleryScreen(
                         }
                     }
                 ) {
-                    Text("Принять")
+                    Text(stringResource(R.string.accept))
                 }
             },
             dismissButton = {
@@ -619,7 +638,7 @@ fun GalleryScreen(
                         showCountriesDialog = false
                     }
                 ) {
-                    Text("Отменить")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
@@ -632,48 +651,53 @@ fun GalleryScreen(
 fun BasicScreen(
     navController: NavController,
     galleryViewModel: GalleryViewModel,
-    descriptionViewModel: DescriptionViewModel
+    descriptionViewModel: DescriptionViewModel,
+    authViewModel: AuthViewModel
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                //.padding(innerPadding)
-                .padding(start = 16.dp, end = 16.dp)
-                .verticalScroll(ScrollState(0)),
-        ) {
-            Spacer(modifier = Modifier.height(6.dp))
-            Text(
-                text = "Стоит посмотреть",
-                color = MaterialTheme.colorScheme.primary,
-                fontSize = 24.sp,
-                fontWeight = FontWeight.SemiBold
-            )
-            LazyRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.onSecondary),
-            ) {
-                itemsIndexed(
-                    galleryViewModel.uiState.topMoviesInfo?.toList()!!
-                ) { _, item ->
-                    cinemaItemRow(
-                        item = item,
-                        galleryViewModel = galleryViewModel,
-                        descriptionViewModel,
-                        navController = navController
-                    )
-                }
-            }
-        }
-
-        if (galleryViewModel.uiState.isSearch) {
-            Box(
+        if(authViewModel.uiState.user?.role?:0 == 0) {
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.6f))
-                    .pointerInput(Unit) {}
-            )
+                    //.padding(innerPadding)
+                    .padding(start = 16.dp, end = 16.dp)
+                    .verticalScroll(ScrollState(0)),
+            ) {
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = stringResource(R.string.worth_a_look),
+                    color = MaterialTheme.colorScheme.primary,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+                LazyRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.onSecondary),
+                ) {
+                    itemsIndexed(
+                        galleryViewModel.uiState.topMoviesInfo?.toList()!!
+                    ) { _, item ->
+                        cinemaItemRow(
+                            item = item,
+                            galleryViewModel = galleryViewModel,
+                            descriptionViewModel,
+                            navController = navController
+                        )
+                    }
+                }
+            }
+
+            if (galleryViewModel.uiState.isSearch) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.6f))
+                        .pointerInput(Unit) {}
+                )
+            }
+        } else {
+            Text(text = "Детские подборки")
         }
     }
 }
@@ -711,10 +735,10 @@ fun SearchScreen(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun GalleryPreview() {
-    AppTheme {
-        GalleryScreen(rememberNavController(), hiltViewModel(), viewModel())
-    }
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun GalleryPreview() {
+//    AppTheme {
+//        GalleryScreen(rememberNavController(), hiltViewModel(), viewModel())
+//    }
+//}

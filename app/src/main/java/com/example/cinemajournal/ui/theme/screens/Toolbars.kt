@@ -47,6 +47,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -56,6 +57,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.navigation.NavController
 import com.bumptech.glide.integration.compose.placeholder
+import com.example.cinemajournal.R
 import com.example.cinemajournal.data.models.RoomModels.MoviesToWatch
 import com.example.cinemajournal.data.models.RoomModels.MoviesToWatchForRetrofit
 import com.example.cinemajournal.data.models.RoomModels.RoomMovieInfo
@@ -99,7 +101,7 @@ fun JournalsToolbar(scrollBehavior: TopAppBarScrollBehavior){
         ),
         title = {
             Text(
-                "Журналы",
+                stringResource(R.string.journals),
                 fontSize = 32.sp,
                 fontWeight = FontWeight.SemiBold,
                 letterSpacing= 8.sp,
@@ -127,7 +129,7 @@ fun JournalsToolbar(scrollBehavior: TopAppBarScrollBehavior){
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GalleryToolbar(scrollBehavior: TopAppBarScrollBehavior, galleryViewModel: GalleryViewModel){
+fun GalleryToolbar(scrollBehavior: TopAppBarScrollBehavior, galleryViewModel: GalleryViewModel, authViewModel: AuthViewModel){
 
     MediumTopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
@@ -137,7 +139,7 @@ fun GalleryToolbar(scrollBehavior: TopAppBarScrollBehavior, galleryViewModel: Ga
         title = {
             if(!galleryViewModel.uiState.isSearch){
                 Text(
-                    text = "Галерея",
+                    text = stringResource(R.string.gallery),
                     fontSize = 32.sp,
                     fontWeight = FontWeight.SemiBold,
                     letterSpacing= 8.sp,
@@ -149,7 +151,7 @@ fun GalleryToolbar(scrollBehavior: TopAppBarScrollBehavior, galleryViewModel: Ga
                     modifier = Modifier.fillMaxWidth(),
                     value = galleryViewModel.uiState.searchQuery,
                     placeholder = {Text(
-                        text = "Поисковой запрос...",
+                        text = stringResource(R.string.search_query),
                         color = MaterialTheme.colorScheme.primary,
                         fontSize = 24.sp
                     )},
@@ -173,7 +175,7 @@ fun GalleryToolbar(scrollBehavior: TopAppBarScrollBehavior, galleryViewModel: Ga
                                 galleryViewModel.refreshSearchMovies(galleryViewModel.uiState.searchQuery)
                             },
                             modifier = Modifier.scale(0.8f)) {
-                                Text("Поиск", fontSize = 20.sp)
+                                Text(stringResource(R.string.search), fontSize = 20.sp)
                             }
                         }
                     }
@@ -193,13 +195,13 @@ fun GalleryToolbar(scrollBehavior: TopAppBarScrollBehavior, galleryViewModel: Ga
                 }) {
                     Icon(
                         imageVector = Icons.Filled.ArrowBack,
-                        contentDescription = "Back"
+                        contentDescription = stringResource(R.string.back)
                     )
                 }
             }
         },
         actions = {
-            if(galleryViewModel.uiState.isSearch){
+            if(galleryViewModel.uiState.isSearch || authViewModel.uiState.user?.role?:0 == 1){
                 IconButton(onClick = { galleryViewModel.changeDrawerState(!galleryViewModel.uiState.drawerState)
                     Log.d("R", galleryViewModel.uiState.drawerState.toString(), )}) {
                     Icon(
@@ -209,7 +211,7 @@ fun GalleryToolbar(scrollBehavior: TopAppBarScrollBehavior, galleryViewModel: Ga
                 }
             }
 
-            if(!galleryViewModel.uiState.isSearch){
+            if(!galleryViewModel.uiState.isSearch && authViewModel.uiState.user?.role?:0 == 0){
                 IconButton(onClick = {
                     galleryViewModel.changeSearchState(true)
                 }) {
@@ -238,9 +240,15 @@ fun ContentToolbar(navController: NavController, currentDestination: String, des
         descriptionViewModel.checkWatchedMovie(descriptionViewModel.uiState.roomMovieInfoForRetrofit?.id?: 0, authViewModel.uiState.user?.id?:0)
     }
 
-    var toWatchText = if(!descriptionViewModel.uiState.movieToWatchStatus) "Добавить в список к просмотру" else "Удалить из списка к просмотру"
-    var watchedText = if(!descriptionViewModel.uiState.watchedMovieStatus) "Добавить в список просмотренных" else "Удалить из списка просмотренных"
+    var toWatchText = if(!descriptionViewModel.uiState.movieToWatchStatus) stringResource(R.string.add_to_wanted_to_watch) else stringResource(R.string.delete_from_wanted_to_watch)
+    var watchedText = if(!descriptionViewModel.uiState.watchedMovieStatus) stringResource(R.string.add_to_watched) else stringResource(R.string.delete_from_watched)
 
+
+    val review_string_for_print = stringResource(R.string.review)
+    val rating_string_for_print = stringResource(R.string.rating)
+    val likes_string_for_print = stringResource(R.string.likes)
+    val dislikes_string_for_print = stringResource(R.string.dislikes)
+    val notes_string_for_print = stringResource(R.string.notes)
 
     TopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
@@ -274,10 +282,11 @@ fun ContentToolbar(navController: NavController, currentDestination: String, des
                 )
             }
         },
+
         actions = {
             if(currentDestination == "ContentReviewScreen"){
                 IconButton(onClick = {
-                    savePDF(createPDFFromHtml(createHtml(reviewViewModel), context, reviewViewModel.uiState.roomMovieInfoForRetrofit?.name?:""), context)
+                    savePDF(createPDFFromHtml(createHtml(reviewViewModel, review_string_for_print, rating_string_for_print, likes_string_for_print, dislikes_string_for_print, notes_string_for_print), context, reviewViewModel.uiState.roomMovieInfoForRetrofit?.name?:""), context)
                 }) {
                     Icon(
                         imageVector = Icons.Outlined.Print,
@@ -303,7 +312,7 @@ fun dropDownMenu(descriptionViewModel: DescriptionViewModel, navController: NavC
         IconButton(onClick = { expanded = !expanded }) {
             Icon(
                 imageVector = Icons.Default.MoreVert,
-                contentDescription = "More"
+                contentDescription = stringResource(R.string.expand)
             )
         }
 
@@ -407,7 +416,7 @@ fun dropDownMenu(descriptionViewModel: DescriptionViewModel, navController: NavC
             )
             if(descriptionViewModel.uiState.movieToWatchStatus){
                 DropdownMenuItem(
-                    text = { Text("Напомнить посмотреть")},
+                    text = { Text(stringResource(R.string.remind_to_watch))},
                     onClick = {
                         descriptionViewModel.updateReminderDialogueStatus(true)
                     }
@@ -417,16 +426,16 @@ fun dropDownMenu(descriptionViewModel: DescriptionViewModel, navController: NavC
     }
 }
 
-fun createHtml(reviewViewModel: ReviewViewModel): String{
+fun createHtml(reviewViewModel: ReviewViewModel, review: String, rating: String, likes: String, dislikes: String, notes: String): String{
     return buildString {
         appendHTML().html {
             head {
                 title {  +"${reviewViewModel.uiState.roomMovieInfoForRetrofit?.name?:"ревью на фильм"}" }
             }
             body {
-                h1 { +"Отзыв на фильм: ${reviewViewModel.uiState.roomMovieInfoForRetrofit?.name}" }
+                h1 { +"${review}: ${reviewViewModel.uiState.roomMovieInfoForRetrofit?.name}" }
                 p {
-                    em { +"Рейтинг: "}
+                    em { +"${rating}: "}
                     +"${reviewViewModel.uiState.rating}"
                 }
                 var likes = ""
@@ -438,15 +447,15 @@ fun createHtml(reviewViewModel: ReviewViewModel): String{
                     dislikes = "$dislikes${it.description}, "
                 }
                 p {
-                    em { +"Что понравилось: "}
+                    em { +"${likes}: "}
                     +"$likes"
                 }
                 p {
-                    em { +"Что не понравилось: "}
+                    em { +"${dislikes}: "}
                     +"$dislikes"
                 }
                 p {
-                    em { +"Заметки: "}
+                    em { +"${notes}: "}
                     +"${reviewViewModel.uiState.reviewText}"
                 }
             }

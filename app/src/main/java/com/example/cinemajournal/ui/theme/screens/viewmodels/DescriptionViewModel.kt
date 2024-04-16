@@ -114,7 +114,6 @@ class DescriptionViewModel @Inject constructor(private val getMovieByIdUseCase: 
     }
 
     fun getMovieInfo(id: Int){
-        //refreshSearchMoviesUseCase(query)
         viewModelScope.launch {
             kotlin.runCatching { getMovieByIdUseCase(id) }
                 .onSuccess { response ->
@@ -122,43 +121,36 @@ class DescriptionViewModel @Inject constructor(private val getMovieByIdUseCase: 
                 }
                 .onFailure { Log.d("R", "Данные не загрузились", ) }
         }
-        //uiState = uiState.copy(searchMoviesInfo = getSearchMoviesUseCase(query)?.movieInfo ?: arrayListOf())
     }
 
     fun addMovieToDB(roomMovieInfo: RoomMovieInfoForRetrofit){
         viewModelScope.launch {
             kotlin.runCatching { addMovieToDBUseCase(roomMovieInfo) }
                 .onSuccess { response ->
-                    //uiState = uiState.copy(movieInfo = response)
                     Log.d("R", response.toString(), )
                 }
                 .onFailure { Log.d("R", "Проблема при добавлении фильма: ${it.message}", ) }
         }
-        //uiState = uiState.copy(searchMoviesInfo = getSearchMoviesUseCase(query)?.movieInfo ?: arrayListOf())
     }
 
     fun addMovieToWatchToDB(moviesToWatch: MoviesToWatchForRetrofit){
         viewModelScope.launch {
             kotlin.runCatching { addMovieToWatchToDBUseCase(moviesToWatch) }
                 .onSuccess { response ->
-                    //uiState = uiState.copy(movieInfo = response)
                     Log.d("R", response.toString(), )
                 }
                 .onFailure { Log.d("R", "Проблема при добавлении фильма к просмотру: ${it.message}", ) }
         }
-        //uiState = uiState.copy(searchMoviesInfo = getSearchMoviesUseCase(query)?.movieInfo ?: arrayListOf())
     }
 
     fun deleteMovieToWatchFromDB(moviesToWatch: MoviesToWatchForRetrofit){
         viewModelScope.launch {
             kotlin.runCatching { deleteMovieToWatchFromDBUseCase(moviesToWatch) }
                 .onSuccess { response ->
-                    //uiState = uiState.copy(movieInfo = response)
                     Log.d("R", response.toString(), )
                 }
                 .onFailure { Log.d("R", "Проблема при удалении фильма к просмотру: ${it.message}", ) }
         }
-        //uiState = uiState.copy(searchMoviesInfo = getSearchMoviesUseCase(query)?.movieInfo ?: arrayListOf())
     }
 
     fun getReminderDateAndTime(id: Int){
@@ -175,55 +167,46 @@ class DescriptionViewModel @Inject constructor(private val getMovieByIdUseCase: 
                 }
                 .onFailure { Log.d("R", "Напоминание не загрузилось", ) }
         }
-        //uiState = uiState.copy(searchMoviesInfo = getSearchMoviesUseCase(query)?.movieInfo ?: arrayListOf())
     }
 
     fun addWatchedMovieToDB(watchedMovies: WatchedMoviesForRetrofit){
         viewModelScope.launch {
             kotlin.runCatching { addWatchedMovieToDBUseCase(watchedMovies) }
                 .onSuccess { response ->
-                    //uiState = uiState.copy(movieInfo = response)
                     Log.d("R", response.toString(), )
                 }
                 .onFailure { Log.d("R", "Проблема при добавлении просмотренного филмьма: ${it.message}", ) }
         }
-        //uiState = uiState.copy(searchMoviesInfo = getSearchMoviesUseCase(query)?.movieInfo ?: arrayListOf())
     }
 
     fun deleteWatchedMovieFromDB(watchedMovies: WatchedMoviesForRetrofit){
         viewModelScope.launch {
             kotlin.runCatching { deleteWatchedMovieFromDBUseCase(watchedMovies) }
                 .onSuccess { response ->
-                    //uiState = uiState.copy(movieInfo = response)
                     Log.d("R", response.toString(), )
                 }
                 .onFailure { Log.d("R", "Проблема при удалении просмотренного фильма: ${it.message}", ) }
         }
-        //uiState = uiState.copy(searchMoviesInfo = getSearchMoviesUseCase(query)?.movieInfo ?: arrayListOf())
     }
 
     fun deleteWatchedMovieFromLocalDB(userId: Int, movieId: Int){
         viewModelScope.launch {
             kotlin.runCatching { deleteWatchedMovieByIdFromLocalDBUseCase(userId, movieId) }
                 .onSuccess { response ->
-                    //uiState = uiState.copy(movieInfo = response)
                     Log.d("R", "Просмотренный фильм локально удалён", )
                 }
                 .onFailure { Log.d("R", "Проблема при удалении локального просмотренного фильма: ${it.message}", ) }
         }
-        //uiState = uiState.copy(searchMoviesInfo = getSearchMoviesUseCase(query)?.movieInfo ?: arrayListOf())
     }
 
     fun deleteMovieToWatchFromLocalDB(userId: Int, movieId: Int){
         viewModelScope.launch {
             kotlin.runCatching { deleteMovieToWatchByIdFromLocalDBUseCase(userId, movieId) }
                 .onSuccess { response ->
-                    //uiState = uiState.copy(movieInfo = response)
                     Log.d("R", "Фильм к просмотру локально удалён", )
                 }
                 .onFailure { Log.d("R", "Проблема при удалении локального филмьа к просмотру: ${it.message}", ) }
         }
-        //uiState = uiState.copy(searchMoviesInfo = getSearchMoviesUseCase(query)?.movieInfo ?: arrayListOf())
     }
 
 }

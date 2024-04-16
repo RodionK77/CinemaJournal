@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -49,8 +50,8 @@ fun seriesItemRow(item1: SeasonsInfo?, item2: SeasonsInfoForRetrofit?) {
             number = item1!!.number?:0
             episodesCount = item1!!.episodesCount?:0
         }
-        Text(text = "Сезон: $number", modifier = Modifier.padding(start = 6.dp, end = 6.dp, top = 4.dp), fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
-        Text(text = "Серий: $episodesCount", modifier = Modifier.padding(start = 6.dp, end = 6.dp, bottom = 4.dp), fontSize = 16.sp, )
+        Text(text = "${stringResource(R.string.season)}: $number", modifier = Modifier.padding(start = 6.dp, end = 6.dp, top = 4.dp), fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+        Text(text = "${stringResource(R.string.series)}: $episodesCount", modifier = Modifier.padding(start = 6.dp, end = 6.dp, bottom = 4.dp), fontSize = 16.sp, )
     }
 }
 

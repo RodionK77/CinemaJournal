@@ -34,6 +34,7 @@ data class EntranceUiState(
     val buttonLoginState: Boolean = false,
     val emailText: String = "",
     val passwordText: String = "",
+    val checkedState: Boolean = false,
     val returnMessage: String = ""
 )
 
@@ -45,13 +46,6 @@ class AuthViewModel @Inject constructor (
     private val deleteUserByIdUseCase: DeleteUserByIdUseCase,
     private val getAllUsersUseCase: GetAllUsersUseCase,
     private val saveUserToDatabaseUseCase: SaveUserToDatabaseUseCase, ) : ViewModel() {
-
-    //private val repository: UsersRepository = UsersRepository(database)
-    val allUsersLiveData = MutableLiveData<List<User>>()
-
-    /*init {
-        getAllUser()
-    }*/
 
     var uiState by mutableStateOf(EntranceUiState())
         private set
@@ -67,6 +61,11 @@ class AuthViewModel @Inject constructor (
     fun changeButtonLoginState(b: Boolean){
         uiState = uiState.copy(buttonLoginState = b)
     }
+
+    fun changeCheckedState(b: Boolean){
+        uiState = uiState.copy(checkedState = b)
+    }
+
 
     fun changeReturnMessage(s: String){
         uiState = uiState.copy(returnMessage = "")
@@ -84,36 +83,16 @@ class AuthViewModel @Inject constructor (
         uiState = uiState.copy(user = user)
     }
 
-    val coroutineExceptionHandler = CoroutineExceptionHandler{_, t -> {
-        //t.printStackTrace()
-        //showErrorOrSomething()
-        Log.d("R", "ERROR: ${t.message}",)
-    }}
-
     fun signUpUser(request: SignUpRequest) {
-        var message: String = ""
         viewModelScope.launch {
-            /*signUpUserUseCase(request).let {
-                if(it.isSuccessful){
-                    Log.d("R", "ЗАХОДИМ В САККЕС",)
-                    uiState = uiState.copy(returnMessage = it.body()?.message ?: "")
-                    Log.d("R", "он саккес: ${uiState.returnMessage}",)
-                } else {
-                    Log.d("R", "ЗАХОДИМ В ФАИЛУР",)
-                    uiState = uiState.copy(returnMessage = it.code().toString())
-                    Log.d("R", "он фаилур: ${uiState.returnMessage}",)
-                }
-            }*/
-
             kotlin.runCatching {
                 signUpUserUseCase(request) }
                 .onSuccess { response ->
-                    Log.d("R", "ЗАХОДИМ В САККЕС",)
+                    Log.d("R", "Пользователь успешно зарегестрирвован ",)
                     uiState = uiState.copy(returnMessage = response.message ?: "")
-                    //Log.d("R", "он саккес: ${uiState.returnMessage}",)
                 }
                 .onFailure {
-                    Log.d("R", "ЗАХОДИМ В ФАИЛУР",)
+                    Log.d("R", "Проблема при регистрации пользователя",)
                     uiState = uiState.copy(returnMessage = it.message ?: "")
                     //Log.d("R", "он фаилур: ${uiState.returnMessage}",)
                 }
@@ -129,11 +108,13 @@ class AuthViewModel @Inject constructor (
                 .onSuccess { response ->
                     uiState = uiState.copy(user = User(id = response.id!!, username = response.username?: "", email = response.email?: "", role = response.role?: 0))
                     message = response
+                    Log.d("R", "Пользователь успешно вошёл ",)
                     Log.d("R", message.email?: "empty", )
                     uiState = uiState.copy(isLoginProcess = false)
                 }
                 .onFailure {
                     message.message = it.message
+                    Log.d("R", "Проблема при входе пользователя",)
                     Log.d("R", message!!.message?: "empty", )
                     uiState = uiState.copy(isLoginProcess = false)
                 }
@@ -153,22 +134,12 @@ class AuthViewModel @Inject constructor (
         }
     }
 
-
-    /*fun exitUser(){
-        uiState.mAuth.signOut()
-    }*/
-
-    /*fun refreshUser(){
-        uiState = uiState.copy(user = getUser())
-    }*/
-
     fun saveUserToDatabase(user: User) {
         viewModelScope.launch {
             saveUserToDatabaseUseCase(user)
         }
     }
     fun getAllUser() {
-        Log.d("R", "Cтарт юзерс", )
         uiState = uiState.copy(isRefreshLoginProcess = true)
         viewModelScope.launch {
             val users = getAllUsersUseCase()
@@ -176,7 +147,6 @@ class AuthViewModel @Inject constructor (
             if(users.isNotEmpty()){
                 uiState = uiState.copy(user = users[0])
             }
-            //uiState = uiState.copy(isRefreshLoginProcess = false)
         }
     }
     fun deleteUserById(id: Int){

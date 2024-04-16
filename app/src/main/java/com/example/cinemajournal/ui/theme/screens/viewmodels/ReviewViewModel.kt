@@ -121,7 +121,6 @@ class ReviewViewModel @Inject constructor(private val addReviewToDBUseCase: AddR
         viewModelScope.launch {
             kotlin.runCatching { deleteLikesByIdFromLocalDBUseCase(movieId) }
                 .onSuccess { response ->
-                    //uiState = uiState.copy(movieInfo = response)
                     Log.d("R", "Лайки для фильма удалены", )
                 }
                 .onFailure { Log.d("R", "Проблема при удалении лайков для фильма: ${it.message}", ) }
@@ -132,7 +131,6 @@ class ReviewViewModel @Inject constructor(private val addReviewToDBUseCase: AddR
         viewModelScope.launch {
             kotlin.runCatching { deleteDislikesByIdFromLocalDBUseCase(movieId) }
                 .onSuccess { response ->
-                    //uiState = uiState.copy(movieInfo = response)
                     Log.d("R", "Дизлайки для фильма удалены", )
                 }
                 .onFailure { Log.d("R", "Проблема при удалении дизлайков для фильма: ${it.message}", ) }

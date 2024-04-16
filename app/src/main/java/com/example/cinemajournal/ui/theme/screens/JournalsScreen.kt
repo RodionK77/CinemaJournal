@@ -22,9 +22,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.cinemajournal.R
 import com.example.cinemajournal.ui.theme.screens.viewmodels.DescriptionViewModel
 import com.example.cinemajournal.ui.theme.screens.viewmodels.GalleryViewModel
 import com.example.cinemajournal.ui.theme.screens.viewmodels.JournalsViewModel
@@ -72,7 +74,7 @@ fun JournalsScreen(navController: NavController, journalsViewModel: JournalsView
         ) {
             Tab(
                 text = { Text(
-                    text = "Просмотренное",
+                    text = stringResource(R.string.viewed),
                     fontSize = 18.sp
                 ) },
                 selected = journalsViewModel.uiState.selectedTabIndex == 0,
@@ -83,7 +85,7 @@ fun JournalsScreen(navController: NavController, journalsViewModel: JournalsView
             )
             Tab(
                 text = { Text(
-                    text = "Хочу посмотреть",
+                    text = stringResource(R.string.want_to_see),
                     fontSize = 18.sp
                 ) },
                 selected = journalsViewModel.uiState.selectedTabIndex == 1,
@@ -119,10 +121,10 @@ fun JournalsScreen(navController: NavController, journalsViewModel: JournalsView
                             }
                         }
                     }else {
-                        Text("Журнал просмотренных фильмов пуст")
+                        Text(stringResource(R.string.empty_viewed_journal))
                     }
                 } else {
-                    Text("Журнал просмотренных фильмов пуст")
+                    Text(stringResource(R.string.empty_viewed_journal))
                 }
             }else if (journalsViewModel.uiState.selectedTabIndex == 1) {
                 journalsViewModel.getMoviesFromToWatchFromLocalDB()
@@ -143,10 +145,10 @@ fun JournalsScreen(navController: NavController, journalsViewModel: JournalsView
                             }
                         }
                     }else {
-                        Text("Журнал фильмов к просмотру пуст")
+                        Text(stringResource(R.string.empty_wanted_journal))
                     }
                 } else {
-                    Text("Журнал фильмов к просмотру пуст")
+                    Text(stringResource(R.string.empty_wanted_journal))
                 }
                 /*LazyColumn(modifier = Modifier
                     .fillMaxWidth()

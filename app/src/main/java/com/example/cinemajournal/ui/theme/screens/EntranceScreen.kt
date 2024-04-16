@@ -6,6 +6,7 @@ import android.widget.Toast
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -21,11 +23,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.cinemajournal.R
 import com.example.cinemajournal.data.models.SignInRequest
 import com.example.cinemajournal.data.models.SignUpRequest
 import com.example.cinemajournal.ui.theme.screens.viewmodels.AuthViewModel
@@ -58,7 +62,7 @@ fun EntranceScreen(navController: NavController, authViewModel: AuthViewModel, j
         TextField(
             modifier = Modifier.fillMaxWidth(),
             value = authViewModel.uiState.emailText,
-            label = { Text(text = "Email") },
+            label = { Text(text = stringResource(R.string.email)) },
             onValueChange = {
                 authViewModel.changeEmailText(it)
             },
@@ -76,7 +80,7 @@ fun EntranceScreen(navController: NavController, authViewModel: AuthViewModel, j
         TextField(
             modifier = Modifier.fillMaxWidth(),
             value = authViewModel.uiState.passwordText,
-            label = { Text(text = "Password") },
+            label = { Text(text = stringResource(R.string.password)) },
             onValueChange = {
                 authViewModel.changePasswordText(it)
             },
@@ -89,11 +93,24 @@ fun EntranceScreen(navController: NavController, authViewModel: AuthViewModel, j
             ),*/
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
-
         if (!authViewModel.uiState.isLoginScreen) {
+
+            Row(
+                modifier = Modifier.align(Alignment.Start),
+                verticalAlignment = Alignment.CenterVertically
+            ){
+                Checkbox(
+                    checked = authViewModel.uiState.checkedState,
+                    onCheckedChange = { authViewModel.changeCheckedState(it) }
+                )
+                Text("Детский аккаунт", fontSize = 18.sp, modifier = Modifier.padding(4.dp))
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
             registrationScreen(context = context, authViewModel = authViewModel)
         } else {
+            Spacer(modifier = Modifier.height(24.dp))
             loginScreen(navController = navController, context = context, authViewModel = authViewModel)
         }
 
@@ -107,7 +124,7 @@ fun checkAuth(context: Context, authViewModel: AuthViewModel) {
         "HTTP 400 " -> {
             Toast.makeText(
                 context,
-                "Пользователь с указанным Email уже зарегистрирован",
+                stringResource(R.string.email_is_busy),
                 Toast.LENGTH_SHORT
             ).show()
 
@@ -118,7 +135,7 @@ fun checkAuth(context: Context, authViewModel: AuthViewModel) {
         "HTTP 401 " -> {
             Toast.makeText(
                 context,
-                "Ошибка регистрации",
+                stringResource(R.string.registration_error),
                 Toast.LENGTH_SHORT
             ).show()
             authViewModel.changeButtonRegistrationState(false)
@@ -129,7 +146,7 @@ fun checkAuth(context: Context, authViewModel: AuthViewModel) {
         else -> {
             Toast.makeText(
                 context,
-                "Пользователь успешно зарегистрирован",
+                stringResource(R.string.successful_registration),
                 Toast.LENGTH_SHORT
             ).show()
             authViewModel.changeButtonRegistrationState(false)
@@ -163,7 +180,7 @@ fun checkLogin(navController: NavController, context: Context, authViewModel: Au
     }else if(!authViewModel.uiState.isLoginProcess){
         Toast.makeText(
             context,
-            "Вход не удался",
+            stringResource(R.string.login_failed),
             Toast.LENGTH_SHORT
         ).show()
 
@@ -173,7 +190,14 @@ fun checkLogin(navController: NavController, context: Context, authViewModel: Au
 
 @Composable
 fun registrationScreen(context: Context, authViewModel: AuthViewModel) {
+    val empty_error_message = stringResource(R.string.empty_fields)
+    Log.d(
+        "R",
+        "User: ${authViewModel.uiState.checkedState}",
+    )
+
     Button(
+
         onClick = {
             if (authViewModel.uiState.emailText.isNotEmpty() && authViewModel.uiState.passwordText.isNotEmpty()) {
 
@@ -181,7 +205,7 @@ fun registrationScreen(context: Context, authViewModel: AuthViewModel) {
                     username = authViewModel.uiState.emailText,
                     email = authViewModel.uiState.emailText,
                     password = authViewModel.uiState.passwordText,
-                    role = 0
+                    role = authViewModel.uiState.checkedState.compareTo(false)
                 )
                 authViewModel.signUpUser(data)
 
@@ -189,7 +213,7 @@ fun registrationScreen(context: Context, authViewModel: AuthViewModel) {
 
             } else Toast.makeText(
                 context,
-                "поля не должны быть пустыми",
+                empty_error_message,
                 Toast.LENGTH_SHORT
             ).show()
 
@@ -197,7 +221,7 @@ fun registrationScreen(context: Context, authViewModel: AuthViewModel) {
     )
     {
         Column {
-            Text("Регистрация", fontSize = 24.sp)
+            Text(stringResource(R.string.registration), fontSize = 24.sp)
         }
     }
 
@@ -206,13 +230,14 @@ fun registrationScreen(context: Context, authViewModel: AuthViewModel) {
     })
     {
         Column {
-            Text("Вход в аккаунт", fontSize = 18.sp)
+            Text(stringResource(R.string.entrance_in_account), fontSize = 18.sp)
         }
     }
 }
 
 @Composable
 fun loginScreen(navController: NavController, context: Context, authViewModel: AuthViewModel) {
+    val empty_error_message = stringResource(R.string.select_a_time)
     Button(
         onClick = {
             if (authViewModel.uiState.emailText.isNotEmpty() && authViewModel.uiState.passwordText.isNotEmpty()) {
@@ -227,21 +252,21 @@ fun loginScreen(navController: NavController, context: Context, authViewModel: A
 
             } else Toast.makeText(
                 context,
-                "поля не должны быть пустыми",
+                empty_error_message,
                 Toast.LENGTH_SHORT
             ).show()
         },
     )
     {
         Column {
-            Text("Вход", fontSize = 24.sp)
+            Text(stringResource(R.string.entrance), fontSize = 24.sp)
         }
     }
 
     TextButton(onClick = { authViewModel.changeScreenState(!authViewModel.uiState.isLoginScreen) })
     {
         Column {
-            Text("Регистрация аккаунта", fontSize = 18.sp)
+            Text(stringResource(R.string.registration_account), fontSize = 18.sp)
         }
     }
 }

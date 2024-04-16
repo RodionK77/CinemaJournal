@@ -60,6 +60,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
@@ -147,15 +148,9 @@ private fun Content(reviewViewModel: ReviewViewModel, authViewModel: AuthViewMod
             reviewViewModel.changeDate(reviewViewModel.uiState.roomMovieInfoForRetrofit?.review?.dateWatched)
         }
 
-        //var rating: Float by rememberSaveable { mutableStateOf(0.0f) }
 
         var showDialog by rememberSaveable{ mutableStateOf(false) }
         var dialogueText by rememberSaveable { mutableStateOf("") }
-        //var reviewText by rememberSaveable { mutableStateOf(reviewViewModel.uiState.roomMovieInfoForRetrofit?.review?.notes?:"") }
-        //var rating by rememberSaveable { mutableStateOf(reviewViewModel.uiState.roomMovieInfoForRetrofit?.review?.rating?.toFloat()?:0.0f) }
-
-        //var likeText by rememberSaveable { mutableStateOf("") }
-        //var dislikeText by rememberSaveable { mutableStateOf("") }
 
         var dialogueSate by rememberSaveable { mutableStateOf(false) }
 
@@ -163,26 +158,6 @@ private fun Content(reviewViewModel: ReviewViewModel, authViewModel: AuthViewMod
         var dislikes: List<Dislikes>? = reviewViewModel.uiState.roomMovieInfoForRetrofit?.review?.dislikes
 
         val dateDialogueState = rememberMaterialDialogState()
-        
-        /*var pickedDate by rememberSaveable{ mutableStateOf(LocalDate.now()) }
-        val formattedDate by remember {
-            derivedStateOf {
-                DateTimeFormatter.ofPattern("dd/MM/yyyy").format(pickedDate)
-            }
-        }*/
-
-        Log.d(
-            "R",
-            "Модель: ${reviewViewModel.uiState.roomMovieInfoForRetrofit?.review}",
-        )
-        Log.d(
-            "R",
-            "Лайки: ${likes}",
-        )
-        Log.d(
-            "R",
-            "Дизлайки: ${dislikes}",
-        )
 
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -190,7 +165,7 @@ private fun Content(reviewViewModel: ReviewViewModel, authViewModel: AuthViewMod
         ) {
             GlideImage(
                 model = reviewViewModel.uiState.roomMovieInfoForRetrofit?.posterUrl,
-                contentDescription = "Постер фильма",
+                contentDescription = stringResource(R.string.poster_not_loaded),
                 modifier = Modifier
                     .height(280.dp)
                     .border(4.dp, MaterialTheme.colorScheme.primary),
@@ -231,7 +206,7 @@ private fun Content(reviewViewModel: ReviewViewModel, authViewModel: AuthViewMod
                                 fontWeight = FontWeight.Bold
                             )
                         ) {
-                            append("Оценка КП: ")
+                            append("${stringResource(R.string.kp_rating_short)}: ")
                         }
                         withStyle(
                             style = SpanStyle(
@@ -253,7 +228,7 @@ private fun Content(reviewViewModel: ReviewViewModel, authViewModel: AuthViewMod
                                 fontWeight = FontWeight.Bold
                             )
                         ) {
-                            append("Жанр: \n")
+                            append("${stringResource(R.string.genre)}: \n")
                         }
                         withStyle(
                             style = SpanStyle(
@@ -279,7 +254,7 @@ private fun Content(reviewViewModel: ReviewViewModel, authViewModel: AuthViewMod
                                 fontWeight = FontWeight.Bold
                             )
                         ) {
-                            append("Время: ")
+                            append("${stringResource(R.string.time)}: ")
                         }
                         withStyle(
                             style = SpanStyle(
@@ -301,7 +276,7 @@ private fun Content(reviewViewModel: ReviewViewModel, authViewModel: AuthViewMod
                                 fontWeight = FontWeight.Bold
                             )
                         ) {
-                            append("Возраст: ")
+                            append("${stringResource(R.string.age)}: ")
                         }
                         withStyle(
                             style = SpanStyle(
@@ -323,7 +298,7 @@ private fun Content(reviewViewModel: ReviewViewModel, authViewModel: AuthViewMod
                                 fontWeight = FontWeight.Bold
                             )
                         ) {
-                            append("Бюджет: \n")
+                            append("${stringResource(R.string.budget)}: \n")
                         }
                         withStyle(
                             style = SpanStyle(
@@ -345,7 +320,7 @@ private fun Content(reviewViewModel: ReviewViewModel, authViewModel: AuthViewMod
                                 fontWeight = FontWeight.Bold
                             )
                         ) {
-                            append("Сборы в мире: \n")
+                            append("${stringResource(R.string.fees_world)}: \n")
                         }
                         withStyle(
                             style = SpanStyle(
@@ -364,14 +339,14 @@ private fun Content(reviewViewModel: ReviewViewModel, authViewModel: AuthViewMod
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Описание",
+                        text = stringResource(R.string.description),
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.secondary,
                     )
                     Icon(
                         modifier = Modifier.scale(0.8f),
                         imageVector = if (descriptionIsExpanded.value) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                        contentDescription = "Развернуть"
+                        contentDescription = stringResource(R.string.expand)
                     )
 
                 }
@@ -405,7 +380,7 @@ private fun Content(reviewViewModel: ReviewViewModel, authViewModel: AuthViewMod
 
         ClickableText(
             modifier = Modifier.align(Alignment.Start),
-            text = AnnotatedString("Дата просмотра: ${reviewViewModel.uiState.dateWatched?:""}"),
+            text = AnnotatedString("${stringResource(R.string.date_of_watch)}: ${reviewViewModel.uiState.dateWatched?:""}"),
             style = TextStyle(
                 color = MaterialTheme.colorScheme.primary,
                 fontSize = 20.sp,
@@ -424,7 +399,7 @@ private fun Content(reviewViewModel: ReviewViewModel, authViewModel: AuthViewMod
         ) {
 
             Text(
-                text = "Что понравилось",
+                text = stringResource(R.string.likes),
                 color = MaterialTheme.colorScheme.primary,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
@@ -438,7 +413,7 @@ private fun Content(reviewViewModel: ReviewViewModel, authViewModel: AuthViewMod
                     .padding(start = 2.dp),
                 imageVector = Icons.Outlined.Add,
                 tint = MaterialTheme.colorScheme.primary,
-                contentDescription = "Добавить"
+                contentDescription = stringResource(R.string.add)
             )
             if(reviewViewModel.uiState.likesForReview?.isNotEmpty() == true){
                 Icon(
@@ -448,7 +423,7 @@ private fun Content(reviewViewModel: ReviewViewModel, authViewModel: AuthViewMod
                             reviewViewModel.changeLikes(mutableListOf())
                         },
                     imageVector = Icons.Filled.Delete,
-                    contentDescription = "Удалить всё"
+                    contentDescription = stringResource(R.string.delete_all)
                 )
             }
         }
@@ -471,7 +446,7 @@ private fun Content(reviewViewModel: ReviewViewModel, authViewModel: AuthViewMod
             modifier = Modifier.align(Alignment.Start)
         ) {
             Text(
-                text = "Что не понравилось",
+                text = stringResource(R.string.dislikes),
                 color = MaterialTheme.colorScheme.primary,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
@@ -485,7 +460,7 @@ private fun Content(reviewViewModel: ReviewViewModel, authViewModel: AuthViewMod
                     .padding(start = 2.dp),
                 imageVector = Icons.Outlined.Add,
                 tint = MaterialTheme.colorScheme.primary,
-                contentDescription = "Добавить"
+                contentDescription = stringResource(R.string.add)
             )
             if(reviewViewModel.uiState.dislikesForReview?.isNotEmpty() == true){
                 Icon(
@@ -495,7 +470,7 @@ private fun Content(reviewViewModel: ReviewViewModel, authViewModel: AuthViewMod
                             reviewViewModel.changeDislikes(mutableListOf())
                         },
                     imageVector = Icons.Filled.Delete,
-                    contentDescription = "Удалить всё"
+                    contentDescription = stringResource(R.string.delete_all)
                 )
             }
         }
@@ -515,7 +490,7 @@ private fun Content(reviewViewModel: ReviewViewModel, authViewModel: AuthViewMod
 
         Text(
             modifier = Modifier.align(Alignment.Start),
-            text = "Заметки",
+            text = stringResource(R.string.notes),
             color = MaterialTheme.colorScheme.primary,
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold
@@ -554,7 +529,7 @@ private fun Content(reviewViewModel: ReviewViewModel, authViewModel: AuthViewMod
 
 
         }) {
-            Text("Сохранить")
+            Text(stringResource(R.string.save))
         }
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -565,7 +540,7 @@ private fun Content(reviewViewModel: ReviewViewModel, authViewModel: AuthViewMod
                     //Icon(icon, contentDescription = "Example Icon")
                 },
                 title = {
-                    Text("Введите односложный текст")
+                    Text(stringResource(R.string.monosyllabic_text))
                 },
                 text = {
                     TextField(
@@ -597,7 +572,7 @@ private fun Content(reviewViewModel: ReviewViewModel, authViewModel: AuthViewMod
                             showDialog = false
                         }
                     ) {
-                        Text("Принять")
+                        Text(stringResource(R.string.accept))
                     }
                 },
                 dismissButton = {
@@ -607,7 +582,7 @@ private fun Content(reviewViewModel: ReviewViewModel, authViewModel: AuthViewMod
                             showDialog = false
                         }
                     ) {
-                        Text("Отменить")
+                        Text(stringResource(R.string.cancel))
                     }
                 }
             )
@@ -616,22 +591,18 @@ private fun Content(reviewViewModel: ReviewViewModel, authViewModel: AuthViewMod
         MaterialDialog(
             dialogState = dateDialogueState,
             buttons = {
-                positiveButton(text = "Принять") {
+                positiveButton(text = stringResource(R.string.accept)) {
                     Toast.makeText(context, "", Toast.LENGTH_SHORT).show()
-                    //scheduleNotification(13, 55, 2024, 4, 9, context)
-                    //val createNotification = CreateNotification(context, "пора", "смотреть", 2024, Calendar.APRIL, 11, 13, 28)
-                    //createNotification.scheduleNotification()
                     //val createNotification = CreateNotification(context)
                     //createNotification.scheduleNotification(2024, Calendar.APRIL, 11, 13, 31)
-
                 }
-                negativeButton (text = "Отменить")
+                negativeButton (text = stringResource(R.string.cancel))
             }
         )
         {
             datepicker (
                 initialDate = LocalDate.now(),
-                title = "Выберите дату",
+                title = stringResource(R.string.select_a_date),
             ){
                 reviewViewModel.changeDate(DateTimeFormatter.ofPattern("dd/MM/yyyy").format(it))
                 //pickedDate = it

@@ -30,6 +30,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -80,7 +81,7 @@ fun MainScreen(context: MainActivity,
                 }
             }else {
                 journalsViewModel.getUserFromDB(authViewModel.uiState.user!!.id)
-                Log.d("R", "провереем вход\n${authViewModel.uiState.user}\n${journalsViewModel.uiState.user}",)
+                Log.d("R", "проверяем вход\n${authViewModel.uiState.user}\n${journalsViewModel.uiState.user}",)
                 if(journalsViewModel.uiState.user != null){
                     journalsViewModel.startUpdateLocalDB(journalsViewModel.uiState.user!!)
                     navController.navigate("JournalsScreen"){
@@ -141,7 +142,7 @@ fun MainScreen(context: MainActivity,
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = { when(topBarState.value){
             0-> JournalsToolbar(scrollBehavior = scrollBehavior)
-            1-> GalleryToolbar(scrollBehavior = scrollBehavior, galleryViewModel)
+            1-> GalleryToolbar(scrollBehavior = scrollBehavior, galleryViewModel, authViewModel)
             2-> ContentToolbar(navController = navController, currentDestination?:"JournalsScreen", descriptionViewModel, reviewViewModel, authViewModel, journalsViewModel)
         } },
         bottomBar = {
@@ -179,7 +180,7 @@ fun MainScreen(context: MainActivity,
                         JournalsScreen(navController, journalsViewModel, reviewViewModel, galleryViewModel, descriptionViewModel)
                     }
                     composable("GalleryScreen") {
-                        GalleryScreen(navController, galleryViewModel, descriptionViewModel)
+                        GalleryScreen(navController, galleryViewModel, descriptionViewModel, authViewModel)
                     }
                     composable("ContentDescriptionScreen") {
                         ContentDescriptionScreen(navController, descriptionViewModel, authViewModel, journalsViewModel, context)
@@ -208,14 +209,14 @@ private fun bottomBar(navController: NavController, currentDestination: String?,
 
     val navItems = listOf(
         BottomNavigationItem(
-            title = "Journals",
+            title = stringResource(R.string.journals),
             //route= if(descriptionViewModel.uiState.movieInfo != null)listOf("JournalsScreen", "ContentReviewScreen") else listOf("JournalsScreen", "ContentReviewScreen", "ContentDescriptionScreen"),
             route = listOf("JournalsScreen", "ContentReviewScreen", "LocalContentDescriptionScreen"),
             selectedIcon = Icons.Default.Article,
             unselectedIcon = Icons.Filled.Article,
         ),
         BottomNavigationItem(
-            title = "Gallery",
+            title = stringResource(R.string.gallery),
             //route=if(descriptionViewModel.uiState.movieInfo != null)listOf("GalleryScreen", "ContentDescriptionScreen") else listOf("GalleryScreen"),
             route = listOf("GalleryScreen", "ContentDescriptionScreen"),
             selectedIcon = Icons.Default.ManageSearch,

@@ -58,6 +58,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
@@ -128,7 +129,7 @@ fun ContentDescriptionScreen(
             Content(descriptionViewModel)
         } else
             Text(
-                text = "Грузится",
+                text = stringResource(R.string.loading),
                 fontSize = 14.sp,
                 color = MaterialTheme.colorScheme.secondary,
                 lineHeight = 16.sp
@@ -144,21 +145,18 @@ fun ContentDescriptionScreen(
         MaterialDialog(
             dialogState = dateDialogueState,
             buttons = {
-                positiveButton(text = "Принять") {
-                    //Toast.makeText(context, "", Toast.LENGTH_SHORT).show()
-                    //scheduleNotification(13, 55, 2024, 4, 9, context)
-                    //val createNotification = CreateNotification(context)
-                    //createNotification.showNotification()
+                positiveButton(text = stringResource(R.string.accept)) {
+
                     //val createNotification = CreateNotification(context)
                     //createNotification.scheduleNotification(2024, Calendar.APRIL, 9, 14, 28)
                 }
-                negativeButton (text = "Отменить")
+                negativeButton (text = stringResource(R.string.cancel))
             }
         )
         {
             datepicker (
                 initialDate = LocalDate.now(),
-                title = "Выберите дату",
+                title = stringResource(R.string.select_a_date),
             ){
                 descriptionViewModel.changeDateToWatch(DateTimeFormatter.ofPattern("dd/MM/yyyy").format(it))
             }
@@ -167,21 +165,17 @@ fun ContentDescriptionScreen(
         MaterialDialog(
             dialogState = timeDialogueState,
             buttons = {
-                positiveButton(text = "Принять") {
-                    //Toast.makeText(context, "", Toast.LENGTH_SHORT).show()
-                    //scheduleNotification(13, 55, 2024, 4, 9, context)
-                    //val createNotification = CreateNotification(context)
-                    //createNotification.showNotification()
+                positiveButton(text = stringResource(R.string.accept)) {
                     //val createNotification = CreateNotification(context)
                     //createNotification.scheduleNotification(2024, Calendar.APRIL, 9, 14, 28)
                 }
-                negativeButton (text = "Отменить")
+                negativeButton (text = stringResource(R.string.cancel))
             }
         )
         {
             timepicker (
                 initialTime = LocalTime.now(),
-                title = "Выберите время",
+                title = stringResource(R.string.select_a_time),
                 is24HourClock = true
             ){
                 descriptionViewModel.changeTimeToWatch(it.hour, it.minute)
@@ -202,7 +196,7 @@ private fun Content(descriptionViewModel: DescriptionViewModel) {
     ) {
         GlideImage(
             model = if (descriptionViewModel.uiState.movieInfo != null) descriptionViewModel.uiState.movieInfo?.poster?.url else descriptionViewModel.uiState.roomMovieInfoForRetrofit?.posterUrl,
-            contentDescription = "Постер фильма",
+            contentDescription = stringResource(R.string.poster_not_loaded),
             modifier = Modifier
                 .height(280.dp)
                 .border(4.dp, MaterialTheme.colorScheme.primary),
@@ -221,7 +215,7 @@ private fun Content(descriptionViewModel: DescriptionViewModel) {
                             fontWeight = FontWeight.Bold
                         )
                     ) {
-                        append("Год: ")
+                        append("${stringResource(R.string.year)}: ")
                     }
                     withStyle(
                         style = SpanStyle(
@@ -243,7 +237,7 @@ private fun Content(descriptionViewModel: DescriptionViewModel) {
                             fontWeight = FontWeight.Bold
                         )
                     ) {
-                        append("Оценка КП: ")
+                        append(stringResource(R.string.kp_rating_short))
                     }
                     withStyle(
                         style = SpanStyle(
@@ -265,7 +259,7 @@ private fun Content(descriptionViewModel: DescriptionViewModel) {
                             fontWeight = FontWeight.Bold
                         )
                     ) {
-                        append("Жанр: \n")
+                        append("${stringResource(R.string.genre)}: \n")
                     }
                     withStyle(
                         style = SpanStyle(
@@ -300,7 +294,7 @@ private fun Content(descriptionViewModel: DescriptionViewModel) {
                             fontWeight = FontWeight.Bold
                         )
                     ) {
-                        append("Время: ")
+                        append("${stringResource(R.string.time)}: ")
                     }
                     withStyle(
                         style = SpanStyle(
@@ -322,7 +316,7 @@ private fun Content(descriptionViewModel: DescriptionViewModel) {
                             fontWeight = FontWeight.Bold
                         )
                     ) {
-                        append("Возраст: ")
+                        append("${stringResource(R.string.age)}: ")
                     }
                     withStyle(
                         style = SpanStyle(
@@ -344,7 +338,7 @@ private fun Content(descriptionViewModel: DescriptionViewModel) {
                             fontWeight = FontWeight.Bold
                         )
                     ) {
-                        append("Бюджет: \n")
+                        append("${stringResource(R.string.budget)}: \n")
                     }
                     withStyle(
                         style = SpanStyle(
@@ -366,7 +360,7 @@ private fun Content(descriptionViewModel: DescriptionViewModel) {
                             fontWeight = FontWeight.Bold
                         )
                     ) {
-                        append("Сборы в мире: \n")
+                        append("${stringResource(R.string.fees_world)}: \n")
                     }
                     withStyle(
                         style = SpanStyle(
@@ -394,13 +388,12 @@ private fun Content(descriptionViewModel: DescriptionViewModel) {
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "Сезоны и серии",
+            text = stringResource(R.string.seasons_and_episodes),
             color = MaterialTheme.colorScheme.primary,
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold
         )
 
-        //Log.d("R", "Сериес: ${descriptionViewModel.uiState.movieInfo?.seasonsInfo}")
         LazyRow(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
@@ -423,7 +416,7 @@ private fun Content(descriptionViewModel: DescriptionViewModel) {
     Spacer(modifier = Modifier.height(8.dp))
 
     Text(
-        text = "Режиссёры",
+        text = stringResource(R.string.directors),
         color = MaterialTheme.colorScheme.primary,
         fontSize = 20.sp,
         fontWeight = FontWeight.Bold
@@ -447,7 +440,7 @@ private fun Content(descriptionViewModel: DescriptionViewModel) {
     Spacer(modifier = Modifier.height(8.dp))
 
     Text(
-        text = "Актёры",
+        text = stringResource(R.string.actors),
         color = MaterialTheme.colorScheme.primary,
         fontSize = 20.sp,
         fontWeight = FontWeight.Bold
@@ -471,13 +464,14 @@ private fun Content(descriptionViewModel: DescriptionViewModel) {
 
 @Composable
 fun reminderDialogue(descriptionViewModel: DescriptionViewModel, authViewModel: AuthViewModel, journalsViewModel: JournalsViewModel, dateDialogueState: MaterialDialogState, timeDialogueState: MaterialDialogState, context: Context) {
+    val titleForNotification = stringResource(R.string.time_to_watch)
     AlertDialog(
         icon = {
             //Icon(icon, contentDescription = "Example Icon")
         },
         title = {
             Text(
-                text = "Установить напоминание",
+                text = stringResource(R.string.set_a_reminder),
                 fontSize = 22.sp,
                 fontWeight = FontWeight.SemiBold
             )
@@ -487,7 +481,7 @@ fun reminderDialogue(descriptionViewModel: DescriptionViewModel, authViewModel: 
                  Row() {
 
                      ClickableText(
-                         text = AnnotatedString("Выберите дату: "),
+                         text = AnnotatedString("${stringResource(R.string.select_a_date)}: "),
                          style = TextStyle(
                              fontSize = 16.sp,
                          ),
@@ -506,7 +500,7 @@ fun reminderDialogue(descriptionViewModel: DescriptionViewModel, authViewModel: 
                 Row() {
 
                     ClickableText(
-                        text = AnnotatedString("Выберите время: "),
+                        text = AnnotatedString("${stringResource(R.string.select_a_time)}: "),
                         style = TextStyle(
                             fontSize = 16.sp,
                         ),
@@ -531,7 +525,7 @@ fun reminderDialogue(descriptionViewModel: DescriptionViewModel, authViewModel: 
                 onClick = {
                     descriptionViewModel.addMovieToWatchToDB(MoviesToWatchForRetrofit(user = User(id = authViewModel.uiState.user!!.id), movie = descriptionViewModel.uiState.roomMovieInfoForRetrofit, reminderDate = descriptionViewModel.uiState.dateToWatch, reminderHour = descriptionViewModel.uiState.hoursToWatch, reminderMinute = descriptionViewModel.uiState.minutesToWatch))
                     journalsViewModel.addMovieToWatchToLocalDB(MoviesToWatch(userId = authViewModel.uiState.user!!.id, movieId = descriptionViewModel.uiState.roomMovieInfoForRetrofit?.id!!, reminderDate = descriptionViewModel.uiState.dateToWatch, reminderHour = descriptionViewModel.uiState.hoursToWatch, reminderMinute = descriptionViewModel.uiState.minutesToWatch))
-                    val createNotification = CreateNotification(context, "Пора смотреть!", descriptionViewModel.uiState.roomMovieInfoForRetrofit?.name?:"")
+                    val createNotification = CreateNotification(context, titleForNotification, descriptionViewModel.uiState.roomMovieInfoForRetrofit?.name?:"")
                     createNotification.scheduleNotification(
                         descriptionViewModel.uiState.dateToWatch?.substringAfterLast("/")?.toInt()?:2024,
                         descriptionViewModel.uiState.dateToWatch?.substringAfter("/")?.substringBefore("/")?.removePrefix("0")?.toInt()
@@ -550,7 +544,7 @@ fun reminderDialogue(descriptionViewModel: DescriptionViewModel, authViewModel: 
                     descriptionViewModel.updateReminderDialogueStatus(false)
                 }
             ) {
-                Text("Напомнить")
+                Text(stringResource(R.string.remind))
             }
         },
         dismissButton = {
@@ -561,7 +555,7 @@ fun reminderDialogue(descriptionViewModel: DescriptionViewModel, authViewModel: 
                     descriptionViewModel.changeTimeToWatch(null, null)
                 }
             ) {
-                Text("Отменить")
+                Text(stringResource(R.string.cancel))
             }
         }
     )

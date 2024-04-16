@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -26,6 +27,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import com.example.cinemajournal.R
 import com.example.cinemajournal.data.models.RoomModels.RoomMovieInfo
 import com.example.cinemajournal.data.models.RoomModels.RoomMovieInfoForRetrofit
 import com.example.cinemajournal.ui.theme.screens.viewmodels.DescriptionViewModel
@@ -73,7 +75,7 @@ fun cinemaItemColumnLocalDB(item: RoomMovieInfoForRetrofit, selectedIndex: Int, 
         ) {
             GlideImage(
                 model = item.posterUrl,
-                contentDescription = "Poster of cinema",
+                contentDescription = stringResource(R.string.poster_not_loaded),
                 contentScale = ContentScale.Fit,
                 modifier = Modifier
                     .padding(start = 10.dp, bottom = 10.dp)
@@ -82,7 +84,7 @@ fun cinemaItemColumnLocalDB(item: RoomMovieInfoForRetrofit, selectedIndex: Int, 
             Column(modifier = Modifier
                 .padding(start = 8.dp, end = 8.dp, bottom = 10.dp)) {
                 Text(
-                    text = item.name ?: "Нет названия",
+                    text = item.name ?: stringResource(R.string.no_name),
                     color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp,
@@ -120,7 +122,7 @@ fun cinemaItemColumnLocalDB(item: RoomMovieInfoForRetrofit, selectedIndex: Int, 
                         .clip(shape = RoundedCornerShape(4.dp))
                         .background(MaterialTheme.colorScheme.tertiary)
                         .padding(2.dp),
-                    text = "Рейтин кинопоиска: " + item.kpRating.toString(),
+                    text = "${stringResource(R.string.kp_rating)}: " + item.kpRating.toString(),
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
                     fontSize = 12.sp,

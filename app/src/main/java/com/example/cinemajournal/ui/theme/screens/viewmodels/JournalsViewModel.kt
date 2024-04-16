@@ -127,7 +127,7 @@ class JournalsViewModel @Inject constructor(
                 .onFailure {
                     Log.d(
                         "R",
-                        "${id}; Проблема с получением данных пользователя: ${it.message}",
+                        "${id}; Проблема с получением данных пользователя из бд: ${it.message}",
                     )
                 }
         }
@@ -554,47 +554,9 @@ class JournalsViewModel @Inject constructor(
         }
     }
 
-    /*fun getCountriesFromLocalDB(movieId: Int){
-        viewModelScope.launch {
-            kotlin.runCatching { getCountriesByIdFromLocalDBUseCase(movieId) }
-                .onSuccess { response ->
-                    Log.d(
-                        "R",
-                        "Страны для фильма получены",
-                    )
-                    uiState = uiState.copy(countries = response)
-                }
-                .onFailure {
-                    Log.d(
-                        "R",
-                        "Страны для фильма не получены: ${it.message}",
-                    )
-                }
-        }
-    }*/
-
     fun setCountries(countries: List<CountriesForRetrofit>?) {
         uiState = uiState.copy(countries = countries)
     }
-
-    /*fun getGenresFromLocalDB(movieId: Int){
-        viewModelScope.launch {
-            kotlin.runCatching { getGenresByIdFromLocalDBUseCase(movieId) }
-                .onSuccess { response ->
-                    Log.d(
-                        "R",
-                        "Жанры для фильма получены",
-                    )
-                    uiState = uiState.copy(genres = response)
-                }
-                .onFailure {
-                    Log.d(
-                        "R",
-                        "Жанры для фильма не получены: ${it.message}",
-                    )
-                }
-        }
-    }*/
 
     fun setGenres(genres: List<GenresForRetrofit>?) {
         uiState = uiState.copy(genres = genres)
