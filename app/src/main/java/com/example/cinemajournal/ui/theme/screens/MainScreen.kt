@@ -75,6 +75,7 @@ fun MainScreen(context: MainActivity,
         }
         if(authViewModel.uiState.user != null){
             if(!isOnline(context)){
+                galleryViewModel.refreshTops(authViewModel.uiState.user?.role?:0)
                 navController.navigate("JournalsScreen"){
                     popUpTo(0)
                     Log.d("R", "${journalsViewModel.uiState.user}",)
@@ -84,6 +85,7 @@ fun MainScreen(context: MainActivity,
                 Log.d("R", "проверяем вход\n${authViewModel.uiState.user}\n${journalsViewModel.uiState.user}",)
                 if(journalsViewModel.uiState.user != null){
                     journalsViewModel.startUpdateLocalDB(journalsViewModel.uiState.user!!)
+                    galleryViewModel.refreshTops(authViewModel.uiState.user?.role?:0)
                     navController.navigate("JournalsScreen"){
                         popUpTo(0)
                         Log.d("R", "${journalsViewModel.uiState.user}",)
@@ -174,7 +176,7 @@ fun MainScreen(context: MainActivity,
             Column {
                 NavHost(navController = navController, startDestination = startDestination) {
                     composable("EntranceScreen") {
-                        EntranceScreen(navController, authViewModel, journalsViewModel)
+                        EntranceScreen(navController, authViewModel, journalsViewModel, galleryViewModel)
                     }
                     composable("JournalsScreen") {
                         JournalsScreen(navController, journalsViewModel, reviewViewModel, galleryViewModel, descriptionViewModel)

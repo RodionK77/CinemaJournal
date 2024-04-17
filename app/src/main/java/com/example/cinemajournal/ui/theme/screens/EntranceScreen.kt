@@ -33,11 +33,12 @@ import com.example.cinemajournal.R
 import com.example.cinemajournal.data.models.SignInRequest
 import com.example.cinemajournal.data.models.SignUpRequest
 import com.example.cinemajournal.ui.theme.screens.viewmodels.AuthViewModel
+import com.example.cinemajournal.ui.theme.screens.viewmodels.GalleryViewModel
 import com.example.cinemajournal.ui.theme.screens.viewmodels.JournalsViewModel
 
 
 @Composable
-fun EntranceScreen(navController: NavController, authViewModel: AuthViewModel, journalsViewModel: JournalsViewModel) {
+fun EntranceScreen(navController: NavController, authViewModel: AuthViewModel, journalsViewModel: JournalsViewModel, galleryViewModel: GalleryViewModel) {
 
     Column(
         modifier = Modifier
@@ -56,7 +57,7 @@ fun EntranceScreen(navController: NavController, authViewModel: AuthViewModel, j
         }
 
         if (authViewModel.uiState.buttonLoginState) {
-            checkLogin(navController, context, authViewModel, journalsViewModel)
+            checkLogin(navController, context, authViewModel, journalsViewModel, galleryViewModel)
         }
 
         TextField(
@@ -157,7 +158,7 @@ fun checkAuth(context: Context, authViewModel: AuthViewModel) {
 }
 
 @Composable
-fun checkLogin(navController: NavController, context: Context, authViewModel: AuthViewModel, journalsViewModel: JournalsViewModel) {
+fun checkLogin(navController: NavController, context: Context, authViewModel: AuthViewModel, journalsViewModel: JournalsViewModel, galleryViewModel: GalleryViewModel) {
 
     if(authViewModel.uiState.user != null){
 
@@ -168,6 +169,8 @@ fun checkLogin(navController: NavController, context: Context, authViewModel: Au
             journalsViewModel.startUpdateLocalDB(journalsViewModel.uiState.user!!)
 
             authViewModel.saveUserToDatabase(authViewModel.uiState.user!!)
+
+            galleryViewModel.refreshTops(authViewModel.uiState.user?.role?:0)
 
             navController.navigate("JournalsScreen"){
                 popUpTo(0)

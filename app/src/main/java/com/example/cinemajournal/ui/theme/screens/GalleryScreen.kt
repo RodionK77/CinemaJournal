@@ -297,6 +297,8 @@ fun GalleryScreen(
                     }
 
                     var ageIsExpanded by rememberSaveable { mutableStateOf(false) }
+                    var ageState1 by rememberSaveable { mutableStateOf("") }
+                    var ageState2 by rememberSaveable { mutableStateOf("") }
                     if(authViewModel.uiState.user?.role?:0 == 0) {
                         HorizontalDivider()
                         Row(
@@ -319,9 +321,10 @@ fun GalleryScreen(
                                 contentDescription = stringResource(R.string.expand)
                             )
                         }
+                    } else {
+                        ageState1 = "0"
+                        ageState2 = "12"
                     }
-                    var ageState1 by rememberSaveable { mutableStateOf("") }
-                    var ageState2 by rememberSaveable { mutableStateOf("") }
                     if(ageIsExpanded){
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
@@ -494,6 +497,8 @@ fun GalleryScreen(
                     ElevatedButton(onClick = {
                         var typeList:MutableList<String> = mutableListOf()
 
+                        galleryViewModel.changeSearchState(true)
+
                         if(typeState1.value){
                             typeList.add("movie")
                         }
@@ -655,51 +660,64 @@ fun BasicScreen(
     authViewModel: AuthViewModel
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
-        if(authViewModel.uiState.user?.role?:0 == 0) {
-            Column(
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                //.padding(innerPadding)
+                .padding(start = 16.dp, end = 16.dp)
+                .verticalScroll(ScrollState(0)),
+        ) {
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+                text = stringResource(R.string.worth_a_look),
+                color = MaterialTheme.colorScheme.primary,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.SemiBold
+            )
+            LazyRow(
                 modifier = Modifier
-                    .fillMaxSize()
-                    //.padding(innerPadding)
-                    .padding(start = 16.dp, end = 16.dp)
-                    .verticalScroll(ScrollState(0)),
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.onSecondary),
             ) {
-                Spacer(modifier = Modifier.height(6.dp))
-                Text(
-                    text = stringResource(R.string.worth_a_look),
-                    color = MaterialTheme.colorScheme.primary,
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.SemiBold
-                )
-                LazyRow(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.onSecondary),
-                ) {
-                    itemsIndexed(
-                        galleryViewModel.uiState.topMoviesInfo?.toList()!!
-                    ) { _, item ->
-                        cinemaItemRow(
-                            item = item,
-                            galleryViewModel = galleryViewModel,
-                            descriptionViewModel,
-                            navController = navController
-                        )
-                    }
+                itemsIndexed(
+                    galleryViewModel.uiState.topMoviesInfo?.toList()!!
+                ) { _, item ->
+                    cinemaItemRow(
+                        item = item,
+                        galleryViewModel = galleryViewModel,
+                        descriptionViewModel,
+                        navController = navController
+                    )
                 }
             }
+        }
 
-            if (galleryViewModel.uiState.isSearch) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Color.Black.copy(alpha = 0.6f))
-                        .pointerInput(Unit) {}
-                )
-            }
+        if(authViewModel.uiState.user?.role?:0 == 0) {
+            nonKidsTops(navController = navController, galleryViewModel = galleryViewModel, descriptionViewModel = descriptionViewModel)
         } else {
-            Text(text = "Детские подборки")
+            kidsTops(navController = navController, galleryViewModel = galleryViewModel, descriptionViewModel = descriptionViewModel)
+        }
+
+        if (galleryViewModel.uiState.isSearch) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.6f))
+                    .pointerInput(Unit) {}
+            )
         }
     }
+}
+
+@Composable
+fun nonKidsTops(navController: NavController, galleryViewModel: GalleryViewModel, descriptionViewModel: DescriptionViewModel){
+
+}
+
+@Composable
+fun kidsTops(navController: NavController, galleryViewModel: GalleryViewModel, descriptionViewModel: DescriptionViewModel){
+
 }
 
 @Composable

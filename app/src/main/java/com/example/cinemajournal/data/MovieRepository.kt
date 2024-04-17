@@ -75,6 +75,10 @@ class MovieRepository @Inject constructor(private val moviesApi: MoviesApi) {
         return moviesApi.getTop20Movies()
     }
 
+    suspend fun getTop20Kids(): MovieListResponse?{
+        return moviesApi.getTop20KidsMovies()
+    }
+
     suspend fun getSearchMovies(query: String): MovieListResponse?{
         return moviesApi.getMoviesByName(query = query)
     }

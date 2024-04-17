@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.cinemajournal.Domain.movieUseCases.GetFilteredMoviesUseCase
 import com.example.cinemajournal.Domain.movieUseCases.GetSearchMoviesUseCase
+import com.example.cinemajournal.Domain.movieUseCases.GetTop20KidsMoviesUseCase
 import com.example.cinemajournal.Domain.movieUseCases.GetTop20MoviesUseCase
 import com.example.cinemajournal.Domain.movieUseCases.RefreshMoviesUseCase
 import com.example.cinemajournal.Domain.movieUseCases.RefreshSearchMoviesUseCase
@@ -20,6 +21,7 @@ import javax.inject.Inject
 
 data class ItemsCompilationUiState(
     val topMoviesInfo  : ArrayList<MovieInfo> = arrayListOf(),
+    val userRole: Int = 0,
     val selectedMovieId: Int = 0,
     val isSearch: Boolean = false,
     val searchQuery: String = "",
@@ -32,24 +34,33 @@ data class ItemsCompilationUiState(
 )
 
 @HiltViewModel
-class GalleryViewModel @Inject constructor (val refreshMoviesUseCase: RefreshMoviesUseCase,
-                                            val getTop20MoviesUseCase: GetTop20MoviesUseCase,
-                                            val refreshSearchMoviesUseCase: RefreshSearchMoviesUseCase,
-                                            val getSearchMoviesUseCase: GetSearchMoviesUseCase,
-                                            val getFilteredMoviesUseCase: GetFilteredMoviesUseCase) : ViewModel(){
+class GalleryViewModel @Inject constructor (private val refreshMoviesUseCase: RefreshMoviesUseCase,
+                                            private val getTop20MoviesUseCase: GetTop20MoviesUseCase,
+                                            private val getTop20KidsMoviesUseCase: GetTop20KidsMoviesUseCase,
+                                            private val refreshSearchMoviesUseCase: RefreshSearchMoviesUseCase,
+                                            private val getSearchMoviesUseCase: GetSearchMoviesUseCase,
+                                            private val getFilteredMoviesUseCase: GetFilteredMoviesUseCase) : ViewModel(){
 
     var uiState by mutableStateOf(ItemsCompilationUiState())
         private set
 
-    init {
+    /*init {
         refreshTops()
-    }
+    }*/
 
-    fun refreshTops() {
-        viewModelScope.launch {
-            kotlin.runCatching { getTop20MoviesUseCase() }
-                .onSuccess { uiState = uiState.copy(topMoviesInfo = it?.movieInfo ?: arrayListOf()) }
-                .onFailure { Log.d("R", "Данные подборки 1 не загрузились: ${it.message}", ) }
+    fun refreshTops(role: Int) {
+        if (role == 0){
+            viewModelScope.launch {
+                kotlin.runCatching { getTop20MoviesUseCase() }
+                    .onSuccess { uiState = uiState.copy(topMoviesInfo = it?.movieInfo ?: arrayListOf()) }
+                    .onFailure { Log.d("R", "Данные подборки 1 не загрузились: ${it.message}", ) }
+            }
+        } else {
+            viewModelScope.launch {
+                kotlin.runCatching { getTop20KidsMoviesUseCase() }
+                    .onSuccess { uiState = uiState.copy(topMoviesInfo = it?.movieInfo ?: arrayListOf()) }
+                    .onFailure { Log.d("R", "Данные подборки 1 не загрузились: ${it.message}", ) }
+            }
         }
     }
 
