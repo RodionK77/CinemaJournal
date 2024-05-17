@@ -17,6 +17,8 @@ import com.example.cinemajournal.Domain.moviesDBUseCases.GetCountriesByIdFromLoc
 import com.example.cinemajournal.Domain.moviesDBUseCases.GetDislikesByIdFromLocalDBUseCase
 import com.example.cinemajournal.Domain.moviesDBUseCases.GetGenresByIdFromLocalDBUseCase
 import com.example.cinemajournal.Domain.moviesDBUseCases.GetLikesByIdFromLocalDBUseCase
+import com.example.cinemajournal.Domain.moviesDBUseCases.GetMovieByIdFromLocalDBUseCase
+import com.example.cinemajournal.Domain.moviesDBUseCases.GetMovieFromDBUseCase
 import com.example.cinemajournal.Domain.moviesDBUseCases.GetMoviesFromToWatchFromLocalDBUseCase
 import com.example.cinemajournal.Domain.moviesDBUseCases.GetMoviesFromWatchedFromLocalDBUseCase
 import com.example.cinemajournal.Domain.moviesDBUseCases.GetPersonsByIdFromLocalDBUseCase
@@ -36,11 +38,9 @@ import com.example.cinemajournal.Domain.moviesDBUseCases.SaveWatchedMovieToLocal
 import com.example.cinemajournal.data.models.RoomModels.Countries
 import com.example.cinemajournal.data.models.RoomModels.CountriesForRetrofit
 import com.example.cinemajournal.data.models.RoomModels.Dislikes
-import com.example.cinemajournal.data.models.RoomModels.DislikesForRetrofit
 import com.example.cinemajournal.data.models.RoomModels.Genres
 import com.example.cinemajournal.data.models.RoomModels.GenresForRetrofit
 import com.example.cinemajournal.data.models.RoomModels.Likes
-import com.example.cinemajournal.data.models.RoomModels.LikesForRetrofit
 import com.example.cinemajournal.data.models.RoomModels.MoviesToWatch
 import com.example.cinemajournal.data.models.RoomModels.Persons
 import com.example.cinemajournal.data.models.RoomModels.PersonsForRetrofit
@@ -68,9 +68,10 @@ data class JournalsUiState(
     val persons: List<Persons>? = null,
     val seasonsInfo: List<SeasonsInfo>? = null,
     val downloadMoviesStatus: Boolean = false,
+    val downloadUsersMoviesStatus: Boolean = false,
     val downloadReviewsStatus: Boolean = false,
     val downloadWatchedMovieStatus: Boolean = false,
-
+    val accountDialogState: Boolean = false
     )
 
 @HiltViewModel
@@ -91,6 +92,8 @@ class JournalsViewModel @Inject constructor(
     private val getMoviesFromToWatchFromLocalDBUseCase: GetMoviesFromToWatchFromLocalDBUseCase,
     private val getMoviesFromWatchedFromLocalDBUseCase: GetMoviesFromWatchedFromLocalDBUseCase,
     private val getMovieByIdUseCase: GetMovieByIdUseCase,
+    private val getMovieFromDBUseCase: GetMovieFromDBUseCase,
+    private val getMovieByIdFromLocalDBUseCase: GetMovieByIdFromLocalDBUseCase,
     private val deleteAllMoviesFromLocalDBUseCase: DeleteAllMoviesFromLocalDBUseCase,
     private val deleteMovieByIdFromLocalDBUseCase: DeleteMovieByIdFromLocalDBUseCase,
     private val deleteWatchedMovieByIdFromLocalDBUseCase: DeleteWatchedMovieByIdFromLocalDBUseCase,
@@ -116,6 +119,10 @@ class JournalsViewModel @Inject constructor(
 
     fun changeSelectedTabIndex(id: Int) {
         uiState = uiState.copy(selectedTabIndex = id)
+    }
+
+    fun changeAccountDialogState(b: Boolean) {
+        uiState = uiState.copy(accountDialogState = b)
     }
 
     fun getUserFromDB(id: Int) {
@@ -407,8 +414,8 @@ class JournalsViewModel @Inject constructor(
                             genres = genres,
                             persons = persons,
                             seasonsInfo = seasonsInfo,
-                            review = ReviewForRetrofit(
-                                user = User(id = uiState.user!!.id),
+                            reviews = ReviewForRetrofit(
+                                user = User(id = uiState.user?.id ?: 0),
                                 movie = null,
                                 contentId = it.id,
                                 rating = review?.rating ?: 0.0,
@@ -425,7 +432,7 @@ class JournalsViewModel @Inject constructor(
                         )
                         Log.d(
                             "R",
-                            "Ревью того фильма: ${movie.review}",
+                            "Ревью того фильма: ${movie.reviews}",
                         )
                         countries = mutableListOf()
                         genres = mutableListOf()
@@ -570,9 +577,12 @@ class JournalsViewModel @Inject constructor(
         )
 
         viewModelScope.launch {
+
             loadAndWriteMovies(user)
 
-            while (!uiState.downloadMoviesStatus) {
+            loadAndWriteUsersMovies(user)
+
+            while (!uiState.downloadMoviesStatus && !uiState.downloadUsersMoviesStatus) {
                 Log.d(
                     "R",
                     "ждём загрузки фильмов",
@@ -603,7 +613,8 @@ class JournalsViewModel @Inject constructor(
             "уникальные фильмы: ${user.getAllUniqueMovies()}",
         )
         uiState = uiState.copy(downloadMoviesStatus = false)
-        user.getAllUniqueMovies().forEach { movieId ->
+        user.getAllUniqueMovies().filter { it < 19000000 }.forEach { movieId ->
+
             viewModelScope.launch {
                 kotlin.runCatching {
                     getMovieByIdUseCase(
@@ -688,6 +699,101 @@ class JournalsViewModel @Inject constructor(
                         Log.d("R", "Фильм не загрузился: ${it.message}")
                         if (movieId == user.getAllUniqueMovies().last()) {
                             uiState = uiState.copy(downloadMoviesStatus = true)
+                        }
+                    }
+            }
+        }
+    }
+
+    fun loadAndWriteUsersMovies(user: UserForRetrofit) {
+        Log.d(
+            "R",
+            "уникальные фильмы: ${user.getAllUniqueMovies()}",
+        )
+        uiState = uiState.copy(downloadUsersMoviesStatus = false)
+        user.getAllUniqueMovies().filter { it > 19000000 }.forEach { movieId ->
+
+            viewModelScope.launch {
+                kotlin.runCatching {
+                    getMovieFromDBUseCase(
+                        movieId
+                    )
+                }
+                    .onSuccess { movieInfo ->
+                        Log.d("R", "Фильм из просмотренных загрузился: ${movieInfo!!.id}")
+                        viewModelScope.launch {
+                            kotlin.runCatching {
+                                saveMovieToLocalDBUseCase(
+                                    RoomMovieInfo(
+                                        id = movieInfo?.id ?: 0,
+                                        name = movieInfo?.name ?: "",
+                                        feesWorld = movieInfo?.feesWorld ?: 0,
+                                        feesUsa = movieInfo?.feesUsa ?: 0,
+                                        budget = movieInfo?.budget ?: 0,
+                                        posterUrl = movieInfo?.posterUrl ?: "",
+                                        worldPremier = movieInfo?.worldPremier ?: "",
+                                        russiaPremier = movieInfo?.russiaPremier ?: "",
+                                        kpRating = movieInfo?.kpRating ?: 0.0,
+                                        imdbRating = movieInfo?.imdbRating ?: 0.0,
+                                        movieLength = movieInfo?.movieLength ?: 0,
+                                        type = movieInfo?.type ?: "",
+                                        typeNumber = movieInfo?.typeNumber ?: 0,
+                                        description = movieInfo?.description ?: "",
+                                        year = movieInfo?.year ?: 0,
+                                        alternativeName = movieInfo?.alternativeName ?: "",
+                                        enName = movieInfo?.enName ?: "",
+                                        ageRating = movieInfo?.ageRating.toString(),
+                                        isSeries = movieInfo?.isSeries,
+                                        seriesLength = movieInfo?.seriesLength,
+                                        totalSeriesLength = movieInfo?.totalSeriesLength,
+                                    )
+                                )
+                            }
+                                .onSuccess {
+                                    Log.d("R", "Фильм пользователя записался")
+                                    writeCountriesToLocalDB(
+                                        (movieInfo?.countriesStr?.split(", ")
+                                            ?.map { com.example.example.Countries(it) }
+                                            ?: emptyList()),
+                                        movieInfo.id!!
+                                    )
+                                    writeGenresToLocalDB(
+                                        (movieInfo?.genresStr?.split(", ")
+                                            ?.map { com.example.example.Genres(it) }
+                                            ?: emptyList()),
+                                        movieInfo.id!!
+                                    )
+
+                                    if (movieId == user.getAllUniqueMovies().last()) {
+                                        uiState = uiState.copy(downloadUsersMoviesStatus = true)
+                                        Log.d(
+                                            "R",
+                                            "стейт: ${uiState.downloadMoviesStatus}",
+                                        )
+                                    }
+                                }
+                                .onFailure {
+                                    Log.d(
+                                        "R",
+                                        "Фильм пользователя не записался: ${it.message}",
+                                    )
+                                    if (movieId == user.getAllUniqueMovies().last()) {
+                                        uiState = uiState.copy(downloadUsersMoviesStatus = true)
+                                    }
+                                }
+                        }
+                    }
+                    .onFailure {
+                        viewModelScope.launch {
+                            saveMovieToLocalDBUseCase(
+                                RoomMovieInfo(
+                                    id = movieId,
+                                )
+                            )
+                        }
+                        Log.d("R", "Фильм пользователя не загрузился: ${it.message}")
+                        if (movieId == user.getAllUniqueMovies().last()) {
+                            uiState = uiState.copy(downloadUsersMoviesStatus = true)
                         }
                     }
             }
@@ -823,30 +929,29 @@ class JournalsViewModel @Inject constructor(
     }
 
     fun writeMoviesToWatch(user: UserForRetrofit) {
-        if (uiState.downloadMoviesStatus) {
-            user.moviesToWatches?.forEach {
 
-                viewModelScope.launch {
-                    delay(250)
-                    kotlin.runCatching {
-                        saveMovieToWatchToLocalDBUseCase(
-                            MoviesToWatch(
-                                userId = user.id,
-                                movieId = it.contentId ?: 0,
-                                reminderDate = it.reminderDate,
-                                reminderHour = it.reminderHour,
-                                reminderMinute = it.reminderMinute
-                            )
+        user.moviesToWatches?.forEach {
+
+            viewModelScope.launch {
+                delay(250)
+                kotlin.runCatching {
+                    saveMovieToWatchToLocalDBUseCase(
+                        MoviesToWatch(
+                            userId = user.id,
+                            movieId = it.contentId ?: 0,
+                            reminderDate = it.reminderDate,
+                            reminderHour = it.reminderHour,
+                            reminderMinute = it.reminderMinute
+                        )
+                    )
+                }
+                    .onSuccess { Log.d("R", "Фильмы к просмотру загрузились") }
+                    .onFailure {
+                        Log.d(
+                            "R",
+                            "Фильмы к просмотру не загрузились: ${it.message}"
                         )
                     }
-                        .onSuccess { Log.d("R", "Фильмы к просмотру загрузились") }
-                        .onFailure {
-                            Log.d(
-                                "R",
-                                "Фильмы к просмотру не загрузились: ${it.message}"
-                            )
-                        }
-                }
             }
         }
 

@@ -1,11 +1,7 @@
 package com.example.cinemajournal.data.models.RoomModels
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-import com.example.cinemajournal.data.models.SeasonsInfo
-
 data class RoomMovieInfoForRetrofit (
-    var id: Int,
+    var id: Int? = null,
     var name: String? = null,
     var feesWorld: Long = 0,
     var feesUsa: Long = 0,
@@ -30,5 +26,7 @@ data class RoomMovieInfoForRetrofit (
     var genres: List<GenresForRetrofit>? = null,
     var persons: List<PersonsForRetrofit>? = null,
     var seasonsInfo: List<SeasonsInfoForRetrofit>? = null,
-    var review: ReviewForRetrofit? = null
+    var reviews: ReviewForRetrofit? = null,
+    var countriesStr: String? = null,
+    var genresStr: String? = null,
     )

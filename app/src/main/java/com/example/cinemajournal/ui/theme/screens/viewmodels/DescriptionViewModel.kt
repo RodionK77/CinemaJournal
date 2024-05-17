@@ -129,7 +129,7 @@ class DescriptionViewModel @Inject constructor(private val getMovieByIdUseCase: 
                 .onSuccess { response ->
                     Log.d("R", response.toString(), )
                 }
-                .onFailure { Log.d("R", "Проблема при добавлении фильма: ${it.message}", ) }
+                .onFailure { Log.d("R", "Проблема при добавлении фильма в сеть: ${it.message}", ) }
         }
     }
 

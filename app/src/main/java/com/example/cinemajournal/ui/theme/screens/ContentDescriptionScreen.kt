@@ -73,6 +73,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import com.bumptech.glide.integration.compose.placeholder
 import com.example.cinemajournal.CinemaRowModel
 import com.example.cinemajournal.ItemRowModel
 import com.example.cinemajournal.R
@@ -195,8 +196,18 @@ private fun Content(descriptionViewModel: DescriptionViewModel) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         GlideImage(
-            model = if (descriptionViewModel.uiState.movieInfo != null) descriptionViewModel.uiState.movieInfo?.poster?.url else descriptionViewModel.uiState.roomMovieInfoForRetrofit?.posterUrl,
+            model =
+                if (descriptionViewModel.uiState.movieInfo != null) {
+                    descriptionViewModel.uiState.movieInfo?.poster?.url?:R.drawable.poster_placeholder
+                } else if(descriptionViewModel.uiState.roomMovieInfoForRetrofit != null) {
+                    descriptionViewModel.uiState.roomMovieInfoForRetrofit?.posterUrl?:R.drawable.poster_placeholder
+                } else {
+                    painterResource(id = R.drawable.poster_placeholder)
+                }
+            ,
             contentDescription = stringResource(R.string.poster_not_loaded),
+            //loading = placeholder(painterResource(id = R.drawable.poster_placeholder)),
+            //failure = placeholder(painterResource(id = R.drawable.poster_placeholder)),
             modifier = Modifier
                 .height(280.dp)
                 .border(4.dp, MaterialTheme.colorScheme.primary),

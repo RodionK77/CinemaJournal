@@ -18,4 +18,5 @@ data class UserForRetrofit(
         watchedMovies?.forEach { uniqueMovies.add(it.contentId!!) }
         return uniqueMovies.toSet()
     }
+
 }

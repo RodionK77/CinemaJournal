@@ -1,19 +1,7 @@
 package com.example.cinemajournal.ui.theme.screens
-import android.Manifest
 import android.annotation.SuppressLint
-import android.app.AlarmManager
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
 import android.content.Context
-import android.content.Context.NOTIFICATION_SERVICE
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.os.Build
-import android.util.Log
-import android.widget.DatePicker
 import android.widget.Toast
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -38,8 +26,6 @@ import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Grade
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -48,18 +34,14 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -67,44 +49,26 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.app.ActivityCompat
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
-import com.example.cinemajournal.ItemRowModel
 import com.example.cinemajournal.R
 import com.example.cinemajournal.data.models.RoomModels.Dislikes
-import com.example.cinemajournal.data.models.RoomModels.DislikesForRetrofit
 import com.example.cinemajournal.data.models.RoomModels.Likes
-import com.example.cinemajournal.data.models.RoomModels.LikesForRetrofit
 import com.example.cinemajournal.data.models.RoomModels.Review
 import com.example.cinemajournal.data.models.RoomModels.ReviewForRetrofit
 import com.example.cinemajournal.data.models.RoomModels.RoomMovieInfoForRetrofit
-import com.example.cinemajournal.data.models.RoomModels.User
 import com.example.cinemajournal.ui.theme.screens.viewmodels.AuthViewModel
-import com.example.cinemajournal.ui.theme.screens.viewmodels.DescriptionViewModel
-import com.example.cinemajournal.ui.theme.screens.viewmodels.ItemDescriptionUiState
 import com.example.cinemajournal.ui.theme.screens.viewmodels.ReviewViewModel
-import com.example.compose.AppTheme
 import com.smarttoolfactory.ratingbar.RatingBar
 import com.vanpra.composematerialdialogs.MaterialDialog
 import com.vanpra.composematerialdialogs.datetime.date.datepicker
 import com.vanpra.composematerialdialogs.rememberMaterialDialogState
-import kotlinx.html.InputType
 import java.time.LocalDate
-import java.time.LocalTime
 import java.time.format.DateTimeFormatter
-import java.util.Calendar
-import java.util.Date
 import androidx.work.*
-import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -133,19 +97,19 @@ private fun Content(reviewViewModel: ReviewViewModel, authViewModel: AuthViewMod
         }
 
         if(reviewViewModel.uiState.likesForReview == null){
-            reviewViewModel.changeLikes(reviewViewModel.uiState.roomMovieInfoForRetrofit?.review?.likes?.toMutableList())
+            reviewViewModel.changeLikes(reviewViewModel.uiState.roomMovieInfoForRetrofit?.reviews?.likes?.toMutableList())
         }
         if(reviewViewModel.uiState.dislikesForReview == null){
-            reviewViewModel.changeDislikes(reviewViewModel.uiState.roomMovieInfoForRetrofit?.review?.dislikes?.toMutableList())
+            reviewViewModel.changeDislikes(reviewViewModel.uiState.roomMovieInfoForRetrofit?.reviews?.dislikes?.toMutableList())
         }
         if(reviewViewModel.uiState.rating == null){
-            reviewViewModel.changeRating(reviewViewModel.uiState.roomMovieInfoForRetrofit?.review?.rating?.toFloat()?:0.0f)
+            reviewViewModel.changeRating(reviewViewModel.uiState.roomMovieInfoForRetrofit?.reviews?.rating?.toFloat()?:0.0f)
         }
         if(reviewViewModel.uiState.reviewText == null){
-            reviewViewModel.changeReviewText(reviewViewModel.uiState.roomMovieInfoForRetrofit?.review?.notes?:"")
+            reviewViewModel.changeReviewText(reviewViewModel.uiState.roomMovieInfoForRetrofit?.reviews?.notes?:"")
         }
         if(reviewViewModel.uiState.dateWatched == null){
-            reviewViewModel.changeDate(reviewViewModel.uiState.roomMovieInfoForRetrofit?.review?.dateWatched)
+            reviewViewModel.changeDate(reviewViewModel.uiState.roomMovieInfoForRetrofit?.reviews?.dateWatched)
         }
 
 
@@ -154,8 +118,8 @@ private fun Content(reviewViewModel: ReviewViewModel, authViewModel: AuthViewMod
 
         var dialogueSate by rememberSaveable { mutableStateOf(false) }
 
-        var likes: List<Likes>? = reviewViewModel.uiState.roomMovieInfoForRetrofit?.review?.likes
-        var dislikes: List<Dislikes>? = reviewViewModel.uiState.roomMovieInfoForRetrofit?.review?.dislikes
+        //var likes: List<Likes>? = reviewViewModel.uiState.roomMovieInfoForRetrofit?.review?.likes
+        //var dislikes: List<Dislikes>? = reviewViewModel.uiState.roomMovieInfoForRetrofit?.review?.dislikes
 
         val dateDialogueState = rememberMaterialDialogState()
 
@@ -164,7 +128,9 @@ private fun Content(reviewViewModel: ReviewViewModel, authViewModel: AuthViewMod
             verticalAlignment = Alignment.CenterVertically,
         ) {
             GlideImage(
-                model = reviewViewModel.uiState.roomMovieInfoForRetrofit?.posterUrl,
+                model = reviewViewModel.uiState.roomMovieInfoForRetrofit?.posterUrl?:R.drawable.poster_placeholder,
+                //loading = placeholder(painterResource(id = R.drawable.poster_placeholder)),
+                //failure = placeholder(painterResource(id = R.drawable.poster_placeholder)),
                 contentDescription = stringResource(R.string.poster_not_loaded),
                 modifier = Modifier
                     .height(280.dp)
@@ -516,7 +482,7 @@ private fun Content(reviewViewModel: ReviewViewModel, authViewModel: AuthViewMod
         Button(onClick = {
 
             reviewViewModel.addReviewToDB(ReviewForRetrofit(user = authViewModel.uiState.user, movie = RoomMovieInfoForRetrofit(id = reviewViewModel.uiState.roomMovieInfoForRetrofit?.id?:0), contentId = reviewViewModel.uiState.roomMovieInfoForRetrofit?.id?:0, rating = reviewViewModel.uiState.rating?.toDouble()?:0.0, notes = reviewViewModel.uiState.reviewText, likes = reviewViewModel.uiState.likesForReview, dislikes = reviewViewModel.uiState.dislikesForReview, dateWatched = reviewViewModel.uiState.dateWatched))
-            reviewViewModel.saveReviewToLocalDB(review = Review(userId = authViewModel.uiState.user?.id?:0, movieId = reviewViewModel.uiState.roomMovieInfoForRetrofit?.id?:0, contentId = reviewViewModel.uiState.roomMovieInfoForRetrofit!!.id, rating = reviewViewModel.uiState.rating?.toDouble()?:0.0, notes = reviewViewModel.uiState.reviewText, dateWatched = reviewViewModel.uiState.dateWatched))
+            reviewViewModel.saveReviewToLocalDB(review = Review(userId = authViewModel.uiState.user?.id?:0, movieId = reviewViewModel.uiState.roomMovieInfoForRetrofit?.id?:0, contentId = reviewViewModel.uiState.roomMovieInfoForRetrofit!!.id?:0, rating = reviewViewModel.uiState.rating?.toDouble()?:0.0, notes = reviewViewModel.uiState.reviewText, dateWatched = reviewViewModel.uiState.dateWatched))
 
             reviewViewModel.deleteLikesFromLocalDB(reviewViewModel.uiState.roomMovieInfoForRetrofit?.id?:0)
             reviewViewModel.uiState.likesForReview?.forEach{

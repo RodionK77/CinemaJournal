@@ -7,5 +7,5 @@ data class CountriesForRetrofit (
     var countriesId: Int?,
     val contentId: Int?,
     var name: String? = null,
-    val movieId: Int? = null
+    var movieId: Int? = null
 )

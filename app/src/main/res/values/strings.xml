@@ -71,4 +71,10 @@
     <string name="remind_to_watch">Напомнить посмотреть</string>
     <string name="review">Отзыв на фильм</string>
     <string name="rating">Рейтинг</string>
+    <string name="name">Название</string>
+    <string name="understand">Понятно</string>
+    <string name="exit_from_account">Выйти из аккаунта</string>
+    <string name="common_account">Обычный аккаунт</string>
+    <string name="kid_account">Детский аккаунт</string>
+    <string name="account_info">Информация об аккаунте</string>
 </resources>

@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 
 data class GenresForRetrofit (
     var genresId: Int?,
-    val contentId: Int?,
+    var contentId: Int?,
     var name: String? = null,
     var movieId: Int? = null
 )

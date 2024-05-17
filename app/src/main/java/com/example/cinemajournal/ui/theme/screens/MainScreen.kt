@@ -41,6 +41,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.cinemajournal.MainActivity
 import com.example.cinemajournal.R
 import com.example.cinemajournal.data.models.RoomModels.User
+import com.example.cinemajournal.ui.theme.screens.viewmodels.AdditionViewModel
 import com.example.cinemajournal.ui.theme.screens.viewmodels.DescriptionViewModel
 import com.example.cinemajournal.ui.theme.screens.viewmodels.AuthViewModel
 import com.example.cinemajournal.ui.theme.screens.viewmodels.GalleryViewModel
@@ -59,6 +60,7 @@ fun MainScreen(context: MainActivity,
                reviewViewModel: ReviewViewModel = hiltViewModel(),
                authViewModel: AuthViewModel = hiltViewModel(),
                journalsViewModel: JournalsViewModel = hiltViewModel(),
+               additionViewModel: AdditionViewModel = hiltViewModel(),
                ){
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -134,8 +136,11 @@ fun MainScreen(context: MainActivity,
         "ContentDescriptionScreen", "LocalContentDescriptionScreen", "ContentReviewScreen" -> {
             topBarState.value = 2
         }
-        else -> {
+        "ContentAdditionScreen" -> {
             topBarState.value = 3
+        }
+        else -> {
+            topBarState.value = 4
         }
     }
 
@@ -143,14 +148,15 @@ fun MainScreen(context: MainActivity,
         //modifier = modifier,
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = { when(topBarState.value){
-            0-> JournalsToolbar(scrollBehavior = scrollBehavior)
+            0-> JournalsToolbar(scrollBehavior = scrollBehavior, navController = navController, journalsViewModel = journalsViewModel)
             1-> GalleryToolbar(scrollBehavior = scrollBehavior, galleryViewModel, authViewModel)
             2-> ContentToolbar(navController = navController, currentDestination?:"JournalsScreen", descriptionViewModel, reviewViewModel, authViewModel, journalsViewModel)
+            3-> AdditionToolbar(scrollBehavior = scrollBehavior, navController = navController, additionViewModel = additionViewModel)
         } },
         bottomBar = {
             if(topBarState.value != 3)
             bottomBar(navController = navController, currentDestination = currentDestination, descriptionViewModel) },
-        floatingActionButton = {
+        /*floatingActionButton = {
             if(topBarState.value != 3)
             FloatingActionButton(
                 onClick = {
@@ -165,7 +171,7 @@ fun MainScreen(context: MainActivity,
             ) {
                 Icon(Icons.Filled.ExitToApp,"")
             }
-        }
+        }*/
     ){ innerPadding ->
         Surface(
             modifier = Modifier
@@ -179,7 +185,10 @@ fun MainScreen(context: MainActivity,
                         EntranceScreen(navController, authViewModel, journalsViewModel, galleryViewModel)
                     }
                     composable("JournalsScreen") {
-                        JournalsScreen(navController, journalsViewModel, reviewViewModel, galleryViewModel, descriptionViewModel)
+                        JournalsScreen(navController, journalsViewModel, reviewViewModel, galleryViewModel, descriptionViewModel, authViewModel)
+                    }
+                    composable("ContentAdditionScreen") {
+                        ContentAdditionScreen(navController, additionViewModel, authViewModel)
                     }
                     composable("GalleryScreen") {
                         GalleryScreen(navController, galleryViewModel, descriptionViewModel, authViewModel)
@@ -213,7 +222,7 @@ private fun bottomBar(navController: NavController, currentDestination: String?,
         BottomNavigationItem(
             title = stringResource(R.string.journals),
             //route= if(descriptionViewModel.uiState.movieInfo != null)listOf("JournalsScreen", "ContentReviewScreen") else listOf("JournalsScreen", "ContentReviewScreen", "ContentDescriptionScreen"),
-            route = listOf("JournalsScreen", "ContentReviewScreen", "LocalContentDescriptionScreen"),
+            route = listOf("JournalsScreen", "ContentAdditionScreen", "ContentReviewScreen", "LocalContentDescriptionScreen"),
             selectedIcon = Icons.Default.Article,
             unselectedIcon = Icons.Filled.Article,
         ),

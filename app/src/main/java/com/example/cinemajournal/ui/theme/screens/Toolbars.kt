@@ -18,7 +18,9 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Start
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.outlined.AddBox
+import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Contacts
+import androidx.compose.material.icons.outlined.Done
 import androidx.compose.material.icons.outlined.Print
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -65,6 +67,7 @@ import com.example.cinemajournal.data.models.RoomModels.RoomMovieInfoForRetrofit
 import com.example.cinemajournal.data.models.RoomModels.User
 import com.example.cinemajournal.data.models.RoomModels.WatchedMovies
 import com.example.cinemajournal.data.models.RoomModels.WatchedMoviesForRetrofit
+import com.example.cinemajournal.ui.theme.screens.viewmodels.AdditionViewModel
 import com.example.cinemajournal.ui.theme.screens.viewmodels.AuthViewModel
 import com.example.cinemajournal.ui.theme.screens.viewmodels.DescriptionViewModel
 import com.example.cinemajournal.ui.theme.screens.viewmodels.GalleryViewModel
@@ -92,7 +95,7 @@ import java.io.StringReader
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun JournalsToolbar(scrollBehavior: TopAppBarScrollBehavior){
+fun JournalsToolbar(scrollBehavior: TopAppBarScrollBehavior, navController: NavController, journalsViewModel: JournalsViewModel){
 
     MediumTopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
@@ -110,15 +113,65 @@ fun JournalsToolbar(scrollBehavior: TopAppBarScrollBehavior){
             )
         },
         actions = {
-            IconButton(onClick = { /* do something */ }) {
+            IconButton(onClick = {
+                navController.navigate("ContentAdditionScreen")
+            }) {
                 Icon(
                     imageVector = Icons.Outlined.AddBox,
                     contentDescription = "Localized description"
                 )
             }
-            IconButton(onClick = { /* do something */ }) {
+            IconButton(onClick = {
+                journalsViewModel.changeAccountDialogState(true)
+            }) {
                 Icon(
                     imageVector = Icons.Outlined.Contacts,
+                    contentDescription = "Localized description"
+                )
+            }
+        },
+        scrollBehavior = scrollBehavior
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AdditionToolbar(scrollBehavior: TopAppBarScrollBehavior, navController: NavController, additionViewModel: AdditionViewModel){
+
+    MediumTopAppBar(
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            titleContentColor = MaterialTheme.colorScheme.onSurface,
+        ),
+        title = {
+            Text("Добавление фильма", maxLines = 1, overflow = TextOverflow.Ellipsis, fontSize = 24.sp)
+        },
+        navigationIcon = {
+            IconButton(onClick = {
+                navController.navigateUp()
+                additionViewModel.changeId(null)
+                //descriptionViewModel.refreshCurrentMovieInfo(null)
+                //descriptionViewModel.refreshCurrentMovieInfoRoom(null)
+            }) {
+                Icon(
+                    imageVector = Icons.Filled.ArrowBack,
+                    contentDescription = "Back"
+                )
+            }
+        },
+        actions = {
+            /*IconButton(onClick = { /* do something */ }) {
+                Icon(
+                    imageVector = Icons.Outlined.Done,
+                    contentDescription = "Localized description"
+                )
+            }*/
+            IconButton(onClick = {
+                navController.navigateUp()
+                additionViewModel.clearAllField()
+            }) {
+                Icon(
+                    imageVector = Icons.Outlined.Close,
                     contentDescription = "Localized description"
                 )
             }

@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -27,6 +28,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import com.bumptech.glide.integration.compose.placeholder
 import com.example.cinemajournal.R
 import com.example.cinemajournal.ui.theme.screens.viewmodels.DescriptionViewModel
 import com.example.cinemajournal.ui.theme.screens.viewmodels.GalleryViewModel
@@ -70,8 +72,10 @@ fun cinemaItemColumn(item: MovieInfo, navController: NavController, galleryViewM
 
         ) {
             GlideImage(
-                model = item.poster?.url,
+                model = item.poster?.url?:R.drawable.poster_placeholder,
                 contentDescription = stringResource(R.string.poster_not_loaded),
+                //loading = placeholder(painterResource(id = R.drawable.poster_placeholder)),
+                //failure = placeholder(painterResource(id = R.drawable.poster_placeholder)),
                 contentScale = ContentScale.Fit,
                 modifier = Modifier
                     .padding(start = 10.dp, bottom = 10.dp)
