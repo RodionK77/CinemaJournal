@@ -1,8 +1,6 @@
 package com.example.cinemajournal.ui.theme.screens.viewmodels
 
 import android.util.Log
-import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -10,8 +8,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.cinemajournal.Domain.movieUseCases.GetFilteredMoviesUseCase
 import com.example.cinemajournal.Domain.movieUseCases.GetSearchMoviesUseCase
+import com.example.cinemajournal.Domain.movieUseCases.GetTop20InterestedKidsMoviesUseCase
+import com.example.cinemajournal.Domain.movieUseCases.GetTop20InterestedMoviesUseCase
 import com.example.cinemajournal.Domain.movieUseCases.GetTop20KidsMoviesUseCase
+import com.example.cinemajournal.Domain.movieUseCases.GetTop20KidsSeriesUseCase
 import com.example.cinemajournal.Domain.movieUseCases.GetTop20MoviesUseCase
+import com.example.cinemajournal.Domain.movieUseCases.GetTop20SeriesUseCase
 import com.example.cinemajournal.Domain.movieUseCases.RefreshMoviesUseCase
 import com.example.cinemajournal.Domain.movieUseCases.RefreshSearchMoviesUseCase
 import com.example.example.MovieInfo
@@ -21,6 +23,8 @@ import javax.inject.Inject
 
 data class ItemsCompilationUiState(
     val topMoviesInfo  : ArrayList<MovieInfo> = arrayListOf(),
+    val topInterestedMoviesInfo  : ArrayList<MovieInfo> = arrayListOf(),
+    val topSeriesInfo  : ArrayList<MovieInfo> = arrayListOf(),
     val userRole: Int = 0,
     val selectedMovieId: Int = 0,
     val isSearch: Boolean = false,
@@ -36,7 +40,11 @@ data class ItemsCompilationUiState(
 @HiltViewModel
 class GalleryViewModel @Inject constructor (private val refreshMoviesUseCase: RefreshMoviesUseCase,
                                             private val getTop20MoviesUseCase: GetTop20MoviesUseCase,
+                                            private val getTop20SeriesUseCase: GetTop20SeriesUseCase,
                                             private val getTop20KidsMoviesUseCase: GetTop20KidsMoviesUseCase,
+                                            private val getTop20KidsSeriesUseCase: GetTop20KidsSeriesUseCase,
+                                            private val getTop20InterestedMoviesUseCase: GetTop20InterestedMoviesUseCase,
+                                            private val getTop20InterestedKidsMoviesUseCase: GetTop20InterestedKidsMoviesUseCase,
                                             private val refreshSearchMoviesUseCase: RefreshSearchMoviesUseCase,
                                             private val getSearchMoviesUseCase: GetSearchMoviesUseCase,
                                             private val getFilteredMoviesUseCase: GetFilteredMoviesUseCase) : ViewModel(){
@@ -54,12 +62,24 @@ class GalleryViewModel @Inject constructor (private val refreshMoviesUseCase: Re
                 kotlin.runCatching { getTop20MoviesUseCase() }
                     .onSuccess { uiState = uiState.copy(topMoviesInfo = it?.movieInfo ?: arrayListOf()) }
                     .onFailure { Log.d("R", "Данные подборки 1 не загрузились: ${it.message}", ) }
+                kotlin.runCatching { getTop20InterestedMoviesUseCase() }
+                    .onSuccess { uiState = uiState.copy(topInterestedMoviesInfo = it?.movieInfo ?: arrayListOf()) }
+                    .onFailure { Log.d("R", "Данные подборки 2 не загрузились: ${it.message}", ) }
+                kotlin.runCatching { getTop20SeriesUseCase() }
+                    .onSuccess { uiState = uiState.copy(topSeriesInfo = it?.movieInfo ?: arrayListOf()) }
+                    .onFailure { Log.d("R", "Данные подборки 3 не загрузились: ${it.message}", ) }
             }
         } else {
             viewModelScope.launch {
                 kotlin.runCatching { getTop20KidsMoviesUseCase() }
                     .onSuccess { uiState = uiState.copy(topMoviesInfo = it?.movieInfo ?: arrayListOf()) }
                     .onFailure { Log.d("R", "Данные подборки 1 не загрузились: ${it.message}", ) }
+                kotlin.runCatching { getTop20InterestedKidsMoviesUseCase() }
+                    .onSuccess { uiState = uiState.copy(topInterestedMoviesInfo = it?.movieInfo ?: arrayListOf()) }
+                    .onFailure { Log.d("R", "Данные подборки 2 не загрузились: ${it.message}", ) }
+                kotlin.runCatching { getTop20KidsSeriesUseCase() }
+                    .onSuccess { uiState = uiState.copy(topSeriesInfo = it?.movieInfo ?: arrayListOf()) }
+                    .onFailure { Log.d("R", "Данные подборки 3 не загрузились: ${it.message}", ) }
             }
         }
     }

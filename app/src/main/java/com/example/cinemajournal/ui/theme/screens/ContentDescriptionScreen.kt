@@ -357,7 +357,7 @@ private fun Content(descriptionViewModel: DescriptionViewModel) {
                             color = MaterialTheme.colorScheme.primary,
                         )
                     ) {
-                        append(if (descriptionViewModel.uiState.movieInfo != null) "${descriptionViewModel.uiState.movieInfo?.budget?.value} $" else "${descriptionViewModel.uiState.roomMovieInfoForRetrofit?.budget} $")
+                        append(if (descriptionViewModel.uiState.movieInfo != null) "${descriptionViewModel.uiState.movieInfo?.budget?.value?:0} $" else "${descriptionViewModel.uiState.roomMovieInfoForRetrofit?.budget?:0} $")
                     }
                 }
             )
@@ -379,7 +379,7 @@ private fun Content(descriptionViewModel: DescriptionViewModel) {
                             color = MaterialTheme.colorScheme.primary,
                         )
                     ) {
-                        append(if (descriptionViewModel.uiState.movieInfo != null) "${descriptionViewModel.uiState.movieInfo?.fees?.world?.value} $" else "${descriptionViewModel.uiState.roomMovieInfoForRetrofit?.feesWorld} $")
+                        append(if (descriptionViewModel.uiState.movieInfo != null) "${descriptionViewModel.uiState.movieInfo?.fees?.world?.value?:0} $" else "${descriptionViewModel.uiState.roomMovieInfoForRetrofit?.feesWorld?:0} $")
                     }
                 }
             )

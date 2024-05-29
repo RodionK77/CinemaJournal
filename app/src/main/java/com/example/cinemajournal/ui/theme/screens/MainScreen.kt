@@ -68,9 +68,6 @@ fun MainScreen(context: MainActivity,
     val topBarState = rememberSaveable { (mutableStateOf(0)) }
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
-    //if(!authViewModel.uiState.isLoginProcess && )
-    //authViewModel.getAllUser()
-
     if(currentDestination == "EntranceScreen"){
         if(!authViewModel.uiState.isRefreshLoginProcess){
             authViewModel.getAllUser()
@@ -98,33 +95,7 @@ fun MainScreen(context: MainActivity,
 
     }
 
-    /*if (authViewModel.uiState.user != null){
-        navController.navigate("JournalsScreen"){
-            popUpTo(0)
-        }
-    }*/
-
-    //authViewModel.refreshUser()
-    //galleryViewModel.refreshTops()
-
-//    GlobalScope.launch(Dispatchers.Main) {
-//        Log.d("R", "начало скоп", )
-//        users = authViewModel.uiState.allUsers
-//        Log.d("R", users.toString(), )
-//    }
-
     var startDestination = "EntranceScreen"
-
-//    var startDestination = if (
-//        GlobalScope.launch(Dispatchers.Main) {
-//            authViewModel.uiState.allUsers.isNotEmpty()
-//        }
-//    )  {
-//        authViewModel.changeUser(authViewModel.uiState.allUsers[0])
-//        "JournalsScreen"
-//    } else {
-//        "EntranceScreen"
-//    }
 
     when (navBackStackEntry?.destination?.route) {
         "JournalsScreen" -> {
@@ -148,30 +119,15 @@ fun MainScreen(context: MainActivity,
         //modifier = modifier,
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = { when(topBarState.value){
-            0-> JournalsToolbar(scrollBehavior = scrollBehavior, navController = navController, journalsViewModel = journalsViewModel)
+            0-> JournalsToolbar(scrollBehavior = scrollBehavior, navController = navController, journalsViewModel = journalsViewModel, authViewModel = authViewModel)
             1-> GalleryToolbar(scrollBehavior = scrollBehavior, galleryViewModel, authViewModel)
             2-> ContentToolbar(navController = navController, currentDestination?:"JournalsScreen", descriptionViewModel, reviewViewModel, authViewModel, journalsViewModel)
             3-> AdditionToolbar(scrollBehavior = scrollBehavior, navController = navController, additionViewModel = additionViewModel)
         } },
         bottomBar = {
-            if(topBarState.value != 3)
+            if(topBarState.value != 4)
             bottomBar(navController = navController, currentDestination = currentDestination, descriptionViewModel) },
-        /*floatingActionButton = {
-            if(topBarState.value != 3)
-            FloatingActionButton(
-                onClick = {
-                    authViewModel.deleteUserById(authViewModel.uiState.user!!.id)
-                    journalsViewModel.deleteAllMoviesFromLocalDB()
-                    authViewModel.changeUser(null)
-                    journalsViewModel.changeUser(null)
-                    authViewModel.signOutUser()
-                    navController.navigate("EntranceScreen"){
-                        popUpTo(0)
-                    }}
-            ) {
-                Icon(Icons.Filled.ExitToApp,"")
-            }
-        }*/
+
     ){ innerPadding ->
         Surface(
             modifier = Modifier

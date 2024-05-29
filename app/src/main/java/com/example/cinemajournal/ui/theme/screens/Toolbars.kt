@@ -95,7 +95,7 @@ import java.io.StringReader
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun JournalsToolbar(scrollBehavior: TopAppBarScrollBehavior, navController: NavController, journalsViewModel: JournalsViewModel){
+fun JournalsToolbar(scrollBehavior: TopAppBarScrollBehavior, navController: NavController, journalsViewModel: JournalsViewModel, authViewModel: AuthViewModel){
 
     MediumTopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
@@ -113,13 +113,15 @@ fun JournalsToolbar(scrollBehavior: TopAppBarScrollBehavior, navController: NavC
             )
         },
         actions = {
-            IconButton(onClick = {
-                navController.navigate("ContentAdditionScreen")
-            }) {
-                Icon(
-                    imageVector = Icons.Outlined.AddBox,
-                    contentDescription = "Localized description"
-                )
+            if(authViewModel.uiState.user?.role == 0){
+                IconButton(onClick = {
+                    navController.navigate("ContentAdditionScreen")
+                }) {
+                    Icon(
+                        imageVector = Icons.Outlined.AddBox,
+                        contentDescription = "Localized description"
+                    )
+                }
             }
             IconButton(onClick = {
                 journalsViewModel.changeAccountDialogState(true)

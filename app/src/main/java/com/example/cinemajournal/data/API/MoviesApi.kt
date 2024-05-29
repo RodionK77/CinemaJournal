@@ -2,7 +2,6 @@ package com.example.cinemajournal.data.API
 
 import com.example.example.MovieInfo
 import com.example.example.MovieListResponse
-import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -17,11 +16,23 @@ import retrofit2.http.Query
 
 interface MoviesApi {
 
-    @GET("/v1.4/movie?page=1&limit=20&selectFields=id&selectFields=name&selectFields=enName&selectFields=alternativeName&selectFields=description&selectFields=type&selectFields=typeNumber&selectFields=isSeries&selectFields=year&selectFields=releaseYears&selectFields=rating&selectFields=ageRating&selectFields=budget&selectFields=movieLength&selectFields=seriesLength&selectFields=genres&selectFields=countries&selectFields=poster&selectFields=persons&selectFields=fees&selectFields=premiere&type=movie&rating.kp=8.0-10&token=${Tokens.TOKEN2}")
+    @GET("/v1.4/movie?page=1&limit=20&selectFields=id&selectFields=name&selectFields=enName&selectFields=alternativeName&selectFields=description&selectFields=type&selectFields=typeNumber&selectFields=isSeries&selectFields=year&selectFields=releaseYears&selectFields=rating&selectFields=ageRating&selectFields=budget&selectFields=movieLength&selectFields=seriesLength&selectFields=genres&selectFields=countries&selectFields=poster&selectFields=persons&selectFields=fees&selectFields=premiere&type=movie&rating.kp=8.0-10&token=${Tokens.TOKEN1}")
+    suspend fun getTop20InterestedMovies(): MovieListResponse
+
+    @GET("/v1.4/movie?page=1&limit=20&selectFields=id&selectFields=name&selectFields=enName&selectFields=alternativeName&selectFields=description&selectFields=type&selectFields=typeNumber&selectFields=isSeries&selectFields=year&selectFields=releaseYears&selectFields=rating&selectFields=ageRating&selectFields=budget&selectFields=movieLength&selectFields=seriesLength&selectFields=genres&selectFields=countries&selectFields=poster&selectFields=persons&selectFields=fees&selectFields=premiere&type=movie&rating.kp=8.0-10&votes.kp=1000000-50000000&lists=top250&token=${Tokens.TOKEN1}")
     suspend fun getTop20Movies(): MovieListResponse
 
-    @GET("/v1.4/movie?page=1&limit=20&selectFields=id&selectFields=name&selectFields=enName&selectFields=alternativeName&selectFields=description&selectFields=type&selectFields=typeNumber&selectFields=isSeries&selectFields=year&selectFields=releaseYears&selectFields=rating&selectFields=ageRating&selectFields=budget&selectFields=movieLength&selectFields=seriesLength&selectFields=genres&selectFields=countries&selectFields=poster&selectFields=persons&selectFields=fees&selectFields=premiere&type=movie&rating.kp=8-10&ageRating=0-12&token=${Tokens.TOKEN2}")
+    @GET("/v1.4/movie?page=1&limit=20&selectFields=id&selectFields=name&selectFields=enName&selectFields=alternativeName&selectFields=description&selectFields=type&selectFields=typeNumber&selectFields=isSeries&selectFields=year&selectFields=releaseYears&selectFields=rating&selectFields=ageRating&selectFields=budget&selectFields=movieLength&selectFields=seriesLength&selectFields=genres&selectFields=countries&selectFields=poster&selectFields=persons&selectFields=fees&selectFields=premiere&type=tv-series&type=animated-series&rating.kp=8.0-10&votes.kp=500000-50000000&token=${Tokens.TOKEN1}")
+    suspend fun getTop20Series(): MovieListResponse
+
+    @GET("/v1.4/movie?page=1&limit=20&selectFields=id&selectFields=name&selectFields=enName&selectFields=alternativeName&selectFields=description&selectFields=type&selectFields=typeNumber&selectFields=isSeries&selectFields=year&selectFields=releaseYears&selectFields=rating&selectFields=ageRating&selectFields=budget&selectFields=movieLength&selectFields=seriesLength&selectFields=genres&selectFields=countries&selectFields=poster&selectFields=persons&selectFields=fees&selectFields=premiere&type=movie&rating.kp=8.0-10&ageRating=0-12&votes.kp=500000-50000000&lists=top250&token=${Tokens.TOKEN1}")
     suspend fun getTop20KidsMovies(): MovieListResponse
+
+    @GET("/v1.4/movie?page=1&limit=20&selectFields=id&selectFields=name&selectFields=enName&selectFields=alternativeName&selectFields=description&selectFields=type&selectFields=typeNumber&selectFields=isSeries&selectFields=year&selectFields=releaseYears&selectFields=rating&selectFields=ageRating&selectFields=budget&selectFields=movieLength&selectFields=seriesLength&selectFields=genres&selectFields=countries&selectFields=poster&selectFields=persons&selectFields=fees&selectFields=premiere&type=movie&rating.kp=8.0-10&ageRating=0-12&token=${Tokens.TOKEN1}")
+    suspend fun getTop20InterestedKidsMovies(): MovieListResponse
+
+    @GET("/v1.4/movie?page=1&limit=20&selectFields=id&selectFields=name&selectFields=enName&selectFields=alternativeName&selectFields=description&selectFields=type&selectFields=typeNumber&selectFields=isSeries&selectFields=year&selectFields=releaseYears&selectFields=rating&selectFields=ageRating&selectFields=budget&selectFields=movieLength&selectFields=seriesLength&selectFields=genres&selectFields=countries&selectFields=poster&selectFields=persons&selectFields=fees&selectFields=premiere&type=tv-series&type=animated-series&rating.kp=8.0-10&ageRating=0-12&votes.kp=100000-50000000&token=${Tokens.TOKEN1}")
+    suspend fun getTop20KidsSeries(): MovieListResponse
 
     /*@GET("/v1.4/movie?page=1&limit=1&selectFields=id&selectFields=name&selectFields=enName&selectFields=alternativeName&selectFields=description&selectFields=type&selectFields=typeNumber&selectFields=isSeries&selectFields=year&selectFields=releaseYears&selectFields=rating&selectFields=ageRating&selectFields=budget&selectFields=movieLength&selectFields=seriesLength&selectFields=genres&selectFields=countries&selectFields=poster&selectFields=persons&selectFields=fees&selectFields=premiere&id={id}&token=")
     fun getMovieById(@Path("id") id: Int): Call<MovieListResponse>*/
@@ -36,13 +47,13 @@ interface MoviesApi {
                           @Query("movieLength") time: String? = "",
                           @Query("genres.name") genresName: List<String>? = listOf(),
                           @Query("countries.name") countriesName: List<String>? = listOf(),
-                          @Query("token") token: String = Tokens.TOKEN2): MovieListResponse
+                          @Query("token") token: String = Tokens.TOKEN1): MovieListResponse
     @GET("/v1.4/movie/search")
     suspend fun getMoviesByName(@Query("page") page: Int = 1,
                           @Query("limit") limit: Int = 20,
                           @Query("query") query: String = "",
-                          @Query("token") token: String = Tokens.TOKEN2): MovieListResponse
+                          @Query("token") token: String = Tokens.TOKEN1): MovieListResponse
 
-    @GET("/v1.4/movie/{id}?token=${Tokens.TOKEN2}")
+    @GET("/v1.4/movie/{id}?token=${Tokens.TOKEN1}")
     suspend fun getMovieById(@Path("id") id: Int): MovieInfo
 }

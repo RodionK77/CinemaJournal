@@ -52,6 +52,8 @@
     <string name="enter_a_genre">Введите жанр</string>
     <string name="enter_a_country">Введите страну</string>
     <string name="worth_a_look">Стоит посмотреть</string>
+    <string name="unknown_and_interesting">Неизведанное и интересное</string>
+    <string name="best_series">Лучшие сериалы</string>
     <string name="viewed">Просмотренное</string>
     <string name="want_to_see">Хочу посмотреть</string>
     <string name="empty_viewed_journal">Журнал просмотренных фильмов пуст</string>

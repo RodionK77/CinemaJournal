@@ -1,26 +1,8 @@
 package com.example.cinemajournal.data
 
-import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.example.cinemajournal.data.API.MoviesApi
-import com.example.cinemajournal.ui.theme.screens.viewmodels.ItemsCompilationUiState
 import com.example.example.MovieInfo
 import com.example.example.MovieListResponse
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.withContext
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -77,6 +59,22 @@ class MovieRepository @Inject constructor(private val moviesApi: MoviesApi) {
 
     suspend fun getTop20Kids(): MovieListResponse?{
         return moviesApi.getTop20KidsMovies()
+    }
+
+    suspend fun getTop20Interested(): MovieListResponse?{
+        return moviesApi.getTop20InterestedMovies()
+    }
+
+    suspend fun getTop20InterestedKids(): MovieListResponse?{
+        return moviesApi.getTop20InterestedKidsMovies()
+    }
+
+    suspend fun getTop20Series(): MovieListResponse?{
+        return moviesApi.getTop20Series()
+    }
+
+    suspend fun getTop20KidsSeries(): MovieListResponse?{
+        return moviesApi.getTop20KidsSeries()
     }
 
     suspend fun getSearchMovies(query: String): MovieListResponse?{

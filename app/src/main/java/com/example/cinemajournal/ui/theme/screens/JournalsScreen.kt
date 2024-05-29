@@ -53,14 +53,6 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun JournalsScreen(navController: NavController, journalsViewModel: JournalsViewModel, reviewViewModel: ReviewViewModel, galleryViewModel: GalleryViewModel, descriptionViewModel: DescriptionViewModel, authViewModel: AuthViewModel) {
 
-    //val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
-
-    //var selectedTabIndex by rememberSaveable{ mutableStateOf(0) }
-
-    /*if(journalsViewModel.uiState.user != null){
-        journalsViewModel.startUpdateLocalDB(journalsViewModel.uiState.user!!)
-    }*/
-
     reviewViewModel.changeLikes(null)
     reviewViewModel.changeDislikes(null)
     reviewViewModel.changeReviewText(null)
@@ -79,9 +71,7 @@ fun JournalsScreen(navController: NavController, journalsViewModel: JournalsView
     Column(
         modifier = Modifier
             .fillMaxSize(),
-            //.padding(innerPadding)
-            //.padding(start = 16.dp, end = 16.dp)
-            //.verticalScroll(ScrollState(0)),
+
     ) {
         TabRow(
             selectedTabIndex = journalsViewModel.uiState.selectedTabIndex,
@@ -172,26 +162,6 @@ fun JournalsScreen(navController: NavController, journalsViewModel: JournalsView
                 } else {
                     Text(stringResource(R.string.empty_wanted_journal))
                 }
-                /*LazyColumn(modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.onSecondary),
-                    horizontalAlignment = Alignment.CenterHorizontally){
-                    itemsIndexed(
-                        listOf(
-                            CinemaRowModel(imageId = R.drawable.poster, title = "Железный человек"),
-                            CinemaRowModel(imageId = R.drawable.poster, title = "Железный человек"),
-                            CinemaRowModel(imageId = R.drawable.poster, title = "Железный человек"),
-                            CinemaRowModel(imageId = R.drawable.poster, title = "Железный человек"),
-                            CinemaRowModel(imageId = R.drawable.poster, title = "Железный человек"),
-                            CinemaRowModel(imageId = R.drawable.poster, title = "Железный человек"),
-                            CinemaRowModel(imageId = R.drawable.poster, title = "Железный человек"),
-                            CinemaRowModel(imageId = R.drawable.poster, title = "Железный человек"),
-                            CinemaRowModel(imageId = R.drawable.poster, title = "Железный человек")
-                        )
-                    ){ _, item ->
-                        cinemaItemColumn(item = item, navController = navController, selectedTabIndex)
-                    }
-                }*/
             }
         }
 

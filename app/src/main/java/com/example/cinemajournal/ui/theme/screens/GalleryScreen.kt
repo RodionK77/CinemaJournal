@@ -21,12 +21,10 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.outlined.AddCircle
-import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DrawerValue
@@ -57,18 +55,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.example.cinemajournal.R
 import com.example.cinemajournal.ui.theme.screens.viewmodels.AuthViewModel
 import com.example.cinemajournal.ui.theme.screens.viewmodels.DescriptionViewModel
 import com.example.cinemajournal.ui.theme.screens.viewmodels.GalleryViewModel
-import com.example.compose.AppTheme
 import kotlinx.coroutines.launch
 
 
@@ -682,6 +675,52 @@ fun BasicScreen(
             ) {
                 itemsIndexed(
                     galleryViewModel.uiState.topMoviesInfo?.toList()!!
+                ) { _, item ->
+                    cinemaItemRow(
+                        item = item,
+                        galleryViewModel = galleryViewModel,
+                        descriptionViewModel,
+                        navController = navController
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+                text = stringResource(R.string.unknown_and_interesting),
+                color = MaterialTheme.colorScheme.primary,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.SemiBold
+            )
+            LazyRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.onSecondary),
+            ) {
+                itemsIndexed(
+                    galleryViewModel.uiState.topInterestedMoviesInfo?.toList()!!
+                ) { _, item ->
+                    cinemaItemRow(
+                        item = item,
+                        galleryViewModel = galleryViewModel,
+                        descriptionViewModel,
+                        navController = navController
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+                text = stringResource(R.string.best_series),
+                color = MaterialTheme.colorScheme.primary,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.SemiBold
+            )
+            LazyRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.onSecondary),
+            ) {
+                itemsIndexed(
+                    galleryViewModel.uiState.topSeriesInfo?.toList()!!
                 ) { _, item ->
                     cinemaItemRow(
                         item = item,
